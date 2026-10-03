@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.Flow
     @Query("UPDATE workout_session SET status=:status,totalPausedMs=:paused,lastActiveAt=:now WHERE id=:id") suspend fun pauseSession(id:Long,status:String,paused:Long,now:Long)
     @Query("SELECT * FROM food WHERE name LIKE '%' || :q || '%' ORDER BY name LIMIT 100") fun searchFoods(q:String):Flow<List<FoodEntity>>
     @Insert suspend fun addFood(value:FoodEntity):Long
+    @Query("SELECT * FROM food WHERE sourceRef=:ref LIMIT 1") suspend fun foodBySourceRef(ref:String):FoodEntity?
     @Insert suspend fun addMeal(value:MealEntryEntity):Long
     @Query("SELECT * FROM meal_entry WHERE date=:date ORDER BY createdAt") fun meals(date:String):Flow<List<MealEntryEntity>>
     @Query("SELECT * FROM meal_entry WHERE date=:date ORDER BY createdAt") suspend fun mealsOnce(date:String):List<MealEntryEntity>
