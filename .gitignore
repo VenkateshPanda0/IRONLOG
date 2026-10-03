@@ -7,3 +7,5 @@ captures/
 .idea/
 .DS_Store
 Ironlog-*-debug.apk
+
+/work/ironlog.git/
