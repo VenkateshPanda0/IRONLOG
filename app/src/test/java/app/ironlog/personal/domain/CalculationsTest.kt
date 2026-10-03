@@ -27,6 +27,13 @@ class CalculationsTest {
         assertEquals(5000L,Calculations.timerRemainingMs(15000L,10000L))
         assertEquals(0L,Calculations.timerRemainingMs(10000L,15000L))
     }
+    @Test fun weightRangesFilterByCalendarMonthAndKeepActualPoints() {
+        val end=LocalDate.parse("2026-10-03")
+        val data=mapOf(end.minusMonths(2) to 71.0,end.minusDays(2) to 70.5,end.minusMonths(4) to 72.0)
+        assertEquals(listOf(70.5),Calculations.filterWeightRange(data,end,"1M").values.toList())
+        assertEquals(2,Calculations.filterWeightRange(data,end,"3M").size)
+        assertEquals(3,Calculations.filterWeightRange(data,end,"ALL").size)
+    }
     @Test fun prReplayFlagsStrictImprovementsOnly() {
         val records=listOf(
             Calculations.Performance(1,100,"COMPLETED","squat",80.0,5,1200.0),

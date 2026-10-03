@@ -17,6 +17,10 @@ object Calculations {
         return if (points.size >= 3) points.average() else null
     }
     fun timerRemainingMs(endAtEpochMs:Long,nowEpochMs:Long)= (endAtEpochMs-nowEpochMs).coerceAtLeast(0L)
+    fun filterWeightRange(values:Map<LocalDate,Double>,end:LocalDate,range:String):Map<LocalDate,Double> {
+        val start=when(range) { "1M"->end.minusMonths(1); "3M"->end.minusMonths(3); "6M"->end.minusMonths(6); "1Y"->end.minusYears(1); else->LocalDate.MIN }
+        return values.filterKeys { it>=start && it<=end }.toSortedMap()
+    }
     data class Performance(val sessionId:Long,val startedAt:Long,val status:String,val exerciseId:String,val weightKg:Double,val reps:Int,val volume:Double)
     data class PersonalRecord(val sessionId:Long,val type:String,val value:Double)
     fun newRecords(completed:List<Performance>):List<PersonalRecord> {

@@ -8,3 +8,5 @@
 - Data assumptions: no third-party data downloaded; seed loader inserts nothing without `assets/seed/exercises.json`. USDA API key/contact values are absent; USDA network lookup is disabled. OFF uses generic contact `unset@example.invalid`.
 - M9 skipped: no supplied `reference/screens/` images.
 - Exact next step: continue implementing as much of M6-M8 and M10 source as possible without builds/tests/downloads; update README and gate records; add local commits/tags marked `*-not-run`; retry remote publication only after GitHub write access or a credentialed terminal becomes available.
+
+- M6 progress source: daily latest-weight aggregation, range filtering and a chart of real recorded values; strength/volume/nutrition charts remain incomplete.
