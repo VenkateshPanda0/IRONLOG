@@ -38,9 +38,11 @@ Per the user's instruction, **all build/test/manual verification gates are NOT R
 
 ## Git publishing
 
-- Workspace `.git` has a deny-write ACL, so normal `git add/commit` fails. A separate local Git metadata directory under ignored `work/` was created for local commits.
-- CLI push failed with Schannel `SEC_E_NO_CREDENTIALS`; GitHub connector branch and contents writes each returned HTTP 403 `Resource not accessible by integration`.
-- No commit has been published to GitHub yet. Local commits/tags are not a substitute for remote publication.
+- The project is published to `origin/main` at `cf18abde4639f403a82bfc2a88b8f96ca33ac176`.
+- The `main` tree contains 45 tracked files, including the application source, five unit-test source files, Gradle configuration, `README.md`, `docs/BRIEF.md`, `docs/STATE.md`, scripts, and `LICENSE`.
+- The `master` application commit (`70696c8`) and `codex/ironlog-progress` history (`0143efd` plus its ancestors) are reachable from `main`. All six `*-not-run` milestone tags remain present.
+- The push of `main` succeeded as a normal fast-forward. Existing remote `master` and `codex/ironlog-progress` refs could not be deleted: GitHub returned `remote ref does not exist` for both names at deletion time even though a subsequent fetch still reports them. Branch deletion therefore remains unresolved and needs inspection in GitHub's branch settings or repository permissions.
+- The working tree was clean at the time of remote verification. No build or test gates were run; see the gate table above.
 
 ## Assumptions and deviations
 
