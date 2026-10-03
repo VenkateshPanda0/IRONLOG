@@ -20,7 +20,12 @@ import kotlinx.coroutines.flow.Flow
     @Update suspend fun updateSet(value:SetLogEntity)
     @Query("SELECT * FROM set_log WHERE id=:id") suspend fun set(id:Long):SetLogEntity?
     @Query("UPDATE workout_session SET status=:status,endedAt=:ended,lastActiveAt=:now WHERE id=:id") suspend fun finishSession(id:Long,status:String,ended:Long?,now:Long)
-    @Query("UPDATE workout_session SET status=:status,totalPausedMs=:paused,lastActiveAt=:now WHERE id=:id") suspend fun pauseSession(id:Long,status:String,paused:Long,now:Long)
+    @Query("UPDATE workout_session SET status='PAUSED',pausedAt=:now,lastActiveAt=:now WHERE id=:id AND status='IN_PROGRESS'") suspend fun pauseSession(id:Long,now:Long)
+    @Query("UPDATE workout_session SET status='IN_PROGRESS',totalPausedMs=totalPausedMs+CASE WHEN pausedAt IS NULL THEN 0 ELSE :now-pausedAt END,pausedAt=NULL,lastActiveAt=:now WHERE id=:id AND status='PAUSED'") suspend fun resumeSession(id:Long,now:Long)
+    @Query("UPDATE session_exercise SET status=:status WHERE id=:id") suspend fun setExerciseStatus(id:Long,status:String)
+    @Insert(onConflict=OnConflictStrategy.REPLACE) suspend fun saveRestTimer(value:RestTimerEntity)
+    @Query("SELECT * FROM rest_timer WHERE id=1") suspend fun restTimer():RestTimerEntity?
+    @Query("DELETE FROM rest_timer WHERE id=1") suspend fun clearRestTimer()
     @Query("SELECT * FROM food WHERE name LIKE '%' || :q || '%' ORDER BY name LIMIT 100") fun searchFoods(q:String):Flow<List<FoodEntity>>
     @Insert suspend fun addFood(value:FoodEntity):Long
     @Query("SELECT * FROM food WHERE sourceRef=:ref LIMIT 1") suspend fun foodBySourceRef(ref:String):FoodEntity?

@@ -11,8 +11,12 @@ class WorkoutRepository(private val db:IronlogDatabase) {
     val active=dao.activeSession(); val history=dao.history()
     suspend fun start(name:String,rows:List<Triple<String,String,Int>>,programId:Long?=null,day:String?=null)=db.withTransaction { dao.startWorkout(name,programId,day,rows) }
     suspend fun completeSet(id:Long,weightKg:Double?,reps:Int?) { dao.set(id)?.let { dao.updateSet(it.copy(weightKg=weightKg,reps=reps,isCompleted=true,completedAt=System.currentTimeMillis())) } }
+    suspend fun saveSetDraft(id:Long,weightKg:Double?,reps:Int?) { dao.set(id)?.let { dao.updateSet(it.copy(weightKg=weightKg,reps=reps)) } }
+    suspend fun setCompleted(id:Long,completed:Boolean) { dao.set(id)?.let { dao.updateSet(it.copy(isCompleted=completed,completedAt=if(completed) System.currentTimeMillis() else null)) } }
     suspend fun finish(id:Long)=dao.finishSession(id,"COMPLETED",System.currentTimeMillis(),System.currentTimeMillis())
-    suspend fun pause(id:Long)=dao.pauseSession(id,"PAUSED",System.currentTimeMillis(),System.currentTimeMillis())
+    suspend fun pause(id:Long)=dao.pauseSession(id,System.currentTimeMillis())
+    suspend fun resume(id:Long)=dao.resumeSession(id,System.currentTimeMillis())
+    suspend fun skipExercise(id:Long)=dao.setExerciseStatus(id,"SKIPPED")
 }
 
 class NutritionRepository(private val dao:IronlogDao) {

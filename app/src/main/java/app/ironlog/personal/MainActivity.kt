@@ -13,6 +13,6 @@ import app.ironlog.personal.ui.nav.IronlogRoot
 
 class MainActivity:ComponentActivity() {
     override fun onCreate(savedInstanceState:Bundle?) { super.onCreate(savedInstanceState); val container=(application as IronlogApp).container
-        setContent { var dark by remember { mutableStateOf(true) }; IronlogTheme(dark) { IronlogRoot(container,onTheme={dark=it}) } }
+        setContent { val theme by container.theme.collectAsState(initial="DARK"); IronlogTheme(theme!="LIGHT") { IronlogRoot(container,onTheme={}) } }
     }
 }

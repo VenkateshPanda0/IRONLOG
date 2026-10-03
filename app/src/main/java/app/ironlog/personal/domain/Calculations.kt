@@ -16,6 +16,24 @@ object Calculations {
         val points = (0L..6L).mapNotNull { values[end.minusDays(it)] }
         return if (points.size >= 3) points.average() else null
     }
+    fun timerRemainingMs(endAtEpochMs:Long,nowEpochMs:Long)= (endAtEpochMs-nowEpochMs).coerceAtLeast(0L)
+    data class Performance(val sessionId:Long,val startedAt:Long,val status:String,val exerciseId:String,val weightKg:Double,val reps:Int,val volume:Double)
+    data class PersonalRecord(val sessionId:Long,val type:String,val value:Double)
+    fun newRecords(completed:List<Performance>):List<PersonalRecord> {
+        val rows=completed.filter { it.status=="COMPLETED" }.sortedBy { it.startedAt }
+        val records=mutableListOf<PersonalRecord>()
+        rows.groupBy { it.exerciseId }.forEach { (_,performances) ->
+            val bestByRep=mutableMapOf<Int,Double>(); var bestE1rm=Double.NEGATIVE_INFINITY; var bestVolume=Double.NEGATIVE_INFINITY
+            performances.forEach { current ->
+                for(target in listOf(1,3,5,8,10)) if(current.reps>=target && current.weightKg> (bestByRep[target]?:Double.NEGATIVE_INFINITY)) {
+                    records += PersonalRecord(current.sessionId,"${target}RM",current.weightKg); bestByRep[target]=current.weightKg
+                }
+                e1rm(current.weightKg,current.reps)?.let { value -> if(value>bestE1rm) { records+=PersonalRecord(current.sessionId,"E1RM",value); bestE1rm=value } }
+                if(current.volume>bestVolume) { records+=PersonalRecord(current.sessionId,"VOLUME",current.volume); bestVolume=current.volume }
+            }
+        }
+        return records
+    }
     fun targetCalories(sex: String, weightKg: Double, heightCm: Double, age: Int, activity: Double, goal: String): Int {
         val offset = if (sex.equals("male", true)) 5 else -161
         val bmr = 10 * weightKg + 6.25 * heightCm - 5 * age + offset

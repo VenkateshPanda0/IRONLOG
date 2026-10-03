@@ -43,3 +43,7 @@ The brief's full feature set is not complete: database schema is only a v1 scaff
 ## License and attribution
 
 Ironlog is independent and not affiliated with any fitness brand. Third-party attributions above apply only if the corresponding source data is added later.
+
+## Current source status update
+
+The active workout draft now persists typed set edits, completion state and pause/resume timestamps. The rest-timer controller stores an absolute deadline, reschedules inexact alarms and posts one completion notification when notification permission is already granted. Permission prompting, reboot rescheduling, process-death/device verification and notification behavior have not been tested. The Open Food Facts provider performs explicit text/barcode lookup, filters incomplete macros and caches records in Room; no live request was made. USDA is a disabled placeholder, not a working provider.

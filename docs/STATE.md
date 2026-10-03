@@ -1,10 +1,10 @@
 # Ironlog build state
 
 - Last passing milestone/tag: none; all gates are deliberately NOT RUN.
-- Local source milestones authored so far: M1 project foundation and partial M2 Room/domain scaffold. No remote GitHub commit has succeeded.
-- In progress: finish source-only implementation/documentation with all verification disabled by user request.
-- Failed: ordinary workspace Git write blocked by `.git` deny-write ACL; direct CLI push failed due missing GitHub credentials; GitHub connector write calls returned 403. No build/test was attempted.
-- Environment assumptions: AGP 8.7.3, Gradle 8.9, Kotlin 2.0.21, KSP 2.0.21-1.0.28, Compose BOM 2024.12.01, Room 2.6.1, compile/target SDK 35, min SDK 26, Java 17. These versions are pinned but compatibility/sync is unverified.
-- Data assumptions: no third-party data was downloaded; seed loader inserts nothing. USDA API key and OFF personal contact are absent. USDA provider is not implemented; OFF placeholder is `unset@example.invalid`.
-- M9: skipped because there are no supplied `reference/screens/` images.
-- Exact next step: continue source authoring without running builds/tests/downloads; add explicit unit test source; complete README and feature/source status; create local milestone commits/tags marked `*-not-run`; then retry GitHub publishing through an authenticated route if one becomes available. Finish by updating this file and `BUILD_LOG.md` with all remaining limitations.
+- Source authored: partial M1 foundation; partial M2 Room/repository/domain layer; partial M3 onboarding and rule-based recommendation; partial M4 persistent sessions, set logging, pause/resume, absolute-time rest timer and PR calculation; partial M5 local nutrition/custom food and Open Food Facts lookup/cache. These are implementation notes, not verified completions.
+- In progress: continue source-only work and document incomplete requirements. Build/test/download requests remain disabled by user instruction.
+- Failed: normal `.git` writes blocked by deny-write ACL; Git push failed for missing credentials; GitHub connector branch and content write calls returned HTTP 403. No remote commits have succeeded.
+- Version assumptions: AGP 8.7.3, Gradle 8.9, Kotlin 2.0.21, KSP 2.0.21-1.0.28, Compose BOM 2024.12.01, Room 2.6.1, compile/target SDK 35, min SDK 26, Java 17. Sync/build compatibility is unverified.
+- Data assumptions: no third-party data downloaded; seed loader inserts nothing without `assets/seed/exercises.json`. USDA API key/contact values are absent; USDA network lookup is disabled. OFF uses generic contact `unset@example.invalid`.
+- M9 skipped: no supplied `reference/screens/` images.
+- Exact next step: continue implementing as much of M6-M8 and M10 source as possible without builds/tests/downloads; update README and gate records; add local commits/tags marked `*-not-run`; retry remote publication only after GitHub write access or a credentialed terminal becomes available.

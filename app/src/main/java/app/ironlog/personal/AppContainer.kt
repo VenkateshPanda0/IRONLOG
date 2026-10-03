@@ -10,6 +10,7 @@ import app.ironlog.personal.data.repo.*
 import app.ironlog.personal.data.seed.SeedLoader
 import app.ironlog.personal.data.provider.OpenFoodFactsProvider
 import app.ironlog.personal.data.provider.UsdaProvider
+import app.ironlog.personal.timer.RestTimerController
 import kotlinx.coroutines.flow.map
 
 private val Context.preferences by preferencesDataStore(name="ironlog_settings")
@@ -20,9 +21,10 @@ class AppContainer(context:Context) {
     val nutrition=NutritionRepository(db.dao())
     val body=BodyRepository(db.dao())
     val programs=ProgramRepository(db)
-    val seed=SeedLoader(db)
+    val seed=SeedLoader(context,db)
     val openFoodFacts=OpenFoodFactsProvider(db.dao())
     val usda=UsdaProvider(null)
+    val restTimer=RestTimerController(context,db.dao())
     val profile=db.dao().profile()
     suspend fun saveProfile(value:app.ironlog.personal.data.db.UserProfileEntity)=db.dao().saveProfile(value)
     suspend fun clearPersonalData() { db.withTransaction { db.dao().clearSessions(); db.dao().clearMeals(); db.dao().clearWeights(); db.dao().clearProfile() } }

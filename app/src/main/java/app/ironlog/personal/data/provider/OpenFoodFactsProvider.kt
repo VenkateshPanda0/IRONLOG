@@ -15,7 +15,7 @@ class OpenFoodFactsProvider(private val dao:IronlogDao,private val contact:Strin
         val ref="off:$barcode"
         dao.foodBySourceRef(ref)?.let { return@withContext it }
         val json=request("https://world.openfoodfacts.org/api/v2/product/${encodePath(barcode)}.json?fields=product_name,brands,nutriments")
-        parseProduct(json,ref)?.also { dao.addFood(it) }
+        parseProduct(json,ref)?.let { food -> food.copy(id=dao.addFood(food)) }
     }
     suspend fun search(text:String):List<FoodEntity> = withContext(Dispatchers.IO) {
         if(text.isBlank()) return@withContext emptyList()
@@ -28,7 +28,7 @@ class OpenFoodFactsProvider(private val dao:IronlogDao,private val contact:Strin
                 val code=p.optString("code").takeIf(String::isNotBlank) ?: continue
                 val ref="off:$code"
                 val cached=dao.foodBySourceRef(ref)
-                add(cached ?: parseProduct(p,ref)?.also { dao.addFood(it) } ?: continue)
+                add(cached ?: parseProduct(p,ref)?.let { food -> food.copy(id=dao.addFood(food)) } ?: continue)
             }
         }
     }

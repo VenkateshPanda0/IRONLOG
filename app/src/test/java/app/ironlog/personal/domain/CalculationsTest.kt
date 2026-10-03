@@ -23,4 +23,18 @@ class CalculationsTest {
         assertNull(Calculations.sevenDayMean(mapOf(day to 70.0,day.minusDays(2) to 72.0),day))
         assertEquals(71.0,Calculations.sevenDayMean(mapOf(day to 70.0,day.minusDays(2) to 72.0,day.minusDays(6) to 71.0),day)!!,1e-9)
     }
+    @Test fun timerUsesAbsoluteEndTimeAndClamps() {
+        assertEquals(5000L,Calculations.timerRemainingMs(15000L,10000L))
+        assertEquals(0L,Calculations.timerRemainingMs(10000L,15000L))
+    }
+    @Test fun prReplayFlagsStrictImprovementsOnly() {
+        val records=listOf(
+            Calculations.Performance(1,100,"COMPLETED","squat",80.0,5,1200.0),
+            Calculations.Performance(2,200,"COMPLETED","squat",80.0,5,1200.0),
+            Calculations.Performance(3,300,"COMPLETED","squat",82.5,5,1300.0),
+            Calculations.Performance(4,400,"DISCARDED","squat",200.0,5,9000.0)
+        )
+        val fresh=Calculations.newRecords(records).filter { it.type=="5RM" }
+        assertEquals(listOf(1L,3L),fresh.map { it.sessionId })
+    }
 }

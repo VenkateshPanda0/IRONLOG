@@ -15,6 +15,7 @@ import app.ironlog.personal.domain.Calculations
 import app.ironlog.personal.domain.Recommender
 import app.ironlog.personal.domain.TrainingProfile
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import java.time.LocalDate
 
 @Composable private fun Page(title:String,content:@Composable ColumnScope.()->Unit) {
@@ -52,13 +53,14 @@ import java.time.LocalDate
 @Composable fun TrainScreen(c:AppContainer) {
     val active by c.workouts.active.collectAsState(initial=null); val programs by c.programs.programs.collectAsState(initial=emptyList()); val history by c.workouts.history.collectAsState(initial=emptyList()); val exercises by c.db.dao().exercises().collectAsState(initial=emptyList()); val scope=rememberCoroutineScope(); var current by remember { mutableStateOf<WorkoutSessionEntity?>(null) }; var showHistory by remember { mutableStateOf(false) }; var exerciseName by remember { mutableStateOf("") }
     Page("Train") {
-        if(active!=null) { Card(Modifier.fillMaxWidth()) { Column(Modifier.padding(16.dp)) { Text("Resume ${active!!.name}"); Button(onClick={current=active}) { Text("Open workout") }; OutlinedButton(onClick={scope.launch { c.workouts.finish(active!!.id) }}) { Text("Finish") } } } }
+        if(active!=null) { Card(Modifier.fillMaxWidth()) { Column(Modifier.padding(16.dp)) { Text("Resume ${active!!.name}"); Button(onClick={scope.launch { if(active!!.status=="PAUSED") c.workouts.resume(active!!.id); current=c.db.dao().session(active!!.id) }}) { Text("Open workout") }; OutlinedButton(onClick={scope.launch { c.workouts.finish(active!!.id); c.restTimer.skip() }}) { Text("Finish") } } } }
         Text("Programs",style=MaterialTheme.typography.titleLarge)
         if(programs.isEmpty()) Text("Built-in program data is not bundled in this delivery. Use Quick workout.") else programs.forEach { Text(it.name) }
         Field("Add a custom exercise",exerciseName,{exerciseName=it})
         OutlinedButton(onClick={scope.launch { if(exerciseName.isNotBlank()) { c.db.dao().putExercise(ExerciseEntity(id="custom_${java.util.UUID.randomUUID()}",name=exerciseName,isCustom=true)); exerciseName="" } }}) { Text("Save exercise") }
         Text("Exercise library · ${exercises.size} on-device entries")
-        Button(onClick={scope.launch { val rows=exercises.take(4).map { Triple(it.id,it.name,3) }; val id=c.workouts.start("Quick workout",rows); current=c.db.dao().session(id) },enabled=active==null) { Text("Start quick workout") }
+        Button(onClick={scope.launch { val rows=exercises.take(4).map { Triple(it.id,it.name,3) }; val id=c.workouts.start("Quick workout",rows); current=c.db.dao().session(id) },enabled=active==null && exercises.isNotEmpty()) { Text("Start quick workout") }
+        if(exercises.isEmpty()) Text("Create a custom exercise above before starting a quick workout.")
         TextButton(onClick={showHistory=true}) { Text("Workout history (${history.size})") }
     }
     current?.let { WorkoutDialog(c,it,{current=null}) }
@@ -67,8 +69,30 @@ import java.time.LocalDate
 
 @Composable private fun WorkoutDialog(c:AppContainer,session:WorkoutSessionEntity,onClose:()->Unit) {
     val rows by c.db.dao().sessionExercises(session.id).collectAsState(initial=emptyList()); val scope=rememberCoroutineScope(); var sets by remember { mutableStateOf<Map<Long,List<SetLogEntity>>>(emptyMap()) }
+    var remaining by remember { mutableLongStateOf(0L) }
     LaunchedEffect(rows) { rows.forEach { e -> sets=sets+(e.id to c.db.dao().setsOnce(e.id)) } }
-    AlertDialog(onDismissRequest=onClose,title={Text(session.name)},text={LazyColumn { items(rows) { e -> Column(verticalArrangement=Arrangement.spacedBy(6.dp)) { Text(e.exerciseNameSnapshot,style=MaterialTheme.typography.titleMedium); (sets[e.id]?:emptyList()).forEach { s -> var kg by remember(s.id) { mutableStateOf("") }; var reps by remember(s.id) { mutableStateOf("") }; Row(horizontalArrangement=Arrangement.spacedBy(6.dp)) { Text("Set ${s.setIndex}"); OutlinedTextField(kg,{kg=it},label={Text("kg")},modifier=Modifier.weight(1f),keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Decimal)); OutlinedTextField(reps,{reps=it},label={Text("reps")},modifier=Modifier.weight(1f),keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Number)); Checkbox(s.isCompleted,onCheckedChange={checked -> if(checked) scope.launch { c.workouts.completeSet(s.id,kg.toDoubleOrNull(),reps.toIntOrNull()) } }) } } } } } },confirmButton={TextButton(onClick={scope.launch { c.workouts.finish(session.id); onClose() }}) { Text("Finish workout") }},dismissButton={TextButton(onClick={scope.launch { c.workouts.pause(session.id); onClose() }}) { Text("Pause") }})
+    LaunchedEffect(session.id) { while(true) { remaining=c.restTimer.remainingMs(); delay(1000) } }
+    AlertDialog(onDismissRequest=onClose,title={Text(session.name)},text={Column(Modifier.heightIn(max=500.dp)) {
+        if(remaining>0) Row(horizontalArrangement=Arrangement.spacedBy(6.dp)) {
+            Text("Rest · %02d:%02d".format(remaining/60000,(remaining%60000)/1000),style=MaterialTheme.typography.titleMedium)
+            TextButton(onClick={scope.launch { c.restTimer.adjust(-15) }}) { Text("−15s") }
+            TextButton(onClick={scope.launch { c.restTimer.adjust(15) }}) { Text("+15s") }
+            TextButton(onClick={scope.launch { c.restTimer.skip() }}) { Text("Skip") }
+        }
+        LazyColumn { items(rows) { e -> Column(verticalArrangement=Arrangement.spacedBy(6.dp)) {
+            Text(e.exerciseNameSnapshot,style=MaterialTheme.typography.titleMedium)
+            (sets[e.id]?:emptyList()).forEach { s ->
+                var kg by remember(s.id) { mutableStateOf(s.weightKg?.toString().orEmpty()) }; var reps by remember(s.id) { mutableStateOf(s.reps?.toString().orEmpty()) }
+                LaunchedEffect(kg,reps) { delay(250); c.workouts.saveSetDraft(s.id,kg.toDoubleOrNull(),reps.toIntOrNull()) }
+                Row(horizontalArrangement=Arrangement.spacedBy(6.dp)) {
+                    Text("Set ${s.setIndex}")
+                    OutlinedTextField(kg,{kg=it},label={Text("kg")},modifier=Modifier.weight(1f),keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Decimal))
+                    OutlinedTextField(reps,{reps=it},label={Text("reps")},modifier=Modifier.weight(1f),keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Number))
+                    Checkbox(s.isCompleted,onCheckedChange={checked -> scope.launch { c.workouts.setCompleted(s.id,checked); if(checked) c.restTimer.start(session.id,e.restSeconds) } })
+                }
+            }
+        } } }
+    }},confirmButton={TextButton(onClick={scope.launch { c.workouts.finish(session.id); c.restTimer.skip(); onClose() }}) { Text("Finish workout") }},dismissButton={TextButton(onClick={scope.launch { c.workouts.pause(session.id); onClose() }}) { Text("Pause") }})
 }
 
 @Composable fun NutritionScreen(c:AppContainer) {
