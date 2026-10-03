@@ -51,3 +51,5 @@ Per the user's instruction, **all build/test/manual verification gates are NOT R
 - Any unimplemented requirements are listed in `README.md` and `docs/STATE.md`; no pass is claimed.
 
 - M7 backup implementation added as source: serializable Room rows, SAF JSON export/import, structural checks and transactional restore. Round-trip test authored but NOT RUN.
+
+- M7b: XP/level replay, medals, food/training streaks and quick-workout generator source plus tests authored. Full engagement UI/persistence and all gates remain NOT RUN.

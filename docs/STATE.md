@@ -12,3 +12,5 @@
 - M6 progress source: daily latest-weight aggregation, range filtering and a chart of real recorded values; strength/volume/nutrition charts remain incomplete.
 
 - M7 source: JSON backup/import bundle, SAF create/open document pickers, transactional import validation, custom exercise creation, stored unit conversion helpers, and backup test source. Photo/measurement and program edit UI remain incomplete.
+
+- M7b domain slice: XP/level replay, listed medal rule calculations, food/training streak logic, quick-workout filtering and test source authored. Not a complete M7b UI/persistence implementation; gate NOT RUN.

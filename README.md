@@ -51,3 +51,5 @@ The active workout draft now persists typed set edits, completion state and paus
 The progress tab now plots actual recorded daily weights and supports date range filters (1M/3M/6M/1Y/ALL); it still has no strength, volume or nutrition chart. These tests were authored but remain NOT RUN.
 
 Backup and import sources use JSON through Storage Access Framework document pickers. The backup includes v1 exercise/program/session/set/food/meal/profile/weight/goal records; import validates structure and references before one Room transaction. Body photos and future M10 entities are not included. A Robolectric round-trip/corrupt-input test source was added but NOT RUN.
+
+The M7b domain slice now has deterministic XP/level replay, workout/food/photo/goal medal unlock calculations, weekly/food streak rules, and a quick-workout selector that honors target, equipment and avoid filters. Corresponding test source was authored. The M7b screens, event extraction from Room history, unlock settings, backfill, reminders, photos and share flow remain incomplete; no gate was run.
