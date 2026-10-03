@@ -1,0 +1,13 @@
+.gradle/
+**/build/
+local.properties
+*.jks
+*.keystore
+captures/
+.idea/
+.DS_Store
+Ironlog-*-debug.apk
+
+/work/ironlog.git/
+
+/work/
