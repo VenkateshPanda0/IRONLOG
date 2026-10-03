@@ -1,10 +1,10 @@
 package app.ironlog.personal.ui.components
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -28,9 +28,8 @@ fun Field(label: String, value: String, onValue: (String) -> Unit, number: Boole
         onValueChange = onValue,
         label = { Text(label) },
         singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = if (number) KeyboardType.Decimal else KeyboardType.Text,
-        ),
+        keyboardOptions =
+            KeyboardOptions(keyboardType = if (number) KeyboardType.Decimal else KeyboardType.Text),
         modifier = Modifier.fillMaxWidth(),
     )
 }

@@ -19,7 +19,8 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun HistoryScreen(sessions: List<WorkoutSessionEntity>, onBack: () -> Unit) {
-    val formatter = DateTimeFormatter.ofPattern("MMM d, yyyy · h:mm a").withZone(ZoneId.systemDefault())
+    val formatter =
+        DateTimeFormatter.ofPattern("MMM d, yyyy · h:mm a").withZone(ZoneId.systemDefault())
     Page("Workout history") {
         TextButton(onClick = onBack) { Text("Back to Train") }
         if (sessions.isEmpty()) {

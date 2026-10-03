@@ -40,6 +40,7 @@ The continuation brief authorizes Gradle, tests, and dataset downloads; current 
 - Downloaded USDA SR Legacy April 2018 data and generated 1,200 complete-macro food rows plus 2,271 portions. The source archive was not committed; selected CSV assets are in the project and documented in `docs/SEED_DATA.md`.
 - Transactional exercise/food loaders and DataStore seed-version gating are authored. Runtime inserts are unverified.
 - Food CSV parser fixtures cover quoted values, malformed rows, absent optional fiber, required macro rejection, and invalid portion data. Robolectric Room tests assert the exercise loader yields 876 records and the USDA loader yields 1,200 foods; each checks idempotent second-load behavior. Tests are authored, NOT RUN.
+- Formatted all Kotlin main/test sources with temporary ktfmt 0.64. The formatter parsed all files after the Nutrition-screen syntax fix; this is not a Kotlin/Android compile and does not change NOT RUN gates.
 - Removed the placeholder Room schema (`identityHash: schema-not-generated`). KSP must generate a valid v1 schema before a verified release; no schema file currently exists.
 - Secrets are not present. No USDA API key or OFF contact address exists in this source tree. USDA lookup is not implemented; the displayed OFF contact is the generic `unset@example.invalid` placeholder.
 - No reference screenshots were found in the supplied project files; M9 was not performed.

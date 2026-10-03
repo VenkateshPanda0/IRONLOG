@@ -14,20 +14,41 @@ import org.robolectric.RuntimeEnvironment
 
 @RunWith(RobolectricTestRunner::class)
 class BackupRepositoryTest {
-    private lateinit var db:IronlogDatabase
-    private lateinit var backup:BackupRepository
-    @Before fun setUp() { db=Room.inMemoryDatabaseBuilder(RuntimeEnvironment.getApplication(),IronlogDatabase::class.java).allowMainThreadQueries().build(); backup=BackupRepository(db) }
-    @After fun tearDown() { db.close() }
-    @Test fun profileSurvivesExportAndImport()=runBlocking {
-        db.dao().saveProfile(UserProfileEntity(name="Local profile",weightKg=68.4))
-        val content=backup.exportJson()
-        db.dao().saveProfile(UserProfileEntity(name="Temporary"))
-        backup.importJson(content)
-        assertEquals("Local profile",db.dao().profileOnce()?.name)
-        assertEquals(68.4,db.dao().profileOnce()?.weightKg ?: 0.0,0.0001)
+    private lateinit var db: IronlogDatabase
+    private lateinit var backup: BackupRepository
+
+    @Before
+    fun setUp() {
+        db =
+            Room.inMemoryDatabaseBuilder(
+                    RuntimeEnvironment.getApplication(),
+                    IronlogDatabase::class.java,
+                )
+                .allowMainThreadQueries()
+                .build()
+        backup = BackupRepository(db)
     }
-    @Test fun corruptBackupIsRejected()=runBlocking {
-        try { backup.importJson("not-json"); throw AssertionError("invalid backup was accepted") }
-        catch(_:IllegalArgumentException) { }
+
+    @After
+    fun tearDown() {
+        db.close()
+    }
+
+    @Test
+    fun profileSurvivesExportAndImport() = runBlocking {
+        db.dao().saveProfile(UserProfileEntity(name = "Local profile", weightKg = 68.4))
+        val content = backup.exportJson()
+        db.dao().saveProfile(UserProfileEntity(name = "Temporary"))
+        backup.importJson(content)
+        assertEquals("Local profile", db.dao().profileOnce()?.name)
+        assertEquals(68.4, db.dao().profileOnce()?.weightKg ?: 0.0, 0.0001)
+    }
+
+    @Test
+    fun corruptBackupIsRejected() = runBlocking {
+        try {
+            backup.importJson("not-json")
+            throw AssertionError("invalid backup was accepted")
+        } catch (_: IllegalArgumentException) {}
     }
 }

@@ -17,7 +17,8 @@ internal data class FoodServingRecord(
 )
 
 internal object FoodSeedCsvParser {
-    fun parseFoods(csv: String): List<FoodSeedRecord> = parseRows(csv).drop(1).mapNotNull(::parseFoodRow)
+    fun parseFoods(csv: String): List<FoodSeedRecord> =
+        parseRows(csv).drop(1).mapNotNull(::parseFoodRow)
 
     fun parseServings(csv: String): List<FoodServingRecord> =
         parseRows(csv).drop(1).mapNotNull(::parseServingRow)

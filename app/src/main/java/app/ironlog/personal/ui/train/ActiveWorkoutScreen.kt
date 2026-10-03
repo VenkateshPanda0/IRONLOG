@@ -9,7 +9,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import app.ironlog.personal.AppContainer
 import app.ironlog.personal.data.db.SetLogEntity
@@ -45,19 +44,27 @@ fun ActiveWorkoutScreen(
 
     Page(session.name) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            TextButton(onClick = {
-                scope.launch {
-                    viewModel.pause(session.id)
-                    onClose()
+            TextButton(
+                onClick = {
+                    scope.launch {
+                        viewModel.pause(session.id)
+                        onClose()
+                    }
                 }
-            }) { Text("Pause") }
-            Button(onClick = {
-                scope.launch {
-                    viewModel.finish(session.id)
-                    container.restTimer.skip()
-                    onClose()
+            ) {
+                Text("Pause")
+            }
+            Button(
+                onClick = {
+                    scope.launch {
+                        viewModel.finish(session.id)
+                        container.restTimer.skip()
+                        onClose()
+                    }
                 }
-            }) { Text("Finish workout") }
+            ) {
+                Text("Finish workout")
+            }
         }
 
         if (remainingMs > 0) {
@@ -91,12 +98,16 @@ fun ActiveWorkoutScreen(
                             onComplete = { completed ->
                                 scope.launch {
                                     viewModel.setCompleted(set.id, completed)
-                                    setsByExercise = setsByExercise + (
-                                        exercise.id to (setsByExercise[exercise.id].orEmpty().map { row ->
-                                            if (row.id == set.id) row.copy(isCompleted = completed) else row
-                                        })
-                                    )
-                                    if (completed) container.restTimer.start(session.id, exercise.restSeconds)
+                                    setsByExercise =
+                                        setsByExercise +
+                                            (exercise.id to
+                                                (setsByExercise[exercise.id].orEmpty().map { row ->
+                                                    if (row.id == set.id)
+                                                        row.copy(isCompleted = completed)
+                                                    else row
+                                                }))
+                                    if (completed)
+                                        container.restTimer.start(session.id, exercise.restSeconds)
                                 }
                             },
                         )
@@ -106,4 +117,3 @@ fun ActiveWorkoutScreen(
         }
     }
 }
-

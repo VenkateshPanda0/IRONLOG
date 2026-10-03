@@ -12,15 +12,16 @@ class IronlogViewModelFactory(
     private val date: LocalDate = LocalDate.now(),
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        val viewModel = when {
-            modelClass.isAssignableFrom(WorkoutViewModel::class.java) ->
-                WorkoutViewModel(container.workouts)
-            modelClass.isAssignableFrom(NutritionViewModel::class.java) ->
-                NutritionViewModel(container.nutrition, date)
-            modelClass.isAssignableFrom(BodyViewModel::class.java) ->
-                BodyViewModel(container.body)
-            else -> error("Unknown ViewModel: ${modelClass.name}")
-        }
+        val viewModel =
+            when {
+                modelClass.isAssignableFrom(WorkoutViewModel::class.java) ->
+                    WorkoutViewModel(container.workouts)
+                modelClass.isAssignableFrom(NutritionViewModel::class.java) ->
+                    NutritionViewModel(container.nutrition, date)
+                modelClass.isAssignableFrom(BodyViewModel::class.java) ->
+                    BodyViewModel(container.body)
+                else -> error("Unknown ViewModel: ${modelClass.name}")
+            }
         return modelClass.cast(viewModel)
     }
 }

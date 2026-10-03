@@ -1,23 +1,24 @@
 package app.ironlog.personal.data.seed
 
 import androidx.room.Room
+import app.ironlog.personal.data.db.IronlogDatabase
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
-import kotlinx.coroutines.runBlocking
-import app.ironlog.personal.data.db.IronlogDatabase
 
 @RunWith(RobolectricTestRunner::class)
 class FoodSeedLoaderTest {
     @Test
     fun loadingBundledUsdaRowsTwiceDoesNotDuplicateThem() = runBlocking {
         val context = RuntimeEnvironment.getApplication()
-        val database = Room.inMemoryDatabaseBuilder(context, IronlogDatabase::class.java)
-            .allowMainThreadQueries()
-            .build()
+        val database =
+            Room.inMemoryDatabaseBuilder(context, IronlogDatabase::class.java)
+                .allowMainThreadQueries()
+                .build()
         try {
             val loader = FoodSeedLoader(context, database)
             val first = loader.load()

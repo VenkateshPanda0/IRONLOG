@@ -24,19 +24,20 @@ class SeedLoader(
             val values = element.jsonObject
             val id = values["id"]?.jsonPrimitive?.contentOrNull ?: return@forEach
             val name = values["name"]?.jsonPrimitive?.contentOrNull ?: return@forEach
-            val row = ExerciseEntity(
-                id = id,
-                name = name,
-                category = values["category"]?.jsonPrimitive?.contentOrNull.orEmpty(),
-                force = values["force"]?.jsonPrimitive?.contentOrNull,
-                level = values["level"]?.jsonPrimitive?.contentOrNull,
-                mechanic = values["mechanic"]?.jsonPrimitive?.contentOrNull,
-                equipment = values["equipment"]?.jsonPrimitive?.contentOrNull,
-                primaryMuscles = values["primaryMuscles"]?.toString() ?: "[]",
-                secondaryMuscles = values["secondaryMuscles"]?.toString() ?: "[]",
-                instructions = values["instructions"]?.toString() ?: "[]",
-                imagePaths = values["images"]?.toString() ?: "[]",
-            )
+            val row =
+                ExerciseEntity(
+                    id = id,
+                    name = name,
+                    category = values["category"]?.jsonPrimitive?.contentOrNull.orEmpty(),
+                    force = values["force"]?.jsonPrimitive?.contentOrNull,
+                    level = values["level"]?.jsonPrimitive?.contentOrNull,
+                    mechanic = values["mechanic"]?.jsonPrimitive?.contentOrNull,
+                    equipment = values["equipment"]?.jsonPrimitive?.contentOrNull,
+                    primaryMuscles = values["primaryMuscles"]?.toString() ?: "[]",
+                    secondaryMuscles = values["secondaryMuscles"]?.toString() ?: "[]",
+                    instructions = values["instructions"]?.toString() ?: "[]",
+                    imagePaths = values["images"]?.toString() ?: "[]",
+                )
             if (dao.putExercise(row) != -1L) inserted += 1
         }
         inserted

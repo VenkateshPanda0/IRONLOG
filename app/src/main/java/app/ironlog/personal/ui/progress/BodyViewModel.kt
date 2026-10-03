@@ -9,8 +9,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-data class BodyUiState(val weights:List<BodyWeightEntity> = emptyList(),val loading:Boolean=true)
-class BodyViewModel(repository:BodyRepository):ViewModel() {
-    val state:StateFlow<BodyUiState> = repository.weights.map { BodyUiState(it,false) }
-        .stateIn(viewModelScope,SharingStarted.WhileSubscribed(5_000),BodyUiState())
+data class BodyUiState(
+    val weights: List<BodyWeightEntity> = emptyList(),
+    val loading: Boolean = true,
+)
+
+class BodyViewModel(repository: BodyRepository) : ViewModel() {
+    val state: StateFlow<BodyUiState> =
+        repository.weights
+            .map { BodyUiState(it, false) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), BodyUiState())
 }

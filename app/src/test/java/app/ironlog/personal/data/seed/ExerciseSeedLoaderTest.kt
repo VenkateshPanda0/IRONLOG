@@ -4,8 +4,8 @@ import androidx.room.Room
 import app.ironlog.personal.data.db.IronlogDatabase
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
-import org.junit.runner.RunWith
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 
@@ -14,9 +14,10 @@ class ExerciseSeedLoaderTest {
     @Test
     fun bundledExerciseAssetSeedsOnceAndKeepsAllRecords() = runBlocking {
         val context = RuntimeEnvironment.getApplication()
-        val database = Room.inMemoryDatabaseBuilder(context, IronlogDatabase::class.java)
-            .allowMainThreadQueries()
-            .build()
+        val database =
+            Room.inMemoryDatabaseBuilder(context, IronlogDatabase::class.java)
+                .allowMainThreadQueries()
+                .build()
         try {
             val loader = SeedLoader(context, database)
 
