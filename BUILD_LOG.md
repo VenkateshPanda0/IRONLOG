@@ -38,10 +38,10 @@ Per the user's instruction, **all build/test/manual verification gates are NOT R
 
 ## Git publishing
 
-- The project is published to `origin/main` at `cf18abde4639f403a82bfc2a88b8f96ca33ac176`.
+- The project is published to `origin/main` at `d89f6c48350d9bb8d403a84b3133b8787615cff8`.
 - The `main` tree contains 45 tracked files, including the application source, five unit-test source files, Gradle configuration, `README.md`, `docs/BRIEF.md`, `docs/STATE.md`, scripts, and `LICENSE`.
 - The `master` application commit (`70696c8`) and `codex/ironlog-progress` history (`0143efd` plus its ancestors) are reachable from `main`. All six `*-not-run` milestone tags remain present.
-- The push of `main` succeeded as a normal fast-forward. Existing remote `master` and `codex/ironlog-progress` refs could not be deleted: GitHub returned `remote ref does not exist` for both names at deletion time even though a subsequent fetch still reports them. Branch deletion therefore remains unresolved and needs inspection in GitHub's branch settings or repository permissions.
+- The push of `main` succeeded as a normal fast-forward. `git ls-remote --heads origin` reports only `main`; pruning removed stale `origin/master` and `origin/codex/ironlog-progress` tracking refs. The delete commands responded that those remote refs did not exist, consistent with the server listing.
 - The working tree was clean at the time of remote verification. No build or test gates were run; see the gate table above.
 
 ## Assumptions and deviations
