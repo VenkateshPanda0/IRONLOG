@@ -97,6 +97,7 @@ import kotlinx.coroutines.flow.Flow
     @Query("DELETE FROM body_weight") suspend fun clearWeights()
     @Query("DELETE FROM user_profile") suspend fun clearProfile()
     @Insert(onConflict=OnConflictStrategy.IGNORE) suspend fun putExercise(value:ExerciseEntity):Long
+    @Query("SELECT COUNT(*) FROM exercise") suspend fun countExercises():Int
     @Transaction suspend fun startWorkout(name:String,programId:Long?,day:String?,entries:List<Triple<String,String,Int>>):Long {
         val sessionId=startSession(WorkoutSessionEntity(name=name,programId=programId,programDayName=day))
         entries.forEachIndexed { order,(exerciseId,exerciseName,sets) ->
