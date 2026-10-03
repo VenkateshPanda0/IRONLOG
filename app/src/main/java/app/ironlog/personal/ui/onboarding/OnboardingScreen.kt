@@ -14,12 +14,17 @@ import androidx.compose.ui.unit.dp
 import app.ironlog.personal.AppContainer
 import app.ironlog.personal.data.db.UserProfileEntity
 import app.ironlog.personal.domain.Calculations
+import app.ironlog.personal.domain.ExerciseOption
+import app.ironlog.personal.domain.ExperienceLevel
 import app.ironlog.personal.domain.Recommender
 import app.ironlog.personal.domain.TrainingProfile
 import app.ironlog.personal.ui.components.Field
 import app.ironlog.personal.ui.components.Page
 import java.time.LocalDate
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonPrimitive
 
 @Composable
 fun OnboardingScreen(c: AppContainer) {
@@ -31,6 +36,9 @@ fun OnboardingScreen(c: AppContainer) {
     var goal by remember { mutableStateOf("MAINTAIN") }
     var days by remember { mutableStateOf("3") }
     var equipment by remember { mutableStateOf("GYM") }
+    var experience by remember { mutableStateOf(ExperienceLevel.BEGINNER) }
+    var sessionMinutes by remember { mutableStateOf("45") }
+    var avoidList by remember { mutableStateOf("") }
     var sex by remember { mutableStateOf("UNSPECIFIED") }
     var activity by remember { mutableDoubleStateOf(1.4) }
     val w = weight.toDoubleOrNull() ?: 70.0
@@ -67,13 +75,88 @@ fun OnboardingScreen(c: AppContainer) {
                 FilterChip(equipment == it, { equipment = it }, label = { Text(it) })
             }
         }
+        Text("Experience")
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            ExperienceLevel.entries.forEach { level ->
+                FilterChip(
+                    selected = experience == level,
+                    onClick = { experience = level },
+                    label = { Text(level.name.lowercase().replaceFirstChar(Char::uppercase)) },
+                )
+            }
+        }
+        Field("Session length (minutes)", sessionMinutes, { sessionMinutes = it }, true)
+        Field("Exercises or movements to avoid", avoidList, { avoidList = it })
+        val equipmentSet =
+            if (equipment == "BODYWEIGHT") setOf("body only")
+            else
+                setOf(
+                    "barbell",
+                    "dumbbell",
+                    "cable",
+                    "machine",
+                    "body only",
+                    "kettlebells",
+                    "bands",
+                    "e-z curl bar",
+                    "exercise ball",
+                    "medicine ball",
+                    "other",
+                )
+        val exerciseOptions by
+            c.workouts.exercises
+                .map { rows -> rows.filter { it.category.equals("strength", ignoreCase = true) } }
+                .collectAsState(initial = emptyList())
         val suggestion =
-            Recommender.suggest(TrainingProfile(days.toIntOrNull() ?: 3, goal, equipment))
+            Recommender.suggest(
+                TrainingProfile(
+                    daysPerWeek = days.toIntOrNull() ?: 3,
+                    goal = goal,
+                    equipment = equipmentSet,
+                    experience = experience,
+                    sessionMinutes = sessionMinutes.toIntOrNull() ?: 45,
+                    avoidList =
+                        avoidList.split(',').map { it.trim() }.filter { it.isNotEmpty() }.toSet(),
+                ),
+                exerciseOptions.map { exercise ->
+                    ExerciseOption(
+                        id = exercise.id,
+                        name = exercise.name,
+                        primaryMuscles =
+                            runCatching {
+                                    kotlinx.serialization.json.Json.parseToJsonElement(
+                                            exercise.primaryMuscles
+                                        )
+                                        .jsonArray
+                                        .map { it.jsonPrimitive.content }
+                                        .toSet()
+                                }
+                                .getOrDefault(emptySet()),
+                        equipment = exercise.equipment,
+                        level = exercise.level,
+                        mechanic = exercise.mechanic,
+                    )
+                },
+            )
         Text(
             "Suggested template · ${suggestion.template}",
             style = MaterialTheme.typography.titleMedium,
         )
         Text(suggestion.why)
+        suggestion.days.forEach { day ->
+            Text(
+                "${day.name} · ${day.exercises.size} exercises",
+                style = MaterialTheme.typography.titleSmall,
+            )
+            day.exercises.forEach { prescription ->
+                val exerciseName =
+                    exerciseOptions.firstOrNull { it.id == prescription.exerciseId }?.name
+                        ?: prescription.exerciseId
+                Text(
+                    "$exerciseName · ${prescription.sets} × ${prescription.repMin}–${prescription.repMax}"
+                )
+            }
+        }
         val kcal = Calculations.targetCalories(sex, w, h, a, activity, goal)
         Text(
             kcal?.let {

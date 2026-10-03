@@ -35,6 +35,9 @@ The continuation brief authorizes Gradle, tests, and dataset downloads; current 
 
 ## Source authoring notes
 
+- Source-only M3 recommender increment: selects deterministic full-body, upper/lower, or PPL cycles; filters seed exercise options by equipment/avoid list; ranks compounds first; emits per-day set/rep/rest prescriptions; onboarding renders a generated preview. Recommender unit tests were revised for the split matrix, equipment/avoid filters and goal/experience prescription rules. These tests were not run. The program JSON/catalog/activation flow and full profile persistence are still incomplete.
+- Recommender assumptions: 2–3 days Full Body, 4 Upper/Lower, 5 PPL with a repeating three-session cycle, 6 two PPL cycles; coarse count `floor(sessionMinutes/9)` clamped 3–8; fixed muscle priority and exercise-ID tie-break; exact normalized equipment match; 3 beginner sets and 4 intermediate/advanced sets. See `docs/STATE.md` for details.
+
 - Pinned AGP 8.7.3 / Gradle 8.9 / Kotlin 2.0.21 / KSP 2.0.21-1.0.28 / Compose BOM 2024.12.01 / Room 2.6.1 / compileSdk 35 / minSdk 26 / targetSdk 35.
 - Bundled 876 free-exercise-db metadata records (1,005,327 bytes); exercise images are excluded because their redistribution terms are not established here.
 - Downloaded USDA SR Legacy April 2018 data and generated 1,200 complete-macro food rows plus 2,271 portions. The source archive was not committed; selected CSV assets are in the project and documented in `docs/SEED_DATA.md`.
