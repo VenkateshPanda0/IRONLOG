@@ -4,7 +4,23 @@ import androidx.room.*
 import kotlinx.serialization.Serializable
 
 @Serializable
-@Entity(tableName="exercise", indices=[Index("name")]) data class ExerciseEntity(@PrimaryKey val id:String, val name:String, val category:String="", val equipment:String?=null, val primaryMuscles:String="[]", val instructions:String="[]", val isCustom:Boolean=false, val isFavorite:Boolean=false, val createdAt:Long=System.currentTimeMillis())
+@Entity(tableName="exercise", indices=[Index("name"), Index("equipment")]) data class ExerciseEntity(
+    @PrimaryKey val id: String,
+    val name: String,
+    val category: String = "",
+    val force: String? = null,
+    val level: String? = null,
+    val mechanic: String? = null,
+    val equipment: String? = null,
+    val primaryMuscles: String = "[]",
+    val secondaryMuscles: String = "[]",
+    val instructions: String = "[]",
+    val imagePaths: String = "[]",
+    val isCustom: Boolean = false,
+    val isFavorite: Boolean = false,
+    val lastUsedAt: Long? = null,
+    val createdAt: Long = System.currentTimeMillis(),
+)
 @Serializable
 @Entity(tableName="program") data class ProgramEntity(@PrimaryKey(autoGenerate=true) val id:Long=0, val name:String, val description:String="", val daysPerWeek:Int=3, val isBuiltIn:Boolean=false, val createdAt:Long=System.currentTimeMillis())
 @Serializable
@@ -26,7 +42,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 @Entity(tableName="food",indices=[Index("name")]) data class FoodEntity(@PrimaryKey(autoGenerate=true) val id:Long=0,val name:String,val brand:String?=null,val source:String="CUSTOM",val sourceRef:String?=null,val kcalPer100g:Double,val proteinPer100g:Double,val carbsPer100g:Double,val fatPer100g:Double,val fiberPer100g:Double?=null,val isFavorite:Boolean=false,val createdAt:Long=System.currentTimeMillis(),val confidence:String="USER")
 @Serializable
-@Entity(tableName="food_serving",foreignKeys=[ForeignKey(entity=FoodEntity::class,parentColumns=["id"],childColumns=["foodId"],onDelete=ForeignKey.CASCADE)],indices=[Index("foodId")]) data class FoodServingEntity(@PrimaryKey(autoGenerate=true) val id:Long=0,val foodId:Long,val label:String,val grams:Double)
+@Entity(tableName="food_serving",foreignKeys=[ForeignKey(entity=FoodEntity::class,parentColumns=["id"],childColumns=["foodId"],onDelete=ForeignKey.CASCADE)],indices=[Index("foodId"),Index(value=["foodId","label","grams"],unique=true)]) data class FoodServingEntity(@PrimaryKey(autoGenerate=true) val id:Long=0,val foodId:Long,val label:String,val grams:Double)
 @Serializable
 @Entity(tableName="meal_entry",foreignKeys=[ForeignKey(entity=FoodEntity::class,parentColumns=["id"],childColumns=["foodId"],onDelete=ForeignKey.SET_NULL)],indices=[Index("date"),Index("foodId")]) data class MealEntryEntity(@PrimaryKey(autoGenerate=true) val id:Long=0,val date:String,val mealType:String,val foodId:Long?=null,val foodNameSnapshot:String,val grams:Double,val kcal:Double,val protein:Double,val carbs:Double,val fat:Double,val fiber:Double?=null,val createdAt:Long=System.currentTimeMillis())
 @Serializable

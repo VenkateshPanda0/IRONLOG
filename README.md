@@ -1,48 +1,50 @@
 # Ironlog
 
-Ironlog is a local-first Android fitness log project (Kotlin, Jetpack Compose, Room and DataStore). The code in this branch is an **unverified, partial implementation** created without Gradle builds, tests, SDK downloads, or dataset downloads, as requested. Build and test gates are explicitly NOT RUN in `BUILD_LOG.md`.
+Ironlog is a local-first Android fitness log project (Kotlin, Jetpack Compose, Room and DataStore). This is an **unverified, partial implementation**. Build, test, lint, sync, and device gates remain NOT RUN because Gradle tasks cannot establish a loopback connection in the current shell; see `BUILD_LOG.md` and `docs/COMPILE_RISKS.md`.
 
 ## Open in Android Studio
 
-Open this folder as an existing Gradle project. The pinned versions are in `gradle/libs.versions.toml`; the project targets SDK 35, min SDK 26 and Java 17. The Gradle wrapper distribution is pinned to Gradle 8.9. This source-only handoff does not include the wrapper JAR, so a working local Gradle installation or Android Studio's configured Gradle support is needed to sync. Dependency resolution and Android SDK availability have not been checked here.
+Open this folder as an existing Gradle project. The pinned versions are in `gradle/libs.versions.toml`; the project targets SDK 35, min SDK 26 and Java 17. The Gradle 8.9 wrapper scripts and JAR are checked in. JDK 17 and SDK platforms are visible under the user-profile SDK path, but build tasks fail before project configuration with `Unable to establish loopback connection`. Compile compatibility remains unknown, and no emulator/device is attached.
 
 ## Current implementation
 
 - Five-tab Compose shell, dark/light palette, local profile onboarding and estimated calorie target.
 - Room v1 models and repositories for profile, programs, exercises, sessions/sets, foods/meals, weight and goals.
+- Bundled source metadata for 876 exercises and sourced USDA SR Legacy values for 1,200 foods and 2,271 portions. See `docs/SEED_DATA.md`; exercise images are not bundled.
 - Local quick workout start, pause/finish, set completion, custom exercise and custom food entry, meal totals, and weight log/trend calculation.
 - Unit conversion, meal scaling, volume, Epley e1RM and seven-day mean pure Kotlin calculations.
-- No seed exercise or food rows are bundled. A small handwritten exercise catalog was deliberately removed because the brief requires licensed-source data and the user prohibited downloads. The program selector is empty until a licensed seed set is added.
+- Database seeding is authored but has not been verified at runtime. Built-in program prescriptions are still absent.
 
 ## Build/install (not run)
 
-With Android SDK 35, JDK 17, Gradle 8.9 and network access for dependency resolution available:
+With Android SDK 35, JDK 17 and network access for dependency resolution available:
 
 ```powershell
-gradle assembleDebug
-gradle testDebugUnitTest
+.\gradlew.bat assembleDebug
+.\gradlew.bat testDebugUnitTest
+.\gradlew.bat lintDebug
 ```
 
 The expected debug artifact is `app/build/outputs/apk/debug/app-debug.apk`. Install to an attached device with `adb install -r app/build/outputs/apk/debug/app-debug.apk`, or transfer the APK and open it on-device. No APK has been produced or verified by this handoff.
 
 ## Data and privacy
 
-The current implemented flows persist on-device using Room. No network lookup provider is implemented yet. The manifest declares the permissions from the core brief, but the camera, notification, timer and boot receiver flows are not implemented. Do not treat this as a production privacy audit.
+Implemented flows persist on-device using Room. Open Food Facts text/barcode requests are the only implemented food network requests; USDA online lookup remains a disabled placeholder. Camera scanning, runtime notification permission, reboot timer recovery, and timer behavior are incomplete or unverified. Do not treat this as a production privacy audit.
 
-- Exercise source planned: free-exercise-db by yuhonas, Unlicense.
-- Generic nutrition source planned: FoodData Central, U.S. Department of Agriculture, CC0 1.0.
+- Exercise data: free-exercise-db by yuhonas, Unlicense; 876 metadata records, images excluded.
+- Generic nutrition data: USDA FoodData Central SR Legacy; 1,200 sourced food records and 2,271 portion rows.
 - Packaged-food source planned: Open Food Facts contributors, ODbL 1.0, https://world.openfoodfacts.org/terms-of-use.
-- No facts from these datasets are currently bundled.
+- No packaged-food facts are bundled. Open Food Facts is queried only when the user requests it.
 
-`tools/build_food_subset.py` processes a user-provided local USDA export; it does not fetch source data. `tools/fetch_exercise_seed.ps1` is provided for later use, but was not executed. Data export/import is not yet implemented.
+`tools/build_food_subset.py` processes a downloaded USDA SR Legacy JSON export and produces the food and portion assets. `tools/fetch_exercise_seed.ps1` fetches the exercise metadata source. Dataset refresh and app database seeding tests have not run. Backup/import is implemented in source but unverified.
 
 ## Known limitations and future work
 
-The brief's full feature set is not complete: database schema is only a v1 scaffold, the checked-in schema file is a placeholder and must be regenerated by Room KSP, sample data is absent, built-in program prescriptions are absent, and there is no robust navigation into workout detail/history, rest-timer/alarm/notification, food lookup/barcode scan, recipe/serving editor, chart UI, export/import, migration recovery, progress photos, measurements, reminders, engagement system, goal engine, AI coach or M10 extras. There is no Gradle wrapper JAR and no CI setup. All gates remain NOT RUN. See `docs/STATE.md` and `BUILD_LOG.md` for assumptions and exact status.
+The brief's full feature set is not complete: schema JSON still needs regeneration by Room KSP; built-in program prescriptions, complete profile onboarding, workout summary/replace/revert, barcode scanning, recipes, strength/volume/nutrition charts, measurements/photos, reminders, goal UI, engagement UI, AI coach and M10 extras remain incomplete. No CI is configured. All gates remain NOT RUN. See `docs/STATE.md`, `docs/COMPILE_RISKS.md`, and `BUILD_LOG.md`.
 
 ## License and attribution
 
-Ironlog is independent and not affiliated with any fitness brand. Third-party attributions above apply only if the corresponding source data is added later.
+Ironlog is independent and not affiliated with any fitness brand. Data source details and the image exclusion decision are documented in `docs/SEED_DATA.md`.
 
 ## Current source status update
 

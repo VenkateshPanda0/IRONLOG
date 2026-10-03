@@ -2,7 +2,7 @@
 
 ## User-directed verification policy
 
-Per the user's instruction, **all build/test/manual verification gates are NOT RUN**. No Gradle build, test, lint, Android Studio sync, SDK command, emulator/device run, APK build, APK inspection, seed download, Gradle download, or install has been performed during this implementation phase. Do not interpret authored tests as executed tests.
+The continuation brief authorizes Gradle, tests, and dataset downloads; current work is in Android Studio mode because CLI prerequisites are incomplete. All build/test/manual gates remain **NOT RUN**. Do not interpret authored tests as executed tests.
 
 ## Gate status
 
@@ -21,24 +21,31 @@ Per the user's instruction, **all build/test/manual verification gates are NOT R
 | M10 | gated post-M8 feature checks | NOT RUN; M8 was not verified |
 | M9 | screenshot review/restyle | SKIPPED; no `reference/screens/` images supplied |
 
-## Environment facts retained from the previous environment check
+## Environment check and Phase 1 status (2026-10-03)
 
-- Java 17.0.18 was visible.
-- The previous shell did not see the user-stated `C:\Android\Sdk`; it reported the earlier inaccessible SDK path. `sdkmanager` and `adb` were not on PATH in that check.
-- Direct Gradle and Maven connection probes failed in that shell. No downloads were performed in this implementation phase.
-- Android Studio was installed, but project sync was not attempted.
+- `java -version`: Temurin 17.0.18 available.
+- `ANDROID_HOME` and `ANDROID_SDK_ROOT`: `C:\Users\VENKATESH PANDA\AppData\Local\Android\Sdk`; the user-stated `C:\Android\Sdk` path does not exist. SDK platforms 33, 34, 36, and 36.1 plus build-tools are present under the configured profile SDK path.
+- `sdkmanager --list_installed`: command unavailable; `sdkmanager` is not on PATH.
+- `adb devices`: command ran; no attached devices.
+- `gradle --version`: unavailable; system Gradle is not installed/on PATH.
+- Network HEAD probes to `https://services.gradle.org`, `https://dl.google.com`, and `https://repo.maven.apache.org` each returned HTTP 200.
+- Official Gradle 8.9 distribution was downloaded to a temporary folder; wrapper scripts and JAR are checked in. `gradlew.bat --version` passed and reported Gradle 8.9 / JDK 17.0.18.
+- `gradlew.bat assembleDebug --no-daemon` failed before project configuration with `java.io.IOException: Unable to establish loopback connection`. No-daemon and IPv4 preference retries failed with the same error. No Android source was compiled; build/test/lint gates remain NOT RUN.
+- Android Studio mode is active while the Gradle loopback issue is unresolved. Risks and compile checklist are in `docs/COMPILE_RISKS.md`.
 
 ## Source authoring notes
 
 - Pinned AGP 8.7.3 / Gradle 8.9 / Kotlin 2.0.21 / KSP 2.0.21-1.0.28 / Compose BOM 2024.12.01 / Room 2.6.1 / compileSdk 35 / minSdk 26 / targetSdk 35.
-- Seed files were not downloaded. No exercise or food rows are bundled; the seed loader is intentionally empty. The `tools/` scripts are source only and have not been run.
-- The checked-in Room schema placeholder was removed. KSP should generate a real schema snapshot on a later build/sync.
+- Bundled 876 free-exercise-db metadata records (1,005,327 bytes); exercise images are excluded because their redistribution terms are not established here.
+- Downloaded USDA SR Legacy April 2018 data and generated 1,200 complete-macro food rows plus 2,271 portions. The source archive was not committed; selected CSV assets are in the project and documented in `docs/SEED_DATA.md`.
+- Transactional exercise/food loaders and DataStore seed-version gating are authored. Runtime inserts are unverified.
+- Removed the placeholder Room schema (`identityHash: schema-not-generated`). KSP must generate a valid v1 schema before a verified release; no schema file currently exists.
 - Secrets are not present. No USDA API key or OFF contact address exists in this source tree. USDA lookup is not implemented; the displayed OFF contact is the generic `unset@example.invalid` placeholder.
 - No reference screenshots were found in the supplied project files; M9 was not performed.
 
 ## Git publishing
 
-- The project is published to `origin/main` at `d89f6c48350d9bb8d403a84b3133b8787615cff8`.
+- The project is published to `origin/main`; the branch head can advance during this continuation.
 - The `main` tree contains 45 tracked files, including the application source, five unit-test source files, Gradle configuration, `README.md`, `docs/BRIEF.md`, `docs/STATE.md`, scripts, and `LICENSE`.
 - The `master` application commit (`70696c8`) and `codex/ironlog-progress` history (`0143efd` plus its ancestors) are reachable from `main`. All six `*-not-run` milestone tags remain present.
 - The push of `main` succeeded as a normal fast-forward. `git ls-remote --heads origin` reports only `main`; pruning removed stale `origin/master` and `origin/codex/ironlog-progress` tracking refs. The delete commands responded that those remote refs did not exist, consistent with the server listing.
@@ -46,8 +53,8 @@ Per the user's instruction, **all build/test/manual verification gates are NOT R
 
 ## Assumptions and deviations
 
-- The explicit later instruction to skip all verification overrides the original brief's build/test gates.
-- The explicit later instruction not to download anything overrides the seed-data download instructions. Therefore the implementation does not pretend to contain the requested 873 exercises or USDA foods.
+- The continuation brief supersedes earlier no-build/no-download instructions. Environment checks were run; a wrapper distribution download attempt failed before project dependencies or datasets were downloaded.
+- No seed dataset was downloaded in this phase; requested dataset counts are not met or claimed.
 - No project existed in the local workspace. This is a new single-module Android project.
 - User data schema starts at Room version 1. The complete later migration set and pre-migration backup recovery are not authored yet.
 - Any unimplemented requirements are listed in `README.md` and `docs/STATE.md`; no pass is claimed.

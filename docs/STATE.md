@@ -1,14 +1,14 @@
 # Ironlog build state
 
-- Last passing milestone/tag: none; all build, test, lint, sync, and device gates remain NOT RUN by user instruction.
-- Source authored: partial M1 foundation; partial M2 Room/repository/domain layer; partial M3 onboarding and rule-based recommendation; partial M4 persistent sessions, set logging, pause/resume, absolute-time rest timer and PR calculation; partial M5 local nutrition/custom food and Open Food Facts lookup/cache; partial M6 weight trend; partial M7 backup/import; partial M7b engagement domain slice. These are source notes, not verified milestone completions.
-- Current repo: local `main` is clean and tracks `origin/main` at `d89f6c48350d9bb8d403a84b3133b8787615cff8`. `origin/main` was fetched and verified to contain 45 tracked files, including the Android app, tests, Gradle files, docs, scripts, and LICENSE. The code from both prior app histories is reachable from `main`; tags are preserved.
-- In progress: continue source-only work on remaining brief requirements and keep build/test/download gates NOT RUN.
-- Failed/remaining Git issue: a normal push of consolidated `main` succeeded. Attempting to delete remote `master` and `codex/ironlog-progress` returned `remote ref does not exist` for both, while a later fetch still lists both refs. Investigate GitHub branch state/permissions before retrying; do not force-push or discard history.
+- Last passed check: `gradlew.bat --version` reported Gradle 8.9 / JDK 17.0.18. No app milestone gate has passed; assemble, tests, lint, sync, and device gates remain NOT RUN.
+- Source authored: prior partial M1-M7b work; this continuation adds wrapper, `.gitattributes`, 876 exercise records, 1,200 USDA foods / 2,271 portions, transactional/versioned loaders, seed readiness state, ViewModel factory and usage, feature screen split, and full-screen workout/history views. This code is uncompiled.
+- Current repo: local `main` tracks `origin/main`; app histories/tags remain preserved. Environment has JDK 17.0.18; SDK under `C:\Users\VENKATESH PANDA\AppData\Local\Android\Sdk` with platforms 33/34/36/36.1 and build tools; no `sdkmanager` on PATH; no attached devices. `C:\Android\Sdk` does not exist in this shell. Gradle/Google/Maven HEAD probes returned 200.
+- In progress: Phase 1 seed pipeline and compile-safe source cleanup; fixture/idempotency tests and successful build verification remain outstanding. See `docs/COMPILE_RISKS.md`.
+- Failed/blocker: `gradlew.bat assembleDebug --no-daemon` and retries stop before Gradle project configuration with `java.io.IOException: Unable to establish loopback connection`. No source compilation, tests, or lint ran.
 - Version assumptions: AGP 8.7.3, Gradle 8.9, Kotlin 2.0.21, KSP 2.0.21-1.0.28, Compose BOM 2024.12.01, Room 2.6.1, compile/target SDK 35, min SDK 26, Java 17. Sync/build compatibility is unverified.
-- Data assumptions: no third-party data downloaded; seed loader inserts nothing without `assets/seed/exercises.json`. USDA API key/contact values are absent; USDA network lookup is disabled. OFF uses generic contact `unset@example.invalid`.
+- Data assumptions: exercise metadata and SR Legacy values are bundled, but Room seeding is unverified; no exercise images are bundled. USDA API key/contact values are absent; USDA online lookup is disabled. OFF uses generic contact `unset@example.invalid`.
 - M9 skipped: no supplied `reference/screens/` images.
-- Exact next step: continue implementation source-only per the brief, with all gates still NOT RUN; separately inspect why remote branch deletion is rejected despite `main` being published.
+- Exact next step: resolve Gradle loopback/daemon connectivity or run tasks in Android Studio, then run assemble, unit tests, and lint; generate the Room v1 schema. Add seed fixture/idempotency tests before marking Phase 1 source complete.
 
 - M6 progress source: daily latest-weight aggregation, range filtering and a chart of real recorded values; strength/volume/nutrition charts remain incomplete.
 

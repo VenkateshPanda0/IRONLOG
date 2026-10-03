@@ -1,25 +1,48 @@
 package app.ironlog.personal.data.seed
 
-import app.ironlog.personal.data.db.*
-import androidx.room.withTransaction
 import android.content.Context
-import kotlinx.serialization.json.*
+import androidx.room.withTransaction
+import app.ironlog.personal.data.db.ExerciseEntity
+import app.ironlog.personal.data.db.IronlogDatabase
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
-/** Stable, bundled records only. No network access and no invented nutrient values. */
-class SeedLoader(private val context:Context,private val db:IronlogDatabase) {
-    suspend fun load()=db.withTransaction {
-        // No dataset assets are bundled in this handoff. Stable IDs and IGNORE conflict handling
-        // keep the loader idempotent when a licensed exercise asset is added later.
-        val asset=runCatching { context.assets.open("seed/exercises.json").bufferedReader().use { it.readText() } }.getOrNull()
-        if(asset!=null) {
-            val exercises=Json.parseToJsonElement(asset).jsonArray
-            val dao=db.dao()
-            exercises.forEach { item ->
-                val row=item.jsonObject
-                val id=row["id"]?.jsonPrimitive?.contentOrNull ?: return@forEach
-                val name=row["name"]?.jsonPrimitive?.contentOrNull ?: return@forEach
-                dao.putExercise(ExerciseEntity(id=id,name=name,category=row["category"]?.jsonPrimitive?.contentOrNull.orEmpty(),equipment=row["equipment"]?.jsonPrimitive?.contentOrNull,primaryMuscles=row["primaryMuscles"]?.toString()?:"[]",instructions=row["instructions"]?.toString()?:"[]"))
-            }
+class SeedLoader(
+    private val context: Context,
+    private val database: IronlogDatabase,
+) {
+    suspend fun load(): Int = database.withTransaction {
+        val source = context.assets.open(EXERCISE_ASSET).bufferedReader().use { it.readText() }
+        val records = Json.parseToJsonElement(source).jsonArray
+        var inserted = 0
+        val dao = database.dao()
+
+        records.forEach { element ->
+            val values = element.jsonObject
+            val id = values["id"]?.jsonPrimitive?.contentOrNull ?: return@forEach
+            val name = values["name"]?.jsonPrimitive?.contentOrNull ?: return@forEach
+            val row = ExerciseEntity(
+                id = id,
+                name = name,
+                category = values["category"]?.jsonPrimitive?.contentOrNull.orEmpty(),
+                force = values["force"]?.jsonPrimitive?.contentOrNull,
+                level = values["level"]?.jsonPrimitive?.contentOrNull,
+                mechanic = values["mechanic"]?.jsonPrimitive?.contentOrNull,
+                equipment = values["equipment"]?.jsonPrimitive?.contentOrNull,
+                primaryMuscles = values["primaryMuscles"]?.toString() ?: "[]",
+                secondaryMuscles = values["secondaryMuscles"]?.toString() ?: "[]",
+                instructions = values["instructions"]?.toString() ?: "[]",
+                imagePaths = values["images"]?.toString() ?: "[]",
+            )
+            if (dao.putExercise(row) != -1L) inserted += 1
         }
+        inserted
+    }
+
+    private companion object {
+        const val EXERCISE_ASSET = "seed/exercises.json"
     }
 }

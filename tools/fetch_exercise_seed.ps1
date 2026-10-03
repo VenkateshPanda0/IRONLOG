@@ -4,4 +4,6 @@ $uri = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exe
 $target = Join-Path (Get-Location) $Output
 New-Item -ItemType Directory -Force -Path (Split-Path $target) | Out-Null
 Invoke-WebRequest -Uri $uri -OutFile $target
-Write-Output "Saved licensed exercise source to $target. Review the Unlicense attribution before bundling."
+$records = Get-Content -Raw -LiteralPath $target | ConvertFrom-Json
+if ($records.Count -lt 600) { throw "Expected at least 600 exercise records, found $($records.Count)." }
+Write-Output "Saved $($records.Count) exercise records to $target. Review the Unlicense attribution before bundling."

@@ -71,6 +71,8 @@ import kotlinx.coroutines.flow.Flow
     @Query("DELETE FROM rest_timer WHERE id=1") suspend fun clearRestTimer()
     @Query("SELECT * FROM food WHERE name LIKE '%' || :q || '%' ORDER BY name LIMIT 100") fun searchFoods(q:String):Flow<List<FoodEntity>>
     @Insert suspend fun addFood(value:FoodEntity):Long
+    @Insert(onConflict=OnConflictStrategy.IGNORE) suspend fun insertFoodSeed(value:FoodEntity):Long
+    @Insert(onConflict=OnConflictStrategy.IGNORE) suspend fun insertFoodServingSeed(value:FoodServingEntity):Long
     @Query("SELECT * FROM food WHERE sourceRef=:ref LIMIT 1") suspend fun foodBySourceRef(ref:String):FoodEntity?
     @Insert suspend fun addMeal(value:MealEntryEntity):Long
     @Query("SELECT * FROM meal_entry WHERE date=:date ORDER BY createdAt") fun meals(date:String):Flow<List<MealEntryEntity>>

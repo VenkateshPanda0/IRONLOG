@@ -9,6 +9,11 @@ import java.time.LocalDate
 class WorkoutRepository(private val db:IronlogDatabase) {
     private val dao=db.dao()
     val active=dao.activeSession(); val history=dao.history()
+    val exercises=dao.exercises()
+    fun sessionExercises(sessionId:Long)=dao.sessionExercises(sessionId)
+    suspend fun session(sessionId:Long)=dao.session(sessionId)
+    suspend fun sets(sessionExerciseId:Long)=dao.setsOnce(sessionExerciseId)
+    suspend fun addCustomExercise(name:String,id:String) = dao.putExercise(ExerciseEntity(id=id,name=name,isCustom=true))
     suspend fun start(name:String,rows:List<Triple<String,String,Int>>,programId:Long?=null,day:String?=null)=db.withTransaction { dao.startWorkout(name,programId,day,rows) }
     suspend fun completeSet(id:Long,weightKg:Double?,reps:Int?) { dao.set(id)?.let { dao.updateSet(it.copy(weightKg=weightKg,reps=reps,isCompleted=true,completedAt=System.currentTimeMillis())) } }
     suspend fun saveSetDraft(id:Long,weightKg:Double?,reps:Int?) { dao.set(id)?.let { dao.updateSet(it.copy(weightKg=weightKg,reps=reps)) } }
@@ -22,6 +27,7 @@ class WorkoutRepository(private val db:IronlogDatabase) {
 class NutritionRepository(private val dao:IronlogDao) {
     fun foods(q:String)=dao.searchFoods(q)
     fun meals(date:LocalDate)=dao.meals(date.toString())
+    fun searchFoods(query:String)=dao.searchFoods(query)
     suspend fun addCustom(name:String,kcal:Double,protein:Double,carbs:Double,fat:Double)=dao.addFood(FoodEntity(name=name,kcalPer100g=kcal,proteinPer100g=protein,carbsPer100g=carbs,fatPer100g=fat))
     suspend fun log(food:FoodEntity,date:LocalDate,meal:String,grams:Double)=dao.addMeal(MealEntryEntity(date=date.toString(),mealType=meal,foodId=food.id,foodNameSnapshot=food.name,grams=grams,kcal=Calculations.foodMacro(food.kcalPer100g,grams),protein=Calculations.foodMacro(food.proteinPer100g,grams),carbs=Calculations.foodMacro(food.carbsPer100g,grams),fat=Calculations.foodMacro(food.fatPer100g,grams),fiber=food.fiberPer100g?.let{Calculations.foodMacro(it,grams)}))
     suspend fun copyDay(from:LocalDate,to:LocalDate)=dao.mealsOnce(from.toString()).forEach { dao.addMeal(it.copy(id=0,date=to.toString(),createdAt=System.currentTimeMillis())) }

@@ -26,6 +26,6 @@ class MainActivity:ComponentActivity() {
         val import=registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
             if(uri!=null) lifecycleScope.launch { runCatching { val text=withContext(Dispatchers.IO) { contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() } ?: throw IOException("Could not open backup") }; container.backup.importJson(text) }.onFailure { Toast.makeText(this@MainActivity,"Backup import failed: ${it.message}",Toast.LENGTH_LONG).show() }.onSuccess { Toast.makeText(this@MainActivity,"Backup imported",Toast.LENGTH_SHORT).show() } }
         }
-        setContent { val theme by container.theme.collectAsState(initial="DARK"); IronlogTheme(theme!="LIGHT") { IronlogRoot(container,onTheme={},onExport={export.launch("ironlog_backup.json")},onImport={import.launch(arrayOf("application/json","text/*"))}) } }
+        setContent { val theme by container.theme.collectAsState(initial="DARK"); IronlogTheme(theme!="LIGHT") { IronlogRoot(container,onTheme={ value -> lifecycleScope.launch { container.setTheme(if(value) "LIGHT" else "DARK") } },onExport={export.launch("ironlog_backup.json")},onImport={import.launch(arrayOf("application/json","text/*"))}) } }
     }
 }
