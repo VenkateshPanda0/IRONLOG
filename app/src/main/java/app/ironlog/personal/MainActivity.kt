@@ -1,0 +1,18 @@
+package app.ironlog.personal
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import app.ironlog.personal.ui.theme.IronlogTheme
+import app.ironlog.personal.ui.nav.IronlogRoot
+
+class MainActivity:ComponentActivity() {
+    override fun onCreate(savedInstanceState:Bundle?) { super.onCreate(savedInstanceState); val container=(application as IronlogApp).container
+        setContent { var dark by remember { mutableStateOf(true) }; IronlogTheme(dark) { IronlogRoot(container,onTheme={dark=it}) } }
+    }
+}
