@@ -10,3 +10,5 @@
 - Exact next step: continue implementing as much of M6-M8 and M10 source as possible without builds/tests/downloads; update README and gate records; add local commits/tags marked `*-not-run`; retry remote publication only after GitHub write access or a credentialed terminal becomes available.
 
 - M6 progress source: daily latest-weight aggregation, range filtering and a chart of real recorded values; strength/volume/nutrition charts remain incomplete.
+
+- M7 source: JSON backup/import bundle, SAF create/open document pickers, transactional import validation, custom exercise creation, stored unit conversion helpers, and backup test source. Photo/measurement and program edit UI remain incomplete.

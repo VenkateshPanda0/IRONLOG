@@ -6,6 +6,49 @@ import kotlinx.coroutines.flow.Flow
 @Dao interface IronlogDao {
     @Query("SELECT * FROM user_profile WHERE id=1") fun profile(): Flow<UserProfileEntity?>
     @Query("SELECT * FROM user_profile WHERE id=1") suspend fun profileOnce(): UserProfileEntity?
+    @Query("SELECT * FROM exercise") suspend fun allExercises():List<ExerciseEntity>
+    @Query("SELECT * FROM program") suspend fun allPrograms():List<ProgramEntity>
+    @Query("SELECT * FROM program_day") suspend fun allProgramDays():List<ProgramDayEntity>
+    @Query("SELECT * FROM program_day_exercise") suspend fun allPrescriptions():List<ProgramDayExerciseEntity>
+    @Query("SELECT * FROM active_program") suspend fun allActivePrograms():List<ActiveProgramEntity>
+    @Query("SELECT * FROM user_profile") suspend fun allProfiles():List<UserProfileEntity>
+    @Query("SELECT * FROM workout_session") suspend fun allSessions():List<WorkoutSessionEntity>
+    @Query("SELECT * FROM session_exercise") suspend fun allSessionExercises():List<SessionExerciseEntity>
+    @Query("SELECT * FROM set_log") suspend fun allSets():List<SetLogEntity>
+    @Query("SELECT * FROM food") suspend fun allFoods():List<FoodEntity>
+    @Query("SELECT * FROM food_serving") suspend fun allServings():List<FoodServingEntity>
+    @Query("SELECT * FROM meal_entry") suspend fun allMeals():List<MealEntryEntity>
+    @Query("SELECT * FROM body_weight") suspend fun allWeights():List<BodyWeightEntity>
+    @Query("SELECT * FROM goal") suspend fun allGoals():List<GoalEntity>
+    @Transaction suspend fun backupSnapshot()=BackupSnapshot(exercises=allExercises(),programs=allPrograms(),programDays=allProgramDays(),prescriptions=allPrescriptions(),activePrograms=allActivePrograms(),profile=allProfiles(),sessions=allSessions(),sessionExercises=allSessionExercises(),sets=allSets(),foods=allFoods(),servings=allServings(),meals=allMeals(),weights=allWeights(),goals=allGoals())
+    @Insert(onConflict=OnConflictStrategy.REPLACE) suspend fun restoreExercises(rows:List<ExerciseEntity>)
+    @Insert(onConflict=OnConflictStrategy.REPLACE) suspend fun restorePrograms(rows:List<ProgramEntity>)
+    @Insert(onConflict=OnConflictStrategy.REPLACE) suspend fun restoreProgramDays(rows:List<ProgramDayEntity>)
+    @Insert(onConflict=OnConflictStrategy.REPLACE) suspend fun restorePrescriptions(rows:List<ProgramDayExerciseEntity>)
+    @Insert(onConflict=OnConflictStrategy.REPLACE) suspend fun restoreActivePrograms(rows:List<ActiveProgramEntity>)
+    @Insert(onConflict=OnConflictStrategy.REPLACE) suspend fun restoreProfiles(rows:List<UserProfileEntity>)
+    @Insert(onConflict=OnConflictStrategy.REPLACE) suspend fun restoreSessions(rows:List<WorkoutSessionEntity>)
+    @Insert(onConflict=OnConflictStrategy.REPLACE) suspend fun restoreSessionExercises(rows:List<SessionExerciseEntity>)
+    @Insert(onConflict=OnConflictStrategy.REPLACE) suspend fun restoreSets(rows:List<SetLogEntity>)
+    @Insert(onConflict=OnConflictStrategy.REPLACE) suspend fun restoreFoods(rows:List<FoodEntity>)
+    @Insert(onConflict=OnConflictStrategy.REPLACE) suspend fun restoreServings(rows:List<FoodServingEntity>)
+    @Insert(onConflict=OnConflictStrategy.REPLACE) suspend fun restoreMeals(rows:List<MealEntryEntity>)
+    @Insert(onConflict=OnConflictStrategy.REPLACE) suspend fun restoreWeights(rows:List<BodyWeightEntity>)
+    @Insert(onConflict=OnConflictStrategy.REPLACE) suspend fun restoreGoals(rows:List<GoalEntity>)
+    @Query("DELETE FROM set_log") suspend fun deleteSets()
+    @Query("DELETE FROM session_exercise") suspend fun deleteSessionExercises()
+    @Query("DELETE FROM workout_session") suspend fun deleteAllSessions()
+    @Query("DELETE FROM meal_entry") suspend fun deleteAllMeals()
+    @Query("DELETE FROM food_serving") suspend fun deleteAllServings()
+    @Query("DELETE FROM food") suspend fun deleteAllFoods()
+    @Query("DELETE FROM body_weight") suspend fun deleteAllWeights()
+    @Query("DELETE FROM active_program") suspend fun deleteAllActivePrograms()
+    @Query("DELETE FROM program_day_exercise") suspend fun deleteAllPrescriptions()
+    @Query("DELETE FROM program_day") suspend fun deleteAllProgramDays()
+    @Query("DELETE FROM program") suspend fun deleteAllPrograms()
+    @Query("DELETE FROM exercise") suspend fun deleteAllExercises()
+    @Query("DELETE FROM user_profile") suspend fun deleteAllProfiles()
+    @Query("DELETE FROM goal") suspend fun deleteAllGoals()
     @Insert(onConflict=OnConflictStrategy.REPLACE) suspend fun saveProfile(value:UserProfileEntity)
     @Query("SELECT * FROM workout_session WHERE status IN ('IN_PROGRESS','PAUSED') ORDER BY startedAt DESC LIMIT 1") fun activeSession(): Flow<WorkoutSessionEntity?>
     @Query("SELECT * FROM workout_session WHERE status='COMPLETED' ORDER BY startedAt DESC") fun history(): Flow<List<WorkoutSessionEntity>>

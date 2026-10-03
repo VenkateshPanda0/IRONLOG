@@ -8,7 +8,7 @@ import app.ironlog.personal.AppContainer
 import app.ironlog.personal.ui.screens.*
 
 private val tabs=listOf("Home","Train","Nutrition","Progress","Settings")
-@Composable fun IronlogRoot(container:AppContainer,onTheme:(Boolean)->Unit) {
+@Composable fun IronlogRoot(container:AppContainer,onTheme:(Boolean)->Unit,onExport:()->Unit,onImport:()->Unit) {
     var selected by remember { mutableIntStateOf(0) }
     val profile by container.profile.collectAsState(initial=null)
     Scaffold(bottomBar={ if(profile!=null) NavigationBar { tabs.forEachIndexed { i,label -> NavigationBarItem(selected==i,onClick={selected=i},icon={Text(listOf("⌂","＋","◉","↗","⚙")[i])},label={Text(label)}) } } }) { pad ->
@@ -17,7 +17,7 @@ private val tabs=listOf("Home","Train","Nutrition","Progress","Settings")
             1 -> TrainScreen(container)
             2 -> NutritionScreen(container)
             3 -> ProgressScreen(container)
-            else -> SettingsScreen(container,onTheme)
+            else -> SettingsScreen(container,onTheme,onExport,onImport)
         } }
     }
 }

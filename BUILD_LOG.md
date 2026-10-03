@@ -49,3 +49,5 @@ Per the user's instruction, **all build/test/manual verification gates are NOT R
 - No project existed in the local workspace. This is a new single-module Android project.
 - User data schema starts at Room version 1. The complete later migration set and pre-migration backup recovery are not authored yet.
 - Any unimplemented requirements are listed in `README.md` and `docs/STATE.md`; no pass is claimed.
+
+- M7 backup implementation added as source: serializable Room rows, SAF JSON export/import, structural checks and transactional restore. Round-trip test authored but NOT RUN.

@@ -20,6 +20,7 @@ class AppContainer(context:Context) {
     val workouts=WorkoutRepository(db)
     val nutrition=NutritionRepository(db.dao())
     val body=BodyRepository(db.dao())
+    val backup=BackupRepository(db)
     val programs=ProgramRepository(db)
     val seed=SeedLoader(context,db)
     val openFoodFacts=OpenFoodFactsProvider(db.dao())
@@ -27,7 +28,7 @@ class AppContainer(context:Context) {
     val restTimer=RestTimerController(context,db.dao())
     val profile=db.dao().profile()
     suspend fun saveProfile(value:app.ironlog.personal.data.db.UserProfileEntity)=db.dao().saveProfile(value)
-    suspend fun clearPersonalData() { db.withTransaction { db.dao().clearSessions(); db.dao().clearMeals(); db.dao().clearWeights(); db.dao().clearProfile() } }
+    suspend fun clearPersonalData() { db.withTransaction { val dao=db.dao(); dao.deleteSets(); dao.deleteSessionExercises(); dao.deleteAllSessions(); dao.deleteAllMeals(); dao.deleteAllServings(); dao.deleteAllFoods(); dao.deleteAllWeights(); dao.deleteAllActivePrograms(); dao.deleteAllPrescriptions(); dao.deleteAllProgramDays(); dao.deleteAllPrograms(); dao.deleteAllExercises(); dao.deleteAllProfiles(); dao.deleteAllGoals(); dao.clearRestTimer() } }
     private val themeKey=stringPreferencesKey("theme")
     val theme=context.preferences.data.map { it[themeKey] ?: "DARK" }
     suspend fun setTheme(value:String) { appContext.preferences.edit { it[themeKey]=value } }
