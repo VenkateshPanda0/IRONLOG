@@ -1,0 +1,5 @@
+sourceRef,label,grams
+1001,"1 cup, cooked",177
+1001,invalid,not-a-number
+1001,zero,0
+1003,1 cup,200

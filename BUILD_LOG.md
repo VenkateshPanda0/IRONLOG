@@ -39,6 +39,7 @@ The continuation brief authorizes Gradle, tests, and dataset downloads; current 
 - Bundled 876 free-exercise-db metadata records (1,005,327 bytes); exercise images are excluded because their redistribution terms are not established here.
 - Downloaded USDA SR Legacy April 2018 data and generated 1,200 complete-macro food rows plus 2,271 portions. The source archive was not committed; selected CSV assets are in the project and documented in `docs/SEED_DATA.md`.
 - Transactional exercise/food loaders and DataStore seed-version gating are authored. Runtime inserts are unverified.
+- Food CSV parser fixtures cover quoted values, malformed rows, absent optional fiber, required macro rejection, and invalid portion data. A Robolectric Room idempotency test expects 1,200 USDA food records and verifies a second load inserts no duplicates. These tests are authored, NOT RUN.
 - Removed the placeholder Room schema (`identityHash: schema-not-generated`). KSP must generate a valid v1 schema before a verified release; no schema file currently exists.
 - Secrets are not present. No USDA API key or OFF contact address exists in this source tree. USDA lookup is not implemented; the displayed OFF contact is the generic `unset@example.invalid` placeholder.
 - No reference screenshots were found in the supplied project files; M9 was not performed.

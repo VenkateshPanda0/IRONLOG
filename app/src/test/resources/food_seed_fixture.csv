@@ -1,0 +1,5 @@
+name,brand,kcal,protein,carbs,fat,fiber,sourceRef
+"Beans, cooked",,127,8.7,22.8,0.5,6.4,1001
+"Quoted ""test"" food",,100,2,4,1,,1002
+Missing macro,,0,,4,1,,1003
+Invalid kcal,,not-a-number,2,4,1,,1004

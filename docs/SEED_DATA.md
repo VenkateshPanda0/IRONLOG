@@ -24,4 +24,4 @@ To refresh from the upstream source, run `tools/fetch_exercise_seed.ps1`, inspec
 
 `SeedLoader` and `FoodSeedLoader` insert source records inside Room transactions. Seed IDs/source references and `IGNORE` conflict handling make reruns safe. DataStore stores the seed version; the root UI waits for both seed operations before showing the app. Users' custom exercise and food IDs are independent of USDA/exercise source IDs.
 
-Seed counts reflect generated records, not a verified installed database. Android startup seeding is still NOT RUN until the Android build/runtime gate can execute.
+Seed counts reflect generated records, not a verified installed database. CSV parser fixtures and a Robolectric loader idempotency test are authored but NOT RUN. Android startup seeding remains unverified until the Android build/runtime gate can execute.

@@ -73,6 +73,8 @@ import kotlinx.coroutines.flow.Flow
     @Insert suspend fun addFood(value:FoodEntity):Long
     @Insert(onConflict=OnConflictStrategy.IGNORE) suspend fun insertFoodSeed(value:FoodEntity):Long
     @Insert(onConflict=OnConflictStrategy.IGNORE) suspend fun insertFoodServingSeed(value:FoodServingEntity):Long
+    @Query("SELECT COUNT(*) FROM food WHERE source='USDA'") suspend fun countSeedFoods():Int
+    @Query("SELECT COUNT(*) FROM food_serving") suspend fun countFoodServings():Int
     @Query("SELECT * FROM food WHERE sourceRef=:ref LIMIT 1") suspend fun foodBySourceRef(ref:String):FoodEntity?
     @Insert suspend fun addMeal(value:MealEntryEntity):Long
     @Query("SELECT * FROM meal_entry WHERE date=:date ORDER BY createdAt") fun meals(date:String):Flow<List<MealEntryEntity>>
