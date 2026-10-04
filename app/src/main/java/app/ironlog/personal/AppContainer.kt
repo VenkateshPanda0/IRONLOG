@@ -67,6 +67,35 @@ class AppContainer(context: Context) {
             dao.deleteAllGoals()
             dao.clearRestTimer()
         }
+        // The wipe also removes bundled library rows; restore them so the app stays usable.
+        setSeedVersion(0)
+        runSeeds()
+    }
+
+    /** Loads bundled exercises, foods and programs when the stored seed version is outdated. */
+    suspend fun runSeeds() {
+        runCatching {
+                val currentVersion = seedVersion()
+                val shouldLoadExercises = currentVersion < EXERCISE_SEED_VERSION
+                val exerciseCount = if (shouldLoadExercises) seed.load() else 0
+                val shouldLoadFoods = currentVersion < FOOD_SEED_VERSION
+                val foodCounts = if (shouldLoadFoods) foodSeed.load() else null
+                val shouldLoadPrograms = currentVersion < PROGRAM_SEED_VERSION
+                if (shouldLoadExercises || shouldLoadPrograms) programSeed.load()
+                val latestSeedVersion =
+                    maxOf(EXERCISE_SEED_VERSION, FOOD_SEED_VERSION, PROGRAM_SEED_VERSION)
+                if (currentVersion < latestSeedVersion) setSeedVersion(latestSeedVersion)
+                updateSeedState(
+                    SeedState.Ready(
+                        insertedExercises = exerciseCount,
+                        insertedFoods = foodCounts?.insertedFoods ?: 0,
+                        insertedServings = foodCounts?.insertedServings ?: 0,
+                    )
+                )
+            }
+            .onFailure { error ->
+                updateSeedState(SeedState.Failed(error.message ?: "Seed setup failed"))
+            }
     }
 
     private val themeKey = stringPreferencesKey("theme")
@@ -84,6 +113,10 @@ class AppContainer(context: Context) {
         appContext.preferences.edit { it[seedVersionKey] = value }
     }
 }
+
+private const val EXERCISE_SEED_VERSION = 2
+private const val FOOD_SEED_VERSION = 2
+private const val PROGRAM_SEED_VERSION = 3
 
 sealed interface SeedState {
     data object Loading : SeedState

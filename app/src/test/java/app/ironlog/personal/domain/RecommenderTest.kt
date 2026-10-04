@@ -8,7 +8,7 @@ import org.junit.Test
 class RecommenderTest {
     @Test
     fun splitMatrixIsStableForTrainingDays() {
-        assertEquals("Full Body 3x", Recommender.chooseSplit(2).title)
+        assertEquals("Full Body 2x", Recommender.chooseSplit(2).title)
         assertEquals(2, Recommender.chooseSplit(2).focus.size)
         assertEquals("Full Body 3x", Recommender.chooseSplit(3).title)
         assertEquals("Upper / Lower", Recommender.chooseSplit(4).title)

@@ -1,475 +1,487 @@
 package app.ironlog.personal.ui.train
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.material3.Button
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import app.ironlog.personal.AppContainer
-import app.ironlog.personal.IronlogViewModelFactory
+import app.ironlog.personal.data.db.ExerciseEntity
 import app.ironlog.personal.data.db.ProgramDayExerciseEntity
-import app.ironlog.personal.data.db.WorkoutSessionEntity
+import app.ironlog.personal.data.db.ProgramEntity
+import app.ironlog.personal.data.db.UserProfileEntity
+import app.ironlog.personal.data.db.displayName
+import app.ironlog.personal.data.db.primaryMuscleList
 import app.ironlog.personal.domain.ExerciseCandidate
 import app.ironlog.personal.domain.ExerciseOption
 import app.ironlog.personal.domain.ExperienceLevel
 import app.ironlog.personal.domain.QuickWorkoutGenerator
 import app.ironlog.personal.domain.Recommender
 import app.ironlog.personal.domain.TrainingProfile
-import app.ironlog.personal.ui.components.Field
-import app.ironlog.personal.ui.components.Page
-import app.ironlog.personal.ui.workouts.WorkoutViewModel
+import app.ironlog.personal.ui.components.*
+import app.ironlog.personal.ui.nav.Navigator
+import app.ironlog.personal.ui.nav.Routes
+import app.ironlog.personal.ui.theme.IronTheme
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonPrimitive
+
+private val QUICK_TARGETS =
+    linkedMapOf(
+        "Full body" to setOf("chest", "lats", "middle back", "shoulders", "quadriceps", "hamstrings", "glutes"),
+        "Upper" to setOf("chest", "lats", "middle back", "shoulders", "biceps", "triceps"),
+        "Lower" to setOf("quadriceps", "hamstrings", "glutes", "calves"),
+        "Push" to setOf("chest", "shoulders", "triceps"),
+        "Pull" to setOf("lats", "middle back", "biceps", "traps"),
+        "Arms" to setOf("biceps", "triceps", "forearms"),
+        "Core" to setOf("abdominals", "lower back"),
+    )
 
 @Composable
-fun TrainScreen(container: AppContainer) {
-    val workoutViewModel: WorkoutViewModel = viewModel(factory = IronlogViewModelFactory(container))
-    val state by workoutViewModel.state.collectAsState()
-    val exercises by workoutViewModel.exercises.collectAsState(initial = emptyList())
+fun TrainScreen(container: AppContainer, nav: Navigator) {
+    val active by container.workouts.active.collectAsState(initial = null)
+    val history by container.workouts.history.collectAsState(initial = emptyList())
+    val exercises by container.workouts.exercises.collectAsState(initial = emptyList())
     val programs by container.programs.programs.collectAsState(initial = emptyList())
     val activeProgram by container.programs.active.collectAsState(initial = null)
     val profile by container.profile.collectAsState(initial = null)
     val scope = rememberCoroutineScope()
-    var selectedSession by remember { mutableStateOf<WorkoutSessionEntity?>(null) }
-    var showHistory by remember { mutableStateOf(false) }
-    var exerciseName by remember { mutableStateOf("") }
-    var goalProfileMessage by remember { mutableStateOf<String?>(null) }
-    var showRecommendation by remember { mutableStateOf(false) }
-    var recommendationDays by remember { mutableStateOf("3") }
-    var recommendationMinutes by remember {
-        mutableStateOf(profile?.sessionMinutes?.toString() ?: "45")
-    }
-    var recommendationGoal by remember { mutableStateOf(profile?.goal ?: "MAINTAIN") }
-    var recommendationExperience by remember {
-        mutableStateOf(
-            runCatching { ExperienceLevel.valueOf(profile?.experience ?: "BEGINNER") }
-                .getOrDefault(ExperienceLevel.BEGINNER)
+    var quickFocus by remember { mutableStateOf("Full body") }
+    var quickMinutes by remember { mutableIntStateOf(45) }
+    var confirmFinish by remember { mutableStateOf(false) }
+
+    Page(
+        "Train",
+        actions = {
+            IconButton(onClick = { nav.open(Routes.HISTORY) }) {
+                Icon(Icons.Filled.History, contentDescription = "Workout history")
+            }
+        },
+    ) {
+        active?.let { session ->
+            IronCard {
+                Eyebrow("In progress")
+                Text(session.name, style = MaterialTheme.typography.titleLarge)
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    PrimaryButton(
+                        "Resume",
+                        icon = Icons.Filled.PlayArrow,
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            scope.launch {
+                                if (session.status == "PAUSED") container.workouts.resume(session.id)
+                                nav.workout(session.id)
+                            }
+                        },
+                    )
+                    SecondaryButton("Finish", { confirmFinish = true }, Modifier.weight(1f))
+                }
+            }
+            if (confirmFinish) {
+                ConfirmDialog(
+                    title = "Finish this workout?",
+                    body = "Completed sets are saved to your history.",
+                    confirm = "Finish",
+                    onConfirm = {
+                        confirmFinish = false
+                        scope.launch {
+                            container.workouts.finish(session.id)
+                            container.restTimer.skip()
+                        }
+                    },
+                    onDismiss = { confirmFinish = false },
+                )
+            }
+        }
+
+        val current = programs.firstOrNull { it.id == activeProgram?.programId }
+        SectionHeader("Your program")
+        if (current != null) {
+            ProgramCard(current, isActive = true, onClick = { nav.open(Routes.program(current.id)) })
+        } else {
+            IronCard {
+                Text("No active program", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "Activate a program below or build one tailored to your profile.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        SecondaryButton(
+            "Build a program for me",
+            { nav.open(Routes.BUILDER) },
+            icon = Icons.Filled.AutoAwesome,
+        )
+
+        SectionHeader("All programs")
+        programs.filter { it.id != current?.id }.forEach { program ->
+            ProgramCard(program, isActive = false, onClick = { nav.open(Routes.program(program.id)) })
+        }
+
+        SectionHeader("Quick workout")
+        IronCard {
+            Text(
+                "Generated from the exercise library for your equipment.",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            ChipRow(QUICK_TARGETS.keys.toList(), quickFocus, { it }, { quickFocus = it })
+            ChipRow(listOf(15, 30, 45, 60), quickMinutes, { "$it min" }, { quickMinutes = it })
+            PrimaryButton(
+                "Generate & start",
+                icon = Icons.Filled.Bolt,
+                enabled = active == null && exercises.isNotEmpty(),
+                onClick = {
+                    scope.launch {
+                        val id =
+                            startQuickWorkout(
+                                container,
+                                exercises,
+                                profile,
+                                quickFocus,
+                                QUICK_TARGETS.getValue(quickFocus),
+                                quickMinutes,
+                            )
+                        id?.let(nav::workout)
+                    }
+                },
+            )
+            TextButton(
+                enabled = active == null,
+                onClick = {
+                    scope.launch { nav.workout(container.workouts.start("Empty workout", emptyList())) }
+                },
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = null)
+                Spacer(Modifier.width(6.dp))
+                Text("START EMPTY WORKOUT")
+            }
+        }
+
+        ListRow(
+            title = "Workout history",
+            subtitle = "${history.size} completed sessions",
+            onClick = { nav.open(Routes.HISTORY) },
+            leading = { Icon(Icons.Filled.History, contentDescription = null) },
+            trailing = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
         )
     }
-    var recommendationAvoid by remember { mutableStateOf(profile?.avoidList ?: "") }
+}
+
+@Composable
+private fun ProgramCard(program: ProgramEntity, isActive: Boolean, onClick: () -> Unit) {
+    IronCard(onClick = onClick) {
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            if (isActive) Pill("Active", IronTheme.colors.accent.copy(alpha = 0.25f))
+            Pill(if (program.isBuiltIn) "Built-in" else "Custom")
+            Pill("${program.daysPerWeek} days / week")
+        }
+        Text(program.displayName.uppercase(), style = MaterialTheme.typography.titleLarge)
+        if (program.description.isNotBlank()) {
+            Text(
+                program.description,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 3,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+    }
+}
+
+private fun equipmentFor(profile: UserProfileEntity?): Set<String> =
+    if (profile?.equipment.equals("BODYWEIGHT", ignoreCase = true)) setOf("body only")
+    else GYM_EQUIPMENT
+
+private suspend fun startQuickWorkout(
+    container: AppContainer,
+    exercises: List<ExerciseEntity>,
+    profile: UserProfileEntity?,
+    label: String,
+    targets: Set<String>,
+    minutes: Int,
+): Long? {
+    val candidates =
+        exercises
+            .filter { it.category.equals("strength", true) || it.isCustom }
+            .map {
+                ExerciseCandidate(
+                    id = it.id,
+                    name = it.name,
+                    primaryMuscles = it.primaryMuscleList.toSet(),
+                    equipment = listOfNotNull(it.equipment).toSet(),
+                )
+            }
+            // Only exercises that hit the chosen focus are useful here.
+            .filter { candidate -> candidate.primaryMuscles.any { it in targets } }
+    val avoid =
+        profile?.avoidList.orEmpty().split(',').map(String::trim).filter(String::isNotEmpty).toSet()
+    // Spread picks across the target muscles instead of taking alphabetically-first matches.
+    val pool =
+        QuickWorkoutGenerator.generate(candidates, targets, equipmentFor(profile), avoid, 240)
+    val perMuscle = pool.groupBy { it.primaryMuscles.first { m -> m in targets } }
+    val limit = QuickWorkoutGenerator.exerciseCount(minutes)
+    val picked = mutableListOf<ExerciseCandidate>()
+    var round = 0
+    while (picked.size < limit && perMuscle.values.any { it.size > round }) {
+        targets.forEach { muscle ->
+            perMuscle[muscle]?.getOrNull(round)?.let { if (picked.size < limit) picked += it }
+        }
+        round++
+    }
+    if (picked.isEmpty()) return null
+    return container.workouts.start("Quick · $label", picked.map { Triple(it.id, it.name, 3) })
+}
+
+/** Program builder: suggests a split from the profile and saves it as a custom program. */
+@Composable
+fun ProgramBuilderScreen(container: AppContainer, nav: Navigator) {
+    val exercises by container.workouts.exercises.collectAsState(initial = emptyList())
+    val profile by container.profile.collectAsState(initial = null)
+    val scope = rememberCoroutineScope()
+    var message by remember { mutableStateOf<String?>(null) }
+    var days by remember { mutableIntStateOf(3) }
+    var minutes by remember { mutableIntStateOf(45) }
+    var goal by remember { mutableStateOf("BUILD_MUSCLE") }
+    var experience by remember { mutableStateOf(ExperienceLevel.BEGINNER) }
+    var avoid by remember { mutableStateOf("") }
 
     profile?.let { current ->
-        LaunchedEffect(current) {
-            recommendationDays = current.daysPerWeek.toString()
-            recommendationMinutes = current.sessionMinutes.toString()
-            recommendationGoal = current.goal
-            recommendationExperience =
+        LaunchedEffect(current.id) {
+            days = current.daysPerWeek.coerceIn(2, 6)
+            minutes = current.sessionMinutes
+            goal = current.goal
+            experience =
                 runCatching { ExperienceLevel.valueOf(current.experience) }
                     .getOrDefault(ExperienceLevel.BEGINNER)
-            recommendationAvoid = current.avoidList
+            avoid = current.avoidList
         }
     }
 
-    val activeWorkout = selectedSession
-    when {
-        activeWorkout != null ->
-            ActiveWorkoutScreen(
-                container = container,
-                viewModel = workoutViewModel,
-                session = activeWorkout,
-                onClose = { selectedSession = null },
-            )
-        showHistory -> HistoryScreen(state.history, onBack = { showHistory = false })
-        else ->
-            Page("Train") {
-                state.active?.let { active ->
-                    Text(
-                        "Workout in progress · ${active.name}",
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                    Button(
-                        onClick = {
-                            scope.launch {
-                                if (active.status == "PAUSED") workoutViewModel.resume(active.id)
-                                selectedSession = workoutViewModel.session(active.id)
-                            }
-                        }
-                    ) {
-                        Text("Resume workout")
-                    }
-                    OutlinedButton(
-                        onClick = {
-                            scope.launch {
-                                workoutViewModel.finish(active.id)
-                                container.restTimer.skip()
-                            }
-                        }
-                    ) {
-                        Text("Finish workout")
-                    }
-                }
-
-                Text("Programs", style = MaterialTheme.typography.titleLarge)
-                if (programs.isEmpty()) {
-                    Text("No programs are available yet. Add an exercise to start a quick workout.")
-                } else {
-                    programs.forEach { program ->
-                        Text(program.name, style = MaterialTheme.typography.titleMedium)
-                        Text(program.description)
-                        if (!program.isBuiltIn) {
-                            val editingRecommendedProgram = program.name.endsWith(" (Recommended)")
-                            var editedProgramName by
-                                remember(program.id, program.name) {
-                                    mutableStateOf(program.name.removeSuffix(" (Recommended)"))
-                                }
-                            var editedProgramDescription by
-                                remember(program.id, program.description) {
-                                    mutableStateOf(program.description)
-                                }
-                            Field("Program name", editedProgramName, { editedProgramName = it })
-                            Field(
-                                "Program description",
-                                editedProgramDescription,
-                                { editedProgramDescription = it },
-                            )
-                            OutlinedButton(
-                                enabled =
-                                    editingRecommendedProgram && editedProgramName.isNotBlank(),
-                                onClick = {
-                                    scope.launch {
-                                        runCatching {
-                                            container.programs.renameRecommended(
-                                                program.id,
-                                                editedProgramName.trim(),
-                                                editedProgramDescription,
-                                            )
-                                        }
-                                            .onSuccess {
-                                                goalProfileMessage = "Program details saved."
-                                            }
-                                            .onFailure { goalProfileMessage = it.message }
-                                    }
-                                },
-                            ) {
-                                Text("Save program details")
-                            }
-                        }
-                        OutlinedButton(
-                            enabled = activeProgram?.programId != program.id,
-                            onClick = { scope.launch { container.programs.activate(program.id) } },
-                        ) {
-                            Text(
-                                if (activeProgram?.programId == program.id) "Active program"
-                                else "Activate"
-                            )
-                        }
-                        val programDays by
-                            container.programs
-                                .days(program.id)
-                                .collectAsState(initial = emptyList())
-                        val isActiveProgram = activeProgram?.programId == program.id
-                        val nextProgramDayId =
-                            programDays
-                                .getOrNull(
-                                    ((activeProgram?.currentDay ?: 1) - 1)
-                                        .coerceAtLeast(0)
-                                        .mod(programDays.size.coerceAtLeast(1))
-                                )
-                                ?.id
-                        val prescriptionsByDay by
-                            container.programs
-                                .prescriptionsForDays(programDays)
-                                .collectAsState(initial = emptyMap())
-                        programDays.forEach { day ->
-                            Text(
-                                if (isActiveProgram && day.id == nextProgramDayId) {
-                                    "Next · ${day.name}"
-                                } else {
-                                    day.name
-                                },
-                                style = MaterialTheme.typography.titleSmall,
-                            )
-                            val prescriptions = prescriptionsByDay[day.id].orEmpty()
-                            prescriptions.forEach { prescription ->
-                                val exerciseNameForProgram =
-                                    exercises.firstOrNull { it.id == prescription.exerciseId }?.name
-                                        ?: prescription.exerciseId
-                                Text(
-                                    "$exerciseNameForProgram · ${prescription.targetSets} × ${prescription.repMin}–${prescription.repMax}"
-                                )
-                            }
-                            Button(
-                                enabled =
-                                    state.active == null &&
-                                        !day.isRest &&
-                                        (!isActiveProgram || day.id == nextProgramDayId),
-                                onClick = {
-                                    scope.launch {
-                                        val sessionId = container.programs.start(program.id, day.id)
-                                        selectedSession = workoutViewModel.session(sessionId)
-                                    }
-                                },
-                            ) {
-                                Text(
-                                    if (isActiveProgram && day.id != nextProgramDayId) {
-                                        "Finish next workout first"
-                                    } else {
-                                        "Start ${day.name}"
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-                TextButton(onClick = { showRecommendation = !showRecommendation }) {
-                    Text(
-                        if (showRecommendation) "Hide program builder"
-                        else "Build a program for my profile"
-                    )
-                }
-                if (showRecommendation) {
-                    Field(
-                        "Training days per week (2–6)",
-                        recommendationDays,
-                        { recommendationDays = it },
-                        true,
-                    )
-                    Field(
-                        "Session length in minutes",
-                        recommendationMinutes,
-                        { recommendationMinutes = it },
-                        true,
-                    )
-                    Text("Goal")
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        listOf("BUILD_MUSCLE", "GET_STRONGER", "LOSE_FAT", "MAINTAIN").forEach {
-                            goal ->
-                            FilterChip(
-                                selected = recommendationGoal == goal,
-                                onClick = { recommendationGoal = goal },
-                                label = { Text(goal.replace('_', ' ')) },
-                            )
-                        }
-                    }
-                    Text("Experience")
-                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        ExperienceLevel.entries.forEach { level ->
-                            FilterChip(
-                                selected = recommendationExperience == level,
-                                onClick = { recommendationExperience = level },
-                                label = {
-                                    Text(level.name.lowercase().replaceFirstChar(Char::uppercase))
-                                },
-                            )
-                        }
-                    }
-                    Field(
-                        "Exercises or muscles to avoid",
-                        recommendationAvoid,
-                        { recommendationAvoid = it },
-                    )
-                    val equipment =
-                        if (profile?.equipment.equals("BODYWEIGHT", true)) setOf("body only")
-                        else GYM_EQUIPMENT
-                    val recommendation =
-                        Recommender.suggest(
-                            TrainingProfile(
-                                daysPerWeek = recommendationDays.toIntOrNull() ?: 3,
-                                goal = recommendationGoal,
-                                equipment = equipment,
-                                experience = recommendationExperience,
-                                sessionMinutes = recommendationMinutes.toIntOrNull() ?: 45,
-                                avoidList =
-                                    recommendationAvoid
-                                        .split(',')
-                                        .map { it.trim() }
-                                        .filter { it.isNotEmpty() }
-                                        .toSet(),
-                            ),
-                            exercises
-                                .filter { it.category.equals("strength", true) }
-                                .map { exercise ->
-                                    ExerciseOption(
-                                        id = exercise.id,
-                                        name = exercise.name,
-                                        primaryMuscles =
-                                            runCatching {
-                                                    Json.parseToJsonElement(exercise.primaryMuscles)
-                                                        .jsonArray
-                                                        .map { it.jsonPrimitive.content }
-                                                        .toSet()
-                                                }
-                                                .getOrDefault(emptySet()),
-                                        equipment = exercise.equipment,
-                                        level = exercise.level,
-                                        mechanic = exercise.mechanic,
-                                    )
-                                },
+    val namesById = remember(exercises) { exercises.associate { it.id to it.name } }
+    val recommendation =
+        remember(exercises, days, minutes, goal, experience, avoid, profile?.equipment) {
+            Recommender.suggest(
+                TrainingProfile(
+                    daysPerWeek = days,
+                    goal = goal,
+                    equipment = equipmentFor(profile),
+                    experience = experience,
+                    sessionMinutes = minutes,
+                    avoidList = avoid.split(',').map { it.trim() }.filter { it.isNotEmpty() }.toSet(),
+                ),
+                exercises
+                    .filter { it.category.equals("strength", true) }
+                    .map {
+                        ExerciseOption(
+                            id = it.id,
+                            name = it.name,
+                            primaryMuscles = it.primaryMuscleList.toSet(),
+                            equipment = it.equipment,
+                            level = it.level,
+                            mechanic = it.mechanic,
                         )
-                    Text(
-                        "Suggested · ${recommendation.template}",
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                    Text(recommendation.why)
-                    recommendation.days.forEach { day ->
-                        Text(
-                            "${day.name} · ${day.exercises.size} exercises",
-                            style = MaterialTheme.typography.titleSmall,
-                        )
-                        day.exercises.forEach { prescription ->
-                            val exerciseName =
-                                exercises.firstOrNull { it.id == prescription.exerciseId }?.name
-                                    ?: prescription.exerciseId
-                            Text(
-                                "$exerciseName · ${prescription.sets} × ${prescription.repMin}–${prescription.repMax}"
-                            )
-                        }
-                    }
-                    goalProfileMessage?.let { Text(it) }
-                    Button(
-                        enabled = recommendation.days.any { it.exercises.isNotEmpty() },
-                        onClick = {
-                            scope.launch {
-                                profile?.let { current ->
-                                    val programDays =
-                                        recommendation.days.map { day ->
-                                            day.name to
-                                                day.exercises.mapIndexed { order, prescription ->
-                                                    ProgramDayExerciseEntity(
-                                                        programDayId = 0,
-                                                        exerciseId = prescription.exerciseId,
-                                                        orderIndex = order,
-                                                        targetSets = prescription.sets,
-                                                        repMin = prescription.repMin,
-                                                        repMax = prescription.repMax,
-                                                        restSeconds = prescription.restSeconds,
-                                                    )
-                                                }
-                                        }
-                                    val programId =
-                                        container.programs.saveRecommended(
-                                            recommendation.template,
-                                            recommendation.why,
-                                            recommendationDays.toIntOrNull()?.coerceIn(2, 6) ?: 3,
-                                            programDays,
-                                        )
-                                    container.programs.activate(programId)
-                                    container.saveProfile(
-                                        current.copy(
-                                            daysPerWeek =
-                                                recommendationDays.toIntOrNull()?.coerceIn(2, 6)
-                                                    ?: current.daysPerWeek,
-                                            sessionMinutes =
-                                                recommendationMinutes
-                                                    .toIntOrNull()
-                                                    ?.coerceIn(20, 120) ?: current.sessionMinutes,
-                                            goal = recommendationGoal,
-                                            experience = recommendationExperience.name,
-                                            avoidList = recommendationAvoid,
-                                        )
-                                    )
-                                    goalProfileMessage =
-                                        "Saved and activated ${recommendation.template}."
-                                }
-                            }
-                        },
-                    ) {
-                        Text("Save and activate this program")
-                    }
-                }
-
-                Field("Add a custom exercise", exerciseName, { exerciseName = it })
-                OutlinedButton(
-                    onClick = {
-                        val name = exerciseName.trim()
-                        if (name.isNotEmpty()) {
-                            scope.launch {
-                                workoutViewModel.addCustomExercise(
-                                    name,
-                                    "custom_${java.util.UUID.randomUUID()}",
-                                )
-                                exerciseName = ""
-                            }
-                        }
-                    }
-                ) {
-                    Text("Save exercise")
-                }
-                Text("Exercise library · ${exercises.size} on-device entries")
-                Button(
-                    enabled = state.active == null && exercises.isNotEmpty(),
-                    onClick = {
-                        scope.launch {
-                            val availableEquipment =
-                                if (profile?.equipment.equals("BODYWEIGHT", ignoreCase = true)) {
-                                    setOf("body only")
-                                } else {
-                                    setOf(
-                                        "barbell",
-                                        "dumbbell",
-                                        "cable",
-                                        "machine",
-                                        "body only",
-                                        "kettlebells",
-                                    )
-                                }
-                            val candidates = exercises.map { exercise ->
-                                ExerciseCandidate(
-                                    id = exercise.id,
-                                    name = exercise.name,
-                                    primaryMuscles =
-                                        runCatching {
-                                                Json.parseToJsonElement(exercise.primaryMuscles)
-                                                    .jsonArray
-                                                    .mapNotNull { muscle ->
-                                                        muscle.jsonPrimitive.contentOrNull
-                                                    }
-                                                    .toSet()
-                                            }
-                                            .getOrDefault(emptySet()),
-                                    equipment = listOfNotNull(exercise.equipment).toSet(),
-                                )
-                            }
-                            val targetMuscles =
-                                setOf(
-                                    "chest",
-                                    "back",
-                                    "shoulders",
-                                    "quadriceps",
-                                    "hamstrings",
-                                    "glutes",
-                                    "abdominals",
-                                )
-                            val generated =
-                                QuickWorkoutGenerator.generate(
-                                    exercises = candidates,
-                                    targetMuscles = targetMuscles,
-                                    equipment = availableEquipment,
-                                    avoidList = emptySet(),
-                                    minutes = 30,
-                                )
-                            val namesById = exercises.associateBy { it.id }
-                            val rows = generated.mapNotNull { candidate ->
-                                namesById[candidate.id]?.let { Triple(it.id, it.name, 3) }
-                            }
-                            val id = workoutViewModel.start("Quick workout", rows)
-                            selectedSession = workoutViewModel.session(id)
-                        }
                     },
-                ) {
-                    Text("Start quick workout")
+            )
+        }
+
+    Page("Program builder", onBack = { nav.back() }) {
+        Eyebrow("Days per week")
+        ChipRow((2..6).toList(), days, { "$it" }, { days = it })
+        Eyebrow("Session length")
+        ChipRow(listOf(30, 45, 60, 75, 90), minutes, { "$it min" }, { minutes = it })
+        Eyebrow("Goal")
+        ChipRow(
+            listOf("BUILD_MUSCLE", "GET_STRONGER", "LOSE_FAT", "MAINTAIN"),
+            goal,
+            { it.replace('_', ' ') },
+            { goal = it },
+        )
+        Eyebrow("Experience")
+        ChipRow(
+            ExperienceLevel.entries.toList(),
+            experience,
+            { it.name.lowercase().replaceFirstChar(Char::uppercase) },
+            { experience = it },
+        )
+        Field("Exercises or muscles to avoid (comma separated)", avoid, { avoid = it })
+
+        SectionHeader(recommendation.template)
+        Text(recommendation.why, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        recommendation.days.forEach { day ->
+            IronCard {
+                Text(day.name.uppercase(), style = MaterialTheme.typography.titleMedium)
+                if (day.exercises.isEmpty()) {
+                    Text("No matching exercises for this day with the current filters.")
                 }
-                TextButton(onClick = { showHistory = true }) {
-                    Text("Workout history (${state.history.size})")
+                day.exercises.forEach { prescription ->
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text(
+                            namesById[prescription.exerciseId] ?: prescription.exerciseId,
+                            modifier = Modifier.weight(1f),
+                        )
+                        Text(
+                            "${prescription.sets} × ${prescription.repMin}–${prescription.repMax}",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
+        }
+        message?.let { Text(it, color = IronTheme.colors.accent) }
+        PrimaryButton(
+            "Save and activate",
+            enabled = profile != null && recommendation.days.any { it.exercises.isNotEmpty() },
+            onClick = {
+                scope.launch {
+                    val current = profile ?: return@launch
+                    val programDays =
+                        recommendation.days.map { day ->
+                            day.name to
+                                day.exercises.mapIndexed { order, prescription ->
+                                    ProgramDayExerciseEntity(
+                                        programDayId = 0,
+                                        exerciseId = prescription.exerciseId,
+                                        orderIndex = order,
+                                        targetSets = prescription.sets,
+                                        repMin = prescription.repMin,
+                                        repMax = prescription.repMax,
+                                        restSeconds = prescription.restSeconds,
+                                    )
+                                }
+                        }
+                    val programId =
+                        container.programs.saveRecommended(
+                            recommendation.template,
+                            recommendation.why,
+                            days,
+                            programDays,
+                        )
+                    container.programs.activate(programId)
+                    container.saveProfile(
+                        current.copy(
+                            daysPerWeek = days,
+                            sessionMinutes = minutes,
+                            goal = goal,
+                            experience = experience.name,
+                            avoidList = avoid,
+                        )
+                    )
+                    message = "Saved and activated ${recommendation.template}."
+                    nav.replace(Routes.program(programId))
+                }
+            },
+        )
     }
+}
+
+/** Program overview: schedule, per-day prescriptions, activation and starting any day. */
+@Composable
+fun ProgramDetailScreen(container: AppContainer, nav: Navigator, programId: Long) {
+    val programs by container.programs.programs.collectAsState(initial = emptyList())
+    val program = programs.firstOrNull { it.id == programId }
+    val activeProgram by container.programs.active.collectAsState(initial = null)
+    val active by container.workouts.active.collectAsState(initial = null)
+    val exercises by container.workouts.exercises.collectAsState(initial = emptyList())
+    val days by remember(programId) { container.programs.days(programId) }.collectAsState(initial = emptyList())
+    val prescriptionsByDay by
+        remember(days) { container.programs.prescriptionsForDays(days) }
+            .collectAsState(initial = emptyMap())
+    val scope = rememberCoroutineScope()
+    val isActive = activeProgram?.programId == programId
+    val nextDayId =
+        days.getOrNull(((activeProgram?.currentDay ?: 1) - 1).coerceAtLeast(0).mod(days.size.coerceAtLeast(1)))?.id
+    val namesById = remember(exercises) { exercises.associate { it.id to it.name } }
+    var editing by remember { mutableStateOf(false) }
+
+    if (program == null) {
+        Page("Program", onBack = { nav.back() }) { Text("This program no longer exists.") }
+        return
+    }
+    Page(program.displayName, onBack = { nav.back() }) {
+        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            if (isActive) Pill("Active", IronTheme.colors.accent.copy(alpha = 0.25f))
+            Pill("${program.daysPerWeek} days / week")
+            Pill("${days.size} sessions per cycle")
+        }
+        if (program.description.isNotBlank()) {
+            Text(program.description, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        if (isActive) {
+            SecondaryButton("Active program", {}, enabled = false)
+        } else {
+            PrimaryButton("Activate program", { scope.launch { container.programs.activate(program.id) } })
+        }
+        if (!program.isBuiltIn && program.name.endsWith(" (Recommended)")) {
+            TextButton(onClick = { editing = !editing }) {
+                Text(if (editing) "CLOSE" else "RENAME PROGRAM")
+            }
+            if (editing) RenameProgram(container, program) { editing = false }
+        }
+
+        SectionHeader("Schedule")
+        days.forEachIndexed { index, day ->
+            val prescriptions = prescriptionsByDay[day.id].orEmpty()
+            IronCard {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Eyebrow("Day ${index + 1}")
+                        Text(day.name.uppercase(), style = MaterialTheme.typography.titleLarge)
+                    }
+                    if (isActive && day.id == nextDayId) Pill("Up next", IronTheme.colors.accent.copy(alpha = 0.25f))
+                }
+                if (day.isRest) Text("Rest day")
+                prescriptions.forEach { p ->
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text(namesById[p.exerciseId] ?: p.exerciseId, modifier = Modifier.weight(1f))
+                        Text(
+                            "${p.targetSets} × ${p.repMin}–${p.repMax}",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+                if (!day.isRest && prescriptions.isNotEmpty()) {
+                    SecondaryButton(
+                        if (active != null) "Finish current workout first" else "Start ${day.name}",
+                        enabled = active == null,
+                        icon = Icons.Filled.PlayArrow,
+                        onClick = {
+                            scope.launch {
+                                if (!isActive) container.programs.activate(program.id)
+                                nav.workout(container.programs.start(program.id, day.id))
+                            }
+                        },
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RenameProgram(container: AppContainer, program: ProgramEntity, onDone: () -> Unit) {
+    val scope = rememberCoroutineScope()
+    var name by remember(program.id) { mutableStateOf(program.name.removeSuffix(" (Recommended)")) }
+    var description by remember(program.id) { mutableStateOf(program.description) }
+    var error by remember { mutableStateOf<String?>(null) }
+    Field("Program name", name, { name = it })
+    Field("Description", description, { description = it })
+    error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+    PrimaryButton(
+        "Save",
+        enabled = name.isNotBlank(),
+        onClick = {
+            scope.launch {
+                runCatching { container.programs.renameRecommended(program.id, name.trim(), description) }
+                    .onSuccess { onDone() }
+                    .onFailure { error = it.message }
+            }
+        },
+    )
 }
 
 private val GYM_EQUIPMENT =

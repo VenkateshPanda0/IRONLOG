@@ -1,250 +1,343 @@
 package app.ironlog.personal.ui.onboarding
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.Button
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import app.ironlog.personal.AppContainer
 import app.ironlog.personal.data.db.GoalEntity
 import app.ironlog.personal.data.db.ProgramDayExerciseEntity
 import app.ironlog.personal.data.db.UserProfileEntity
+import app.ironlog.personal.data.db.primaryMuscleList
 import app.ironlog.personal.domain.Calculations
 import app.ironlog.personal.domain.ExerciseOption
 import app.ironlog.personal.domain.ExperienceLevel
 import app.ironlog.personal.domain.RecommendedDay
 import app.ironlog.personal.domain.Recommender
 import app.ironlog.personal.domain.TrainingProfile
-import app.ironlog.personal.ui.components.Field
-import app.ironlog.personal.ui.components.Page
+import app.ironlog.personal.ui.components.*
+import app.ironlog.personal.ui.theme.IronTheme
 import java.time.LocalDate
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonPrimitive
+
+private const val STEPS = 5
+
+private val GOALS =
+    listOf(
+        Choice("LOSE_FAT", "Lose fat", "Calorie deficit while keeping strength"),
+        Choice("BUILD_MUSCLE", "Build muscle", "Hypertrophy focus with a small surplus"),
+        Choice("GET_STRONGER", "Get stronger", "Heavier compounds, lower rep ranges"),
+        Choice("MAINTAIN", "Maintain", "Train consistently at maintenance calories"),
+    )
+
+private val ACTIVITY =
+    listOf(
+        1.2 to "Sedentary · desk job, little walking",
+        1.375 to "Light · on your feet some of the day",
+        1.55 to "Moderate · active job or lots of walking",
+        1.725 to "Very active · physical work every day",
+    )
+
+private data class Choice(val key: String, val title: String, val body: String)
 
 @Composable
 fun OnboardingScreen(c: AppContainer) {
     val scope = rememberCoroutineScope()
-    var name by remember { mutableStateOf("") }
-    var weight by remember { mutableStateOf("70") }
-    var height by remember { mutableStateOf("170") }
-    var age by remember { mutableStateOf("30") }
-    var goal by remember { mutableStateOf("MAINTAIN") }
-    var days by remember { mutableStateOf("3") }
-    var trainingWeekdays by remember { mutableStateOf(setOf("MON", "WED", "FRI")) }
-    var equipment by remember { mutableStateOf("GYM") }
-    var experience by remember { mutableStateOf(ExperienceLevel.BEGINNER) }
-    var sessionMinutes by remember { mutableStateOf("45") }
-    var avoidList by remember { mutableStateOf("") }
-    var sex by remember { mutableStateOf("UNSPECIFIED") }
-    var activity by remember { mutableDoubleStateOf(1.4) }
-    var recommendationMessage by remember { mutableStateOf<String?>(null) }
-    val w = weight.toDoubleOrNull() ?: 70.0
-    val h = height.toDoubleOrNull() ?: 170.0
-    val a = age.toIntOrNull() ?: 30
-    Page("Set up Ironlog") {
-        Text("Your profile stays on this device. Update it any time in Settings.")
-        Field("Name", name, { name = it })
-        Field("Weight (kg)", weight, { weight = it }, true)
-        Field("Height (cm)", height, { height = it }, true)
-        Field("Age", age, { age = it }, true)
-        Field("Training days per week", days, { days = it }, true)
-        Text("Choose the weekdays you expect to train")
-        WeekdaySelector(trainingWeekdays) { day ->
-            trainingWeekdays =
-                if (day in trainingWeekdays) trainingWeekdays - day else trainingWeekdays + day
-        }
-        Text("Select exactly ${days.toIntOrNull()?.coerceIn(2, 6) ?: 3} days.")
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            listOf("MALE", "FEMALE", "UNSPECIFIED").forEach {
-                FilterChip(sex == it, { sex = it }, label = { Text(it) })
-            }
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            listOf("LOSE_FAT", "MAINTAIN", "BUILD_MUSCLE", "GET_STRONGER").forEach {
-                FilterChip(goal == it, { goal = it }, label = { Text(it) })
-            }
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-            listOf(1.2, 1.375, 1.55, 1.725).forEach { factor ->
-                FilterChip(
-                    activity == factor,
-                    { activity = factor },
-                    label = { Text(factor.toString()) },
-                )
-            }
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            listOf("GYM", "BODYWEIGHT").forEach {
-                FilterChip(equipment == it, { equipment = it }, label = { Text(it) })
-            }
-        }
-        Text("Experience")
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            ExperienceLevel.entries.forEach { level ->
-                FilterChip(
-                    selected = experience == level,
-                    onClick = { experience = level },
-                    label = { Text(level.name.lowercase().replaceFirstChar(Char::uppercase)) },
-                )
-            }
-        }
-        Field("Session length (minutes)", sessionMinutes, { sessionMinutes = it }, true)
-        Field("Exercises or movements to avoid", avoidList, { avoidList = it })
-        val equipmentSet = if (equipment == "BODYWEIGHT") setOf("body only") else GYM_EQUIPMENT
-        val exerciseOptions by
-            c.workouts.exercises
-                .map { rows -> rows.filter { it.category.equals("strength", ignoreCase = true) } }
-                .collectAsState(initial = emptyList())
-        val suggestion =
+    var step by rememberSaveable { mutableIntStateOf(0) }
+    var name by rememberSaveable { mutableStateOf("") }
+    var sex by rememberSaveable { mutableStateOf("UNSPECIFIED") }
+    var weight by rememberSaveable { mutableStateOf("") }
+    var height by rememberSaveable { mutableStateOf("") }
+    var age by rememberSaveable { mutableStateOf("") }
+    var goal by rememberSaveable { mutableStateOf("BUILD_MUSCLE") }
+    var activity by rememberSaveable { mutableDoubleStateOf(1.375) }
+    var experience by rememberSaveable { mutableStateOf(ExperienceLevel.BEGINNER) }
+    var weekdays by rememberSaveable { mutableStateOf(listOf("MON", "WED", "FRI")) }
+    var minutes by rememberSaveable { mutableIntStateOf(60) }
+    var equipment by rememberSaveable { mutableStateOf("GYM") }
+    var saving by remember { mutableStateOf(false) }
+
+    val w = weight.toDoubleOrNull()?.takeIf { it in 25.0..400.0 }
+    val h = height.toDoubleOrNull()?.takeIf { it in 100.0..250.0 }
+    val a = age.toIntOrNull()?.takeIf { it in 13..100 }
+    val daysPerWeek = weekdays.size
+
+    val exercises by c.workouts.exercises.collectAsState(initial = emptyList())
+    val suggestion =
+        remember(exercises, daysPerWeek, goal, experience, minutes, equipment) {
             Recommender.suggest(
                 TrainingProfile(
-                    daysPerWeek = days.toIntOrNull() ?: 3,
+                    daysPerWeek = daysPerWeek.coerceIn(2, 6),
                     goal = goal,
-                    equipment = equipmentSet,
+                    equipment = if (equipment == "BODYWEIGHT") setOf("body only") else GYM_EQUIPMENT,
                     experience = experience,
-                    sessionMinutes = sessionMinutes.toIntOrNull() ?: 45,
-                    avoidList =
-                        avoidList.split(',').map { it.trim() }.filter { it.isNotEmpty() }.toSet(),
+                    sessionMinutes = minutes,
+                    avoidList = emptySet(),
                 ),
-                exerciseOptions.map { exercise ->
-                    ExerciseOption(
-                        id = exercise.id,
-                        name = exercise.name,
-                        primaryMuscles =
-                            runCatching {
-                                    kotlinx.serialization.json.Json.parseToJsonElement(
-                                            exercise.primaryMuscles
-                                        )
-                                        .jsonArray
-                                        .map { it.jsonPrimitive.content }
-                                        .toSet()
-                                }
-                                .getOrDefault(emptySet()),
-                        equipment = exercise.equipment,
-                        level = exercise.level,
-                        mechanic = exercise.mechanic,
-                    )
-                },
-            )
-        Text(
-            "Suggested template · ${suggestion.template}",
-            style = MaterialTheme.typography.titleMedium,
-        )
-        Text(suggestion.why)
-        suggestion.days.forEach { day ->
-            Text(
-                "${day.name} · ${day.exercises.size} exercises",
-                style = MaterialTheme.typography.titleSmall,
-            )
-            day.exercises.forEach { prescription ->
-                val exerciseName =
-                    exerciseOptions.firstOrNull { it.id == prescription.exerciseId }?.name
-                        ?: prescription.exerciseId
-                Text(
-                    "$exerciseName · ${prescription.sets} × ${prescription.repMin}–${prescription.repMax}"
-                )
-            }
-        }
-        recommendationMessage?.let { Text(it) }
-        Button(
-            enabled =
-                suggestion.days.any { it.exercises.isNotEmpty() } &&
-                    trainingWeekdays.size == (days.toIntOrNull()?.coerceIn(2, 6) ?: 3),
-            onClick = {
-                scope.launch {
-                    val programDays = recommendationProgramDays(suggestion.days)
-                    val programId =
-                        c.programs.saveRecommended(
-                            name = suggestion.template,
-                            description = suggestion.why,
-                            daysPerWeek = days.toIntOrNull()?.coerceIn(2, 6) ?: 3,
-                            days = programDays,
+                exercises
+                    .filter { it.category.equals("strength", ignoreCase = true) }
+                    .map {
+                        ExerciseOption(
+                            id = it.id,
+                            name = it.name,
+                            primaryMuscles = it.primaryMuscleList.toSet(),
+                            equipment = it.equipment,
+                            level = it.level,
+                            mechanic = it.mechanic,
                         )
-                    c.programs.activate(programId)
-                    recommendationMessage = "Saved and activated ${suggestion.template}."
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
+                    },
+            )
+        }
+    val kcal = if (w != null && h != null && a != null) Calculations.targetCalories(sex, w, h, a, activity, goal) else null
+    val macros = kcal?.let { Calculations.macroTargets(it, w!!) }
+
+    val canContinue =
+        when (step) {
+            0 -> true
+            1 -> w != null && h != null && a != null
+            3 -> daysPerWeek in 2..6
+            else -> true
+        }
+
+    BackHandler(enabled = step > 0) { step-- }
+
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("Save and activate program")
-        }
-        val kcal = Calculations.targetCalories(sex, w, h, a, activity, goal)
-        Text(
-            kcal?.let {
-                "Mifflin–St Jeor estimate · $it kcal · protein ${"%.0f".format(w*2)} g · fat ${"%.0f".format(it*.25/9)} g · carbs ${"%.0f".format((it-w*2*4-it*.25)/4)} g. Estimates only."
-            } ?: "Under 18: set calorie and macro targets manually."
-        )
-        Text("These estimates are not medical advice.")
-        Button(
-            onClick = {
-                scope.launch {
-                    val chosenDays = (days.toIntOrNull() ?: 3).coerceIn(2, 6)
-                    c.saveProfile(
-                        UserProfileEntity(
-                            name = name,
-                            sex = sex,
-                            weightKg = w,
-                            heightCm = h,
-                            age = a,
-                            activity = activity,
-                            goal = goal,
-                            equipment = equipment,
-                            daysPerWeek = chosenDays,
-                            experience = experience.name,
-                            sessionMinutes = sessionMinutes.toIntOrNull()?.coerceIn(20, 120) ?: 45,
-                            avoidList = avoidList,
-                            trainingWeekdays = WEEKDAYS.filter { it in trainingWeekdays }.joinToString(","),
-                        )
-                    )
-                    kcal?.let { calorieTarget ->
-                        val proteinTarget = w * 2
-                        val fatTarget = calorieTarget * .25 / 9
-                        val carbsTarget =
-                            ((calorieTarget - proteinTarget * 4 - fatTarget * 9) / 4).coerceAtLeast(
-                                0.0
+            IconButton(onClick = { step-- }, enabled = step > 0) {
+                if (step > 0) Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+            }
+            Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                repeat(STEPS) { index ->
+                    Box(
+                        Modifier.weight(1f)
+                            .height(4.dp)
+                            .clip(CircleShape)
+                            .background(
+                                if (index <= step) MaterialTheme.colorScheme.onSurface
+                                else MaterialTheme.colorScheme.surfaceContainerHighest
                             )
-                        c.goals.save(
-                            GoalEntity(
-                                kcalTarget = calorieTarget,
-                                proteinG = proteinTarget,
-                                carbsG = carbsTarget,
-                                fatG = fatTarget,
+                    )
+                }
+            }
+            Spacer(Modifier.width(48.dp))
+        }
+        Column(
+            Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            when (step) {
+                0 -> {
+                    Spacer(Modifier.height(24.dp))
+                    Text("IRONLOG", style = MaterialTheme.typography.displayMedium)
+                    Text(
+                        "Train with a plan. Log every set. Track what you eat. Everything stays on this phone.",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    Field("What should we call you?", name, { name = it })
+                }
+                1 -> {
+                    StepTitle("About you", "Used for calorie and macro estimates.")
+                    Eyebrow("Sex")
+                    ChipRow(listOf("MALE", "FEMALE", "UNSPECIFIED"), sex, { it.lowercase().replaceFirstChar(Char::uppercase) }, { sex = it })
+                    Field("Age", age, { age = it }, number = true)
+                    Field("Height (cm)", height, { height = it }, number = true)
+                    Field("Weight (kg)", weight, { weight = it }, number = true)
+                    if (a != null && a < 18) {
+                        Text(
+                            "Under 18: calorie targets are not estimated. You can set them yourself later.",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+                2 -> {
+                    StepTitle("Your goal", "This shapes your program and calorie target.")
+                    GOALS.forEach { choice ->
+                        OptionCard(choice.title, choice.body, goal == choice.key) { goal = choice.key }
+                    }
+                    Eyebrow("Daily activity outside training")
+                    ACTIVITY.forEach { (factor, label) ->
+                        OptionCard(label.substringBefore(" ·"), label.substringAfter("· "), activity == factor) {
+                            activity = factor
+                        }
+                    }
+                }
+                3 -> {
+                    StepTitle("Training", "Pick the days you can train. 2 to 6 days.")
+                    WeekdaySelector(weekdays.toSet()) { day ->
+                        weekdays = if (day in weekdays) weekdays - day else weekdays + day
+                    }
+                    Text(
+                        "$daysPerWeek days per week",
+                        color = if (daysPerWeek in 2..6) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error,
+                    )
+                    Eyebrow("Experience")
+                    ChipRow(ExperienceLevel.entries.toList(), experience, { it.name.lowercase().replaceFirstChar(Char::uppercase) }, { experience = it })
+                    Eyebrow("Session length")
+                    ChipRow(listOf(30, 45, 60, 75, 90), minutes, { "$it min" }, { minutes = it })
+                    Eyebrow("Where do you train?")
+                    OptionCard("Gym", "Barbells, dumbbells, cables and machines", equipment == "GYM") { equipment = "GYM" }
+                    OptionCard("Bodyweight", "No equipment needed", equipment == "BODYWEIGHT") { equipment = "BODYWEIGHT" }
+                }
+                else -> {
+                    StepTitle("Your plan", "You can change all of this later.")
+                    IronCard {
+                        Eyebrow("Program")
+                        Text(suggestion.template.uppercase(), style = MaterialTheme.typography.headlineSmall)
+                        Text(suggestion.why, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        suggestion.days.forEach { day ->
+                            Text("${day.name} · ${day.exercises.size} exercises", style = MaterialTheme.typography.titleSmall)
+                        }
+                    }
+                    IronCard {
+                        Eyebrow("Daily nutrition")
+                        if (macros != null) {
+                            Row(verticalAlignment = Alignment.Bottom) {
+                                Text("${macros.kcal}", style = MaterialTheme.typography.displaySmall)
+                                Text(" kcal", modifier = Modifier.padding(bottom = 6.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                                StatTile("Protein", "%.0f".format(macros.proteinG), Modifier.weight(1f), "g")
+                                StatTile("Carbs", "%.0f".format(macros.carbsG), Modifier.weight(1f), "g")
+                                StatTile("Fat", "%.0f".format(macros.fatG), Modifier.weight(1f), "g")
+                            }
+                            Text(
+                                "Mifflin–St Jeor estimate. Not medical advice.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        } else {
+                            Text("Set your calorie and macro targets in Settings.")
+                        }
+                    }
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+        }
+        Box(Modifier.padding(20.dp)) {
+            PrimaryButton(
+                text = if (step < STEPS - 1) "Continue" else "Start training",
+                enabled = canContinue && !saving,
+                onClick = {
+                    if (step < STEPS - 1) {
+                        step++
+                        return@PrimaryButton
+                    }
+                    val kg = w ?: return@PrimaryButton
+                    saving = true
+                    scope.launch {
+                        if (suggestion.days.any { it.exercises.isNotEmpty() }) {
+                            val programId =
+                                c.programs.saveRecommended(
+                                    name = suggestion.template,
+                                    description = suggestion.why,
+                                    daysPerWeek = daysPerWeek,
+                                    days = programDays(suggestion.days),
+                                )
+                            c.programs.activate(programId)
+                        }
+                        macros?.let {
+                            c.goals.save(GoalEntity(kcalTarget = it.kcal, proteinG = it.proteinG, carbsG = it.carbsG, fatG = it.fatG))
+                        }
+                        c.body.log(LocalDate.now(), kg, "Starting weight")
+                        // Saving the profile last switches the app to the main screens.
+                        c.saveProfile(
+                            UserProfileEntity(
+                                name = name.trim(),
+                                sex = sex,
+                                weightKg = kg,
+                                heightCm = h ?: 170.0,
+                                age = a ?: 30,
+                                activity = activity,
+                                goal = goal,
+                                equipment = equipment,
+                                daysPerWeek = daysPerWeek,
+                                experience = experience.name,
+                                sessionMinutes = minutes,
+                                trainingWeekdays = WEEKDAYS.filter { it in weekdays }.joinToString(","),
                             )
                         )
                     }
-                    c.body.log(LocalDate.now(), w, "Starting weight")
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text("Save profile")
+                },
+            )
         }
     }
 }
 
-private fun recommendationProgramDays(
-    days: List<RecommendedDay>
-): List<Pair<String, List<ProgramDayExerciseEntity>>> = days.map { day ->
-    day.name to
-        day.exercises.mapIndexed { index, prescription ->
-            ProgramDayExerciseEntity(
-                programDayId = 0,
-                exerciseId = prescription.exerciseId,
-                orderIndex = index,
-                targetSets = prescription.sets,
-                repMin = prescription.repMin,
-                repMax = prescription.repMax,
-                restSeconds = prescription.restSeconds,
-            )
+@Composable
+private fun StepTitle(title: String, body: String) {
+    Spacer(Modifier.height(8.dp))
+    Text(title.uppercase(), style = MaterialTheme.typography.headlineLarge)
+    Text(body, color = MaterialTheme.colorScheme.onSurfaceVariant)
+}
+
+@Composable
+private fun OptionCard(title: String, body: String, selected: Boolean, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        shape = MaterialTheme.shapes.medium,
+        color = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.surfaceContainer,
+        contentColor = if (selected) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.onSurface,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Text(title.uppercase(), style = MaterialTheme.typography.titleMedium)
+            Text(body, style = MaterialTheme.typography.bodyMedium)
         }
+    }
+}
+
+private fun programDays(days: List<RecommendedDay>): List<Pair<String, List<ProgramDayExerciseEntity>>> =
+    days.map { day ->
+        day.name to
+            day.exercises.mapIndexed { index, p ->
+                ProgramDayExerciseEntity(
+                    programDayId = 0,
+                    exerciseId = p.exerciseId,
+                    orderIndex = index,
+                    targetSets = p.sets,
+                    repMin = p.repMin,
+                    repMax = p.repMax,
+                    restSeconds = p.restSeconds,
+                )
+            }
+    }
+
+private val WEEKDAYS = listOf("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
+
+@Composable
+fun WeekdaySelector(selected: Set<String>, onToggle: (String) -> Unit) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        WEEKDAYS.forEach { day ->
+            val on = day in selected
+            Surface(
+                onClick = { onToggle(day) },
+                shape = CircleShape,
+                color = if (on) IronTheme.colors.accent else MaterialTheme.colorScheme.surfaceContainer,
+                contentColor = if (on) IronTheme.colors.onAccent else MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f).aspectRatio(1f),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(day.take(1), style = MaterialTheme.typography.titleSmall)
+                }
+            }
+        }
+    }
 }
 
 private val GYM_EQUIPMENT =
@@ -261,14 +354,3 @@ private val GYM_EQUIPMENT =
         "medicine ball",
         "other",
     )
-
-private val WEEKDAYS = listOf("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
-
-@Composable
-private fun WeekdaySelector(selected: Set<String>, onToggle: (String) -> Unit) {
-    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-        WEEKDAYS.forEach { day ->
-            FilterChip(day in selected, { onToggle(day) }, label = { Text(day.take(2)) })
-        }
-    }
-}

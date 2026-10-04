@@ -122,4 +122,14 @@ object Calculations {
             }
         return (maintenance * (1 + adjustment)).toInt().coerceAtLeast(1200)
     }
+
+    data class MacroTargets(val kcal: Int, val proteinG: Double, val carbsG: Double, val fatG: Double)
+
+    /** Protein at 2 g/kg, fat at 25% of energy, carbohydrate fills the remainder (never < 0). */
+    fun macroTargets(kcal: Int, weightKg: Double): MacroTargets {
+        val protein = weightKg * 2
+        val fat = kcal * .25 / 9
+        val carbs = ((kcal - protein * 4 - fat * 9) / 4).coerceAtLeast(0.0)
+        return MacroTargets(kcal, protein, carbs, fat)
+    }
 }

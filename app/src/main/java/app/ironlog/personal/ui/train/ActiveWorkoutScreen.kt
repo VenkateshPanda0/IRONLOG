@@ -11,7 +11,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import app.ironlog.personal.AppContainer
+import app.ironlog.personal.IronlogViewModelFactory
+import app.ironlog.personal.ui.nav.Navigator
 import app.ironlog.personal.data.db.SetLogEntity
 import app.ironlog.personal.data.db.WorkoutSessionEntity
 import app.ironlog.personal.ui.components.Page
@@ -117,4 +120,12 @@ fun ActiveWorkoutScreen(
             }
         }
     }
+}
+
+@Composable
+fun ActiveWorkoutRoute(container: AppContainer, nav: Navigator, sessionId: Long) {
+    val viewModel: WorkoutViewModel = viewModel(factory = IronlogViewModelFactory(container))
+    val session by
+        produceState<WorkoutSessionEntity?>(null, sessionId) { value = viewModel.session(sessionId) }
+    session?.let { ActiveWorkoutScreen(container, viewModel, it, onClose = { nav.back() }) }
 }

@@ -13,6 +13,9 @@ serialization = "1.7.3"
 coroutines = "1.9.0"
 junit = "4.13.2"
 robolectric = "4.14.1"
+code-scanner = "16.1.0"
+androidx-test-core = "1.6.1"
+roborazzi = "1.39.0"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -27,6 +30,7 @@ compose-ui = { module = "androidx.compose.ui:ui" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
+compose-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 compose-foundation = { module = "androidx.compose.foundation:foundation" }
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
 androidx-core = { module = "androidx.core:core-ktx", version.ref = "core" }
@@ -42,6 +46,14 @@ serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-jso
 coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 junit = { module = "junit:junit", version.ref = "junit" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
+androidx-test-core = { module = "androidx.test:core", version.ref = "androidx-test-core" }
+compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+roborazzi = { module = "io.github.takahirom.roborazzi:roborazzi", version.ref = "roborazzi" }
+roborazzi-compose = { module = "io.github.takahirom.roborazzi:roborazzi-compose", version.ref = "roborazzi" }
+roborazzi-junit = { module = "io.github.takahirom.roborazzi:roborazzi-junit-rule", version.ref = "roborazzi" }
+code-scanner = { module = "com.google.android.gms:play-services-code-scanner", version.ref = "code-scanner" }
 
 [bundles]
-compose = ["compose-ui", "compose-foundation", "compose-material3", "compose-ui-tooling-preview"]
+compose = ["compose-ui", "compose-foundation", "compose-material3", "compose-icons-extended", "compose-ui-tooling-preview"]

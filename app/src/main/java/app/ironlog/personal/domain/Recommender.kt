@@ -50,19 +50,27 @@ object Recommender {
         val setCount = setsPerExercise(profile.experience)
         val repRange = repRange(profile.goal)
         val exerciseLimit = (profile.sessionMinutes.coerceIn(20, 120) / 9).coerceIn(3, 8)
+        val usage = mutableMapOf<String, Int>()
+        val selected =
+            split.focus.map { focus ->
+                selectExercises(available, focus, exerciseLimit, usage).toMutableList()
+            }
+        val coverage = ensureCoverage(available, split.focus, selected, usage)
         val days =
-            split.focus.mapIndexed { index, focus ->
-                val selected = selectExercises(available, focus, exerciseLimit)
+            selected.mapIndexed { index, picks ->
                 RecommendedDay(
                     name = dayName(split.title, index),
                     exercises =
-                        selected.map { exercise ->
+                        picks.map { exercise ->
                             val strengthCompound =
                                 profile.goal.equals("GET_STRONGER", ignoreCase = true) &&
                                     isCompound(exercise)
                             ExercisePrescription(
                                 exerciseId = exercise.id,
-                                sets = setCount,
+                                // Coverage accessories are lower priority, so they get less volume.
+                                sets =
+                                    if (exercise.id in coverage) (setCount - 1).coerceAtLeast(2)
+                                    else setCount,
                                 repMin = if (strengthCompound) 3 else repRange.first,
                                 repMax = if (strengthCompound) 6 else repRange.second,
                                 restSeconds = if (isCompound(exercise)) 150 else 90,
@@ -71,7 +79,12 @@ object Recommender {
                 )
             }
         val equipmentText =
-            profile.equipment.sorted().joinToString().ifEmpty { "available equipment" }
+            when {
+                profile.equipment.isEmpty() -> "available equipment"
+                profile.equipment.size > 4 -> "a full gym"
+                profile.equipment == setOf("body only") -> "bodyweight only"
+                else -> profile.equipment.sorted().joinToString()
+            }
         val goalText =
             when (profile.goal.uppercase()) {
                 "LOSE",
@@ -83,7 +96,7 @@ object Recommender {
             }
         val duration = profile.sessionMinutes.coerceIn(20, 120)
         val why =
-            "${split.title} fits $daysPerWeek training days and $duration-minute sessions, uses $equipmentText, and supports $goalText. Exercises are filtered by equipment and your avoid list."
+            "${split.title} fits $daysPerWeek training days and $duration-minute sessions, uses $equipmentText, and supports $goalText."
         return Recommendation(split.title, why, days)
     }
 
@@ -113,58 +126,21 @@ object Recommender {
     fun chooseSplit(daysPerWeek: Int): Split {
         val fullBody =
             listOf(
-                listOf(
-                    "quadriceps",
-                    "chest",
-                    "back",
-                    "hamstrings",
-                    "shoulders",
-                    "glutes",
-                    "biceps",
-                    "triceps",
-                    "calves",
-                    "abdominals",
-                ),
-                listOf(
-                    "hamstrings",
-                    "back",
-                    "chest",
-                    "quadriceps",
-                    "glutes",
-                    "shoulders",
-                    "triceps",
-                    "biceps",
-                    "abdominals",
-                    "calves",
-                ),
-                listOf(
-                    "chest",
-                    "quadriceps",
-                    "back",
-                    "glutes",
-                    "hamstrings",
-                    "shoulders",
-                    "biceps",
-                    "triceps",
-                    "calves",
-                    "abdominals",
-                ),
+                listOf("quadriceps", "chest", "lats", "hamstrings", "shoulders", "middle back", "biceps", "triceps", "calves", "abdominals"),
+                listOf("hamstrings", "middle back", "chest", "quadriceps", "shoulders", "lats", "triceps", "biceps", "abdominals", "calves"),
+                listOf("chest", "quadriceps", "lats", "glutes", "shoulders", "middle back", "biceps", "triceps", "calves", "abdominals"),
             )
-        val upperLower =
-            listOf(
-                listOf("chest", "back", "shoulders", "biceps", "triceps"),
-                listOf("quadriceps", "hamstrings", "glutes", "calves", "abdominals"),
-                listOf("chest", "back", "shoulders", "biceps", "triceps"),
-                listOf("quadriceps", "hamstrings", "glutes", "calves", "abdominals"),
-            )
+        val upper = listOf("chest", "lats", "shoulders", "middle back", "chest", "biceps", "triceps", "shoulders")
+        val lower = listOf("quadriceps", "hamstrings", "glutes", "quadriceps", "hamstrings", "calves", "abdominals", "calves")
+        val upperLower = listOf(upper, lower, upper, lower)
         val pushPullLegs =
             listOf(
-                listOf("chest", "shoulders", "triceps"),
-                listOf("back", "biceps"),
-                listOf("quadriceps", "hamstrings", "glutes", "calves"),
+                listOf("chest", "shoulders", "chest", "shoulders", "triceps", "triceps", "chest", "abdominals"),
+                listOf("lats", "middle back", "lats", "shoulders", "biceps", "biceps", "middle back", "traps"),
+                listOf("quadriceps", "hamstrings", "glutes", "quadriceps", "hamstrings", "calves", "abdominals", "calves"),
             )
         return when (daysPerWeek.coerceIn(2, 6)) {
-            2 -> Split("Full Body 3x", fullBody.take(2))
+            2 -> Split("Full Body 2x", fullBody.take(2))
             3 -> Split("Full Body 3x", fullBody)
             4 -> Split("Upper / Lower", upperLower)
             5 -> Split("Push / Pull / Legs", pushPullLegs)
@@ -173,27 +149,125 @@ object Recommender {
         }
     }
 
+    /**
+     * Picks one exercise per slot. Staple lifts win, exercises already used earlier in the week
+     * are deprioritised so repeated days get variety, then compound movements, then ID for a
+     * deterministic tie-break.
+     */
     private fun selectExercises(
         options: List<ExerciseOption>,
         priorityMuscles: List<String>,
         limit: Int,
+        usage: MutableMap<String, Int>,
     ): List<ExerciseOption> {
         val remaining = options.toMutableList()
         val chosen = mutableListOf<ExerciseOption>()
         priorityMuscles.forEach { target ->
+            if (chosen.size >= limit) return@forEach
             val exercise =
                 remaining
-                    .filter { option -> option.primaryMuscles.any { normalize(it) == target } }
-                    .sortedWith(
-                        compareByDescending<ExerciseOption> { isCompound(it) }.thenBy { it.id }
+                    .filter { option -> option.primaryMuscles.any { Staples.matches(target, normalize(it)) } }
+                    .minWithOrNull(
+                        compareBy<ExerciseOption> { usage[it.id] ?: 0 }
+                            .thenBy { Staples.rank(it.id) }
+                            .thenByDescending { isCompound(it) }
+                            .thenBy { it.id }
                     )
-                    .firstOrNull()
-            if (exercise != null && chosen.size < limit) {
+            if (exercise != null) {
                 chosen += exercise
                 remaining.remove(exercise)
+                usage[exercise.id] = (usage[exercise.id] ?: 0) + 1
             }
         }
         return chosen
+    }
+
+    /** Every muscle group in the exercise library, in the order coverage gaps are filled. */
+    val ALL_MUSCLES =
+        listOf(
+            "chest",
+            "lats",
+            "middle back",
+            "shoulders",
+            "quadriceps",
+            "hamstrings",
+            "glutes",
+            "biceps",
+            "triceps",
+            "calves",
+            "abdominals",
+            "lower back",
+            "traps",
+            "forearms",
+            "adductors",
+            "abductors",
+            "neck",
+        )
+
+    /** Muscles a missing group is trained alongside; used to choose the day it is added to. */
+    private val companions =
+        mapOf(
+            "chest" to setOf("chest", "shoulders", "triceps"),
+            "lats" to setOf("lats", "middle back", "biceps"),
+            "middle back" to setOf("lats", "middle back", "biceps"),
+            "shoulders" to setOf("shoulders", "chest", "triceps"),
+            "quadriceps" to setOf("quadriceps", "hamstrings", "glutes"),
+            "hamstrings" to setOf("hamstrings", "quadriceps", "glutes"),
+            "glutes" to setOf("glutes", "hamstrings", "quadriceps"),
+            "biceps" to setOf("biceps", "lats", "middle back"),
+            "triceps" to setOf("triceps", "chest", "shoulders"),
+            "calves" to setOf("calves", "quadriceps", "hamstrings"),
+            "abdominals" to setOf("abdominals", "quadriceps", "hamstrings"),
+            "lower back" to setOf("hamstrings", "glutes", "middle back"),
+            "traps" to setOf("middle back", "lats", "shoulders"),
+            "forearms" to setOf("biceps", "lats", "middle back"),
+            "adductors" to setOf("quadriceps", "glutes", "hamstrings"),
+            "abductors" to setOf("glutes", "quadriceps", "hamstrings"),
+            "neck" to setOf("shoulders", "traps", "middle back"),
+        )
+
+    /**
+     * Guarantees that each muscle group with at least one usable exercise is trained once per
+     * week. A missing group is added to the day whose template is closest to it (fewest
+     * exercises breaks ties), even if that day goes past the session-length estimate.
+     * Returns the IDs that were added this way.
+     */
+    private fun ensureCoverage(
+        options: List<ExerciseOption>,
+        focus: List<List<String>>,
+        selected: List<MutableList<ExerciseOption>>,
+        usage: MutableMap<String, Int>,
+    ): Set<String> {
+        if (selected.isEmpty()) return emptySet()
+        val added = mutableSetOf<String>()
+        ALL_MUSCLES.forEach { muscle ->
+            val covered =
+                selected.any { day -> day.any { ex -> ex.primaryMuscles.any { normalize(it) == muscle } } }
+            if (covered) return@forEach
+            val related = companions[muscle].orEmpty()
+            val dayIndex =
+                selected.indices.minWithOrNull(
+                    compareByDescending<Int> { i -> focus[i].count { it in related } }
+                        .thenBy { i -> selected[i].size }
+                        .thenBy { it }
+                ) ?: return@forEach
+            val exercise =
+                options
+                    .filter { option ->
+                        option !in selected[dayIndex] &&
+                            option.primaryMuscles.any { normalize(it) == muscle }
+                    }
+                    .minWithOrNull(
+                        compareBy<ExerciseOption> { usage[it.id] ?: 0 }
+                            .thenBy { Staples.rank(it.id) }
+                            .thenByDescending { isCompound(it) }
+                            .thenBy { it.id }
+                    ) ?: return@forEach
+            selected[dayIndex] += exercise
+            usage[exercise.id] = (usage[exercise.id] ?: 0) + 1
+            added += exercise.id
+        }
+        return added
     }
 
     private fun setsPerExercise(experience: ExperienceLevel): Int =
@@ -224,7 +298,7 @@ object Recommender {
             "Push / Pull / Legs" -> listOf("Push", "Pull", "Legs")[index]
             "Push / Pull / Legs · 2 cycles" ->
                 "${listOf("Push", "Pull", "Legs")[index % 3]} ${index / 3 + 1}"
-            else -> "Full Body ${index + 1}"
+            else -> "Full Body ${'A' + index}"
         }
 
     private fun normalize(value: String): String = value.trim().lowercase().replace('_', ' ')

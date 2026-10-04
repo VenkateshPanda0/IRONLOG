@@ -9,7 +9,11 @@ import app.ironlog.personal.data.db.GoalEntity
 import app.ironlog.personal.domain.Calculations
 import app.ironlog.personal.domain.ExperienceLevel
 import app.ironlog.personal.ui.components.Field
+import app.ironlog.personal.ui.components.ListRow
 import app.ironlog.personal.ui.components.Page
+import app.ironlog.personal.ui.components.PrimaryButton
+import app.ironlog.personal.ui.components.SecondaryButton
+import app.ironlog.personal.ui.components.SectionHeader
 import kotlinx.coroutines.launch
 
 @Composable
@@ -18,6 +22,7 @@ fun SettingsScreen(
     onTheme: (Boolean) -> Unit,
     onExport: () -> Unit,
     onImport: () -> Unit,
+    onBack: () -> Unit,
 ) {
     val profile by c.profile.collectAsState(initial = null)
     val nutritionGoal by c.goals.current.collectAsState(initial = null)
@@ -61,10 +66,9 @@ fun SettingsScreen(
         remember(nutritionGoal) {
             mutableStateOf(nutritionGoal?.fatG?.toString() ?: "65")
         }
-    Page("Settings") {
-        Text("Profile · ${profile?.name?.ifBlank { "Personal" }?:"Not set"}")
+    Page("Settings", onBack = onBack) {
         profile?.let { savedProfile ->
-            Text("Edit profile", style = MaterialTheme.typography.titleLarge)
+            SectionHeader("Profile")
             Field("Name", editName, { editName = it })
             Field("Weight (kg)", editWeight, { editWeight = it }, true)
             Field("Height (cm)", editHeight, { editHeight = it }, true)
@@ -103,7 +107,8 @@ fun SettingsScreen(
             Field("Training days per week", editDays, { editDays = it }, true)
             Field("Session length (minutes)", editMinutes, { editMinutes = it }, true)
             Field("Exercises or movements to avoid", editAvoid, { editAvoid = it })
-            Button(
+            PrimaryButton(
+                text = "Save profile and recalculate targets",
                 onClick = {
                     val weightKg =
                         editWeight.toDoubleOrNull()?.takeIf { it > 0 } ?: savedProfile.weightKg
@@ -139,36 +144,34 @@ fun SettingsScreen(
                                 updated.goal,
                             )
                             ?.let { calories ->
-                                val protein = updated.weightKg * 2
-                                val fat = calories * .25 / 9
-                                val carbs =
-                                    ((calories - protein * 4 - fat * 9) / 4).coerceAtLeast(0.0)
+                                val targets = Calculations.macroTargets(calories, updated.weightKg)
                                 c.goals.save(
                                     (c.goals.currentOnce() ?: GoalEntity()).copy(
-                                        kcalTarget = calories,
-                                        proteinG = protein,
-                                        carbsG = carbs,
-                                        fatG = fat,
+                                        kcalTarget = targets.kcal,
+                                        proteinG = targets.proteinG,
+                                        carbsG = targets.carbsG,
+                                        fatG = targets.fatG,
                                     )
                                 )
                             }
                     }
-                }
-            ) {
-                Text("Save profile and recalculate targets")
-            }
+                },
+            )
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text("Light theme")
-            Switch(light, { value -> onTheme(value) })
-        }
-        Text("Nutrition targets", style = MaterialTheme.typography.titleLarge)
+        SectionHeader("Appearance")
+        ListRow(
+            title = "Light theme",
+            subtitle = "Dark is the default",
+            trailing = { Switch(light, { value -> onTheme(value) }) },
+        )
+        SectionHeader("Nutrition targets")
         Text("Calculated targets can be edited here, including for profiles under 18.")
         Field("Calories (kcal)", targetKcal, { targetKcal = it }, true)
         Field("Protein (g)", targetProtein, { targetProtein = it }, true)
         Field("Carbs (g)", targetCarbs, { targetCarbs = it }, true)
         Field("Fat (g)", targetFat, { targetFat = it }, true)
-        Button(
+        PrimaryButton(
+            text = "Save nutrition targets",
             onClick = {
                 val calories = targetKcal.toIntOrNull()?.takeIf { it in 500..10000 }
                 val protein = targetProtein.toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0 }
@@ -186,20 +189,20 @@ fun SettingsScreen(
                         )
                     }
                 }
-            }
-        ) {
-            Text("Save nutrition targets")
-        }
+            },
+        )
+        SectionHeader("Data sources")
         Text("Units · kg / cm")
         Text("FoodData Central: disabled until an API key is configured.")
         Text("Open Food Facts contact: unset@example.invalid")
-        Text("Attributions", style = MaterialTheme.typography.titleLarge)
+        SectionHeader("Attributions")
         Text(
             "Exercise data: free-exercise-db by yuhonas, Unlicense.\nNutrition data: FoodData Central, U.S. Department of Agriculture (CC0 1.0).\nPackaged-food data: Open Food Facts contributors, ODbL 1.0, world.openfoodfacts.org/terms-of-use.\nIronlog is independent and not affiliated with any fitness brand."
         )
-        Button(onClick = onExport) { Text("Export backup") }
-        OutlinedButton(onClick = { confirmImport = true }) { Text("Import backup") }
-        OutlinedButton(onClick = { confirmDelete = true }) { Text("Delete personal data") }
+        SectionHeader("Your data")
+        PrimaryButton("Export backup", onExport)
+        SecondaryButton("Import backup", { confirmImport = true })
+        SecondaryButton("Delete personal data", { confirmDelete = true })
     }
     if (confirmImport)
         AlertDialog(
@@ -213,7 +216,7 @@ fun SettingsScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        onImport
+                        onImport()
                         confirmImport = false
                     }
                 ) {
@@ -249,13 +252,5 @@ fun SettingsScreen(
 
 @Composable
 private fun ChoiceRow(options: List<String>, selected: String, onSelect: (String) -> Unit) {
-    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-        options.forEach { value ->
-            FilterChip(
-                selected = selected == value,
-                onClick = { onSelect(value) },
-                label = { Text(value.replace('_', ' ')) },
-            )
-        }
-    }
+    app.ironlog.personal.ui.components.ChipRow(options, selected, { it.replace('_', ' ') }, onSelect)
 }

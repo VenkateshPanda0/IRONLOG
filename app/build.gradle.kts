@@ -24,7 +24,14 @@ android {
     kotlinOptions { jvmTarget = "17" }
     buildFeatures { compose = true }
     ksp { arg("room.schemaLocation", "$projectDir/schemas") }
-    testOptions { unitTests.isIncludeAndroidResources = true }
+    sourceSets { getByName("test").assets.srcDir("$projectDir/schemas") }
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+        unitTests.all {
+            it.systemProperty("roborazzi.test.record", "true")
+            it.systemProperty("robolectric.pixelCopyRenderMode", "hardware")
+        }
+    }
 }
 
 dependencies {
@@ -41,8 +48,17 @@ dependencies {
     implementation(libs.datastore)
     implementation(libs.serialization.json)
     implementation(libs.coroutines.android)
+    implementation(libs.code.scanner)
     ksp(libs.room.compiler)
     debugImplementation(libs.compose.ui.tooling)
+    debugImplementation(libs.compose.ui.test.manifest)
+    testImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(libs.compose.ui.test.junit4)
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
+    testImplementation(libs.roborazzi.junit)
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)
+    testImplementation(libs.room.testing)
+    testImplementation(libs.androidx.test.core)
 }

@@ -141,6 +141,14 @@ data class ExerciseCandidate(
 )
 
 object QuickWorkoutGenerator {
+    fun exerciseCount(minutes: Int): Int =
+        when {
+            minutes <= 15 -> 3
+            minutes <= 30 -> 4
+            minutes <= 45 -> 6
+            else -> 8
+        }
+
     fun generate(
         exercises: List<ExerciseCandidate>,
         targetMuscles: Set<String>,
@@ -148,13 +156,7 @@ object QuickWorkoutGenerator {
         avoidList: Set<String>,
         minutes: Int,
     ): List<ExerciseCandidate> {
-        val limit =
-            when {
-                minutes <= 15 -> 3
-                minutes <= 30 -> 4
-                minutes <= 45 -> 6
-                else -> 8
-            }
+        val limit = exerciseCount(minutes)
         val avoid = avoidList.map { it.trim().lowercase() }.filter(String::isNotBlank)
         val targets = targetMuscles.map(String::lowercase).toSet()
         val allowed = equipment.map(String::lowercase).toSet()
@@ -178,6 +180,7 @@ object QuickWorkoutGenerator {
                     .thenByDescending { candidate ->
                         candidate.equipment.count { it.lowercase() in allowed }
                     }
+                    .thenBy { Staples.rank(it.id) }
                     .thenBy { it.name.lowercase() }
             )
             .take(limit)
