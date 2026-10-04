@@ -99,4 +99,33 @@ class AchievementsTest {
     }
 
     private fun AchievementDef.def() = this
+
+    @Test
+    fun wellnessAchievements() {
+        val d = LocalDate.parse("2026-01-05")
+        val wellness =
+            WellnessInput(
+                cardio = listOf(
+                    CardioRecord(d, CardioType.RUN, 24.0, 5.0), // 4:48 /km 5K
+                    CardioRecord(d.plusDays(1), CardioType.RUN, 130.0, 21.1),
+                    CardioRecord(d.plusDays(2), CardioType.MOBILITY, 20.0, null),
+                ),
+                days = (0L until 7L).map { DayRecord(d.plusDays(it), 12_000, 3000, 8.0, true) },
+                habitDays = mapOf(1L to (0L until 30L).map { d.plusDays(it) }),
+                mobilityDates = emptyList(),
+                measurementDates = listOf(d, d.plusDays(30)),
+                waist = listOf(d to 90.0, d.plusDays(30) to 84.0),
+                stepGoal = 10_000,
+                waterGoalMl = 3000,
+                sleepGoalHours = 8.0,
+            )
+        val result = Achievements.evaluate(input(emptyList()).copy(wellness = wellness))
+        listOf("cardio_1", "run_5", "run_21", "fast5k_25", "steps_day_10000", "steps_streak_7", "sleep_streak_7", "water_streak_7",
+            "checkins_1", "mobility_1", "habit_streak_30", "first_measurement", "waist_5").forEach { assertTrue(it, result.of(it).earned) }
+        listOf("run_42", "fast5k_20", "cardio_10", "waist_10", "mobility_10").forEach { assertFalse(it, result.of(it).earned) }
+        assertEquals(26.1, result.of("distance_100").progress, 1e-9)
+        // MET-style XP: run 50 + min(24, 60), habits and daily goals.
+        val xp = WellnessXp.events(wellness).sumOf { it.second }
+        assertEquals((50 + 24) + (50 + 60) + (50 + 20) + 30 * 5 + 7 * 35, xp)
+    }
 }

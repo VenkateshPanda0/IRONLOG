@@ -61,11 +61,14 @@ private val COMPACT = DateTimeFormatter.ofPattern("d/M")
 fun ProgressScreen(c: AppContainer) {
     var tab by rememberSaveable { mutableStateOf("Weight") }
     Page("Progress") {
-        Segments(listOf("Weight", "Strength", "Volume", "Photos"), tab) { tab = it }
+        ChipRow(listOf("Weight", "Body", "Strength", "Volume", "Cardio", "Daily", "Photos"), tab, { it }, { tab = it })
         when (tab) {
             "Weight" -> WeightSection(c)
+            "Body" -> app.ironlog.personal.ui.wellness.BodySection(c)
             "Strength" -> StrengthSection(c)
             "Volume" -> VolumeSection(c)
+            "Cardio" -> app.ironlog.personal.ui.wellness.CardioSection(c)
+            "Daily" -> app.ironlog.personal.ui.wellness.DailyTrendsSection(c)
             else -> PhotoSection(c)
         }
     }

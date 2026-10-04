@@ -146,6 +146,8 @@ fun HomeScreen(c: AppContainer, nav: Navigator) {
 
         WeekStrip(strip)
 
+        app.ironlog.personal.ui.wellness.DailySection(c, nav)
+
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             StatTile("This week", "$thisWeek/$perWeek", Modifier.weight(1f), unit = "workouts")
             StatTile("Streak", "$streak", Modifier.weight(1f), unit = if (streak == 1) "week" else "weeks")

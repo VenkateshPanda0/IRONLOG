@@ -23,6 +23,9 @@ enum class AchievementGroup(val label: String) {
     NUTRITION("Nutrition"),
     BODY("Body"),
     VARIETY("Variety"),
+    CARDIO("Cardio"),
+    RECOVERY("Recovery"),
+    HABITS("Habits"),
 }
 
 data class AchievementDef(
@@ -57,6 +60,7 @@ data class AchievementInput(
     val photoDates: List<LocalDate>,
     val goalReachedOn: LocalDate?,
     val plannedPerWeek: Int,
+    val wellness: WellnessInput? = null,
 )
 
 object Achievements {
@@ -188,6 +192,103 @@ object Achievements {
             add(d("exercises_25", "Explorer", "Log 25 different exercises", Tier.SILVER, AchievementGroup.VARIETY, 25.0, "exercises"))
             add(d("exercises_75", "Movement Library", "Log 75 different exercises", Tier.GOLD, AchievementGroup.VARIETY, 75.0, "exercises"))
             add(d("exercises_150", "Encyclopedia", "Log 150 different exercises", Tier.LEGEND, AchievementGroup.VARIETY, 150.0, "exercises"))
+            // Cardio
+            addAll(
+                ladder(
+                    "cardio", AchievementGroup.CARDIO, "sessions",
+                    Triple(1.0, "First Miles", Tier.BRONZE), Triple(10.0, "Cardio Curious", Tier.BRONZE), Triple(50.0, "Conditioned", Tier.SILVER),
+                    Triple(150.0, "Big Engine", Tier.GOLD), Triple(300.0, "Endurance Athlete", Tier.PLATINUM), Triple(600.0, "Engine Room", Tier.LEGEND),
+                ) { "Log ${fmt(it)} cardio session${if (it == 1.0) "" else "s"}" }
+            )
+            addAll(
+                ladder(
+                    "distance", AchievementGroup.CARDIO, "km",
+                    Triple(10.0, "First 10 km", Tier.BRONZE), Triple(100.0, "Century", Tier.SILVER), Triple(500.0, "500 km", Tier.GOLD),
+                    Triple(1000.0, "Thousand-K", Tier.PLATINUM), Triple(5000.0, "Cross-Country", Tier.LEGEND),
+                ) { "Cover ${fmt(it)} km in total" }
+            )
+            add(d("run_5", "5K", "Run 5 km in one session", Tier.SILVER, AchievementGroup.CARDIO, 5.0, "km"))
+            add(d("run_10", "10K", "Run 10 km in one session", Tier.GOLD, AchievementGroup.CARDIO, 10.0, "km"))
+            add(d("run_21", "Half Marathon", "Run 21.1 km in one session", Tier.PLATINUM, AchievementGroup.CARDIO, 21.1, "km"))
+            add(d("run_42", "Marathoner", "Run 42.2 km in one session", Tier.LEGEND, AchievementGroup.CARDIO, 42.2, "km"))
+            add(d("fast5k_25", "Sub-25 5K", "Run 5 km or more at under 5:00 /km", Tier.GOLD, AchievementGroup.CARDIO, 1.0))
+            add(d("fast5k_20", "Sub-20 5K", "Run 5 km or more at under 4:00 /km", Tier.PLATINUM, AchievementGroup.CARDIO, 1.0))
+            add(d("fast5k_17", "Sub-17 5K", "Run 5 km or more at under 3:24 /km", Tier.LEGEND, AchievementGroup.CARDIO, 1.0))
+            addAll(
+                ladder(
+                    "active_weeks", AchievementGroup.CARDIO, "weeks",
+                    Triple(1.0, "Heart Healthy", Tier.BRONZE), Triple(12.0, "Healthy Quarter", Tier.SILVER),
+                    Triple(52.0, "Healthy Year", Tier.GOLD), Triple(104.0, "Healthy Heart for Life", Tier.LEGEND),
+                ) { "Do 150+ cardio minutes in ${fmt(it)} week${if (it == 1.0) "" else "s"}" }
+            )
+            addAll(
+                ladder(
+                    "steps_day", AchievementGroup.CARDIO, "steps",
+                    Triple(10_000.0, "10K Steps", Tier.BRONZE), Triple(20_000.0, "20K Steps", Tier.SILVER),
+                    Triple(30_000.0, "30K Steps", Tier.GOLD), Triple(50_000.0, "Ultra Walker", Tier.LEGEND),
+                ) { "Walk ${fmt(it)} steps in a day" }
+            )
+            addAll(
+                ladder(
+                    "steps_streak", AchievementGroup.CARDIO, "days",
+                    Triple(7.0, "Step Week", Tier.SILVER), Triple(30.0, "Step Month", Tier.GOLD),
+                    Triple(100.0, "Step Century", Tier.PLATINUM), Triple(365.0, "Year on Foot", Tier.LEGEND),
+                ) { "Hit your step goal ${fmt(it)} days in a row" }
+            )
+            addAll(
+                ladder(
+                    "steps_total", AchievementGroup.CARDIO, "steps",
+                    Triple(1_000_000.0, "Million Steps", Tier.SILVER), Triple(5_000_000.0, "Five Million Steps", Tier.GOLD),
+                    Triple(10_000_000.0, "Ten Million Steps", Tier.PLATINUM), Triple(25_000_000.0, "Walked the Earth", Tier.LEGEND),
+                ) { "Log ${fmt(it)} steps in total" }
+            )
+            // Recovery
+            addAll(
+                ladder(
+                    "sleep_streak", AchievementGroup.RECOVERY, "nights",
+                    Triple(7.0, "Rested Week", Tier.SILVER), Triple(30.0, "Rested Month", Tier.GOLD),
+                    Triple(100.0, "Sleep Pro", Tier.PLATINUM), Triple(365.0, "Sleep Master", Tier.LEGEND),
+                ) { "Meet your sleep goal ${fmt(it)} nights in a row" }
+            )
+            addAll(
+                ladder(
+                    "checkins", AchievementGroup.RECOVERY, "check-ins",
+                    Triple(1.0, "Self-Aware", Tier.BRONZE), Triple(30.0, "Listening to Your Body", Tier.SILVER),
+                    Triple(100.0, "Data Athlete", Tier.GOLD), Triple(365.0, "Daily Ritual", Tier.PLATINUM),
+                ) { "Complete ${fmt(it)} morning check-in${if (it == 1.0) "" else "s"}" }
+            )
+            addAll(
+                ladder(
+                    "mobility", AchievementGroup.RECOVERY, "sessions",
+                    Triple(1.0, "Loosened Up", Tier.BRONZE), Triple(10.0, "Supple", Tier.SILVER),
+                    Triple(50.0, "Bendy", Tier.GOLD), Triple(150.0, "Mobility Master", Tier.PLATINUM),
+                ) { "Do ${fmt(it)} mobility session${if (it == 1.0) "" else "s"}" }
+            )
+            addAll(
+                ladder(
+                    "water_streak", AchievementGroup.RECOVERY, "days",
+                    Triple(7.0, "Hydrated", Tier.BRONZE), Triple(30.0, "Water Habit", Tier.SILVER),
+                    Triple(100.0, "Hydration Pro", Tier.GOLD), Triple(365.0, "Year of Water", Tier.PLATINUM),
+                ) { "Hit your water goal ${fmt(it)} days in a row" }
+            )
+            // Habits
+            addAll(
+                ladder(
+                    "habit_streak", AchievementGroup.HABITS, "days",
+                    Triple(7.0, "Habit Formed", Tier.BRONZE), Triple(30.0, "Habit Locked", Tier.SILVER),
+                    Triple(100.0, "Second Nature", Tier.GOLD), Triple(365.0, "Iron Will", Tier.LEGEND),
+                ) { "Keep any habit going ${fmt(it)} days in a row" }
+            )
+            addAll(
+                ladder(
+                    "habit_checks", AchievementGroup.HABITS, "ticks",
+                    Triple(100.0, "Ticking Along", Tier.SILVER), Triple(1000.0, "Thousand Ticks", Tier.GOLD), Triple(5000.0, "Discipline Machine", Tier.PLATINUM),
+                ) { "Tick off ${fmt(it)} habits in total" }
+            )
+            add(d("first_measurement", "Tape Measure", "Log your first body measurements", Tier.BRONZE, AchievementGroup.BODY, 1.0))
+            add(d("measurements_12", "Measured Progress", "Log measurements on 12 different days", Tier.SILVER, AchievementGroup.BODY, 12.0, "days"))
+            add(d("waist_5", "Belt Notch", "Lose 5 cm from your first waist measurement", Tier.GOLD, AchievementGroup.BODY, 5.0, "cm"))
+            add(d("waist_10", "New Wardrobe", "Lose 10 cm from your first waist measurement", Tier.PLATINUM, AchievementGroup.BODY, 10.0, "cm"))
         }
 
     fun evaluate(input: AchievementInput): List<Achievement> {
@@ -368,9 +469,82 @@ object Achievements {
             }
         }
 
+        input.wellness?.let { w -> evaluateWellness(w, results) }
+
         return ALL.map { def ->
             val (date, progress) = results[def.id] ?: (null to 0.0)
             Achievement(def, date, progress)
         }
+    }
+
+    private fun evaluateWellness(w: WellnessInput, results: MutableMap<String, Pair<LocalDate?, Double>>) {
+        fun defs(prefix: String) = ALL.filter { it.id.startsWith(prefix + "_") }
+        fun count(prefix: String, dates: List<LocalDate>) {
+            val sorted = dates.sorted()
+            defs(prefix).forEach { results[it.id] = sorted.getOrNull(it.target.toInt() - 1) to sorted.size.toDouble() }
+        }
+        fun cumulative(prefix: String, series: List<Pair<LocalDate, Double>>) {
+            var total = 0.0
+            val reached = mutableMapOf<String, LocalDate>()
+            series.sortedBy { it.first }.forEach { (date, v) ->
+                total += v
+                defs(prefix).forEach { if (total >= it.target && it.id !in reached) reached[it.id] = date }
+            }
+            defs(prefix).forEach { results[it.id] = reached[it.id] to total }
+        }
+        fun peak(ids: List<AchievementDef>, series: List<Pair<LocalDate, Double>>) {
+            var best = 0.0
+            val reached = mutableMapOf<String, LocalDate>()
+            series.sortedBy { it.first }.forEach { (date, v) ->
+                best = maxOf(best, v)
+                ids.forEach { if (best >= it.target && it.id !in reached) reached[it.id] = date }
+            }
+            ids.forEach { results[it.id] = reached[it.id] to best }
+        }
+        fun streak(prefix: String, dates: List<LocalDate>) {
+            val targets = defs(prefix).map { it.target.toInt() }
+            val (best, reached) = Wellness.streakDates(dates, targets)
+            defs(prefix).forEach { results[it.id] = reached[it.target.toInt()] to best.toDouble() }
+        }
+
+        val cardio = w.cardio.filter { it.type != CardioType.MOBILITY }
+        count("cardio", cardio.map { it.date })
+        cumulative("distance", cardio.mapNotNull { c -> c.km?.let { c.date to it } })
+        val runs = cardio.filter { it.type == CardioType.RUN && (it.km ?: 0.0) > 0 }
+        listOf("run_5", "run_10", "run_21", "run_42").forEach { id ->
+            peak(listOf(ALL.first { it.id == id }), runs.map { it.date to it.km!! })
+        }
+        listOf("fast5k_25" to 5.0, "fast5k_20" to 4.0, "fast5k_17" to 3.4).forEach { (id, pace) ->
+            val first = runs.filter { it.km!! >= 5.0 && it.minutes / it.km < pace }.minByOrNull { it.date }?.date
+            results[id] = first to (if (first != null) 1.0 else 0.0)
+        }
+        run {
+            val weeks = cardio.groupBy { Training.weekStart(it.date) }.filterValues { list -> list.sumOf { it.minutes } >= 150 }.keys.sorted()
+            count("active_weeks", weeks.map { it.plusDays(6) })
+        }
+        peak(defs("steps_day"), w.days.mapNotNull { d -> d.steps?.let { d.date to it.toDouble() } })
+        streak("steps_streak", w.days.filter { (it.steps ?: 0) >= w.stepGoal }.map { it.date })
+        cumulative("steps_total", w.days.mapNotNull { d -> d.steps?.let { d.date to it.toDouble() } })
+        streak("sleep_streak", w.days.filter { (it.sleepHours ?: 0.0) >= w.sleepGoalHours }.map { it.date })
+        count("checkins", w.days.filter { it.checkedIn }.map { it.date })
+        count("mobility", w.mobilityDates + w.cardio.filter { it.type == CardioType.MOBILITY }.map { it.date })
+        streak("water_streak", w.days.filter { it.waterMl >= w.waterGoalMl }.map { it.date })
+        run {
+            var best = 0
+            val reached = mutableMapOf<Int, LocalDate>()
+            val targets = defs("habit_streak").map { it.target.toInt() }
+            w.habitDays.values.forEach { dates ->
+                val (b, r) = Wellness.streakDates(dates, targets)
+                best = maxOf(best, b)
+                r.forEach { (t, d) -> if (reached[t]?.let { d < it } != false) reached[t] = d }
+            }
+            defs("habit_streak").forEach { results[it.id] = reached[it.target.toInt()] to best.toDouble() }
+        }
+        count("habit_checks", w.habitDays.values.flatten())
+        val measured = w.measurementDates.distinct().sorted()
+        results["first_measurement"] = measured.firstOrNull() to measured.size.coerceAtMost(1).toDouble()
+        results["measurements_12"] = measured.getOrNull(11) to measured.size.toDouble()
+        val first = w.waist.firstOrNull()?.second
+        if (first != null) peak(listOf(ALL.first { it.id == "waist_5" }, ALL.first { it.id == "waist_10" }), w.waist.map { it.first to (first - it.second) })
     }
 }

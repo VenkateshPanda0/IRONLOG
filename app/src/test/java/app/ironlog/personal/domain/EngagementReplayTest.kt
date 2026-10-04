@@ -9,13 +9,13 @@ import org.junit.Test
 class EngagementReplayTest {
     @Test
     fun levelThresholdsArePinned() {
-        assertEquals(500, EngagementReplay.xpForLevel(1))
-        assertEquals(1075, EngagementReplay.xpForLevel(2))
-        assertEquals(1725, EngagementReplay.xpForLevel(3))
-        assertEquals(112_700, EngagementReplay.xpForLevel(49))
-        assertEquals(0, EngagementReplay.levelFor(499))
-        assertEquals(1, EngagementReplay.levelFor(500))
-        assertEquals(2, EngagementReplay.levelFor(1075))
+        assertEquals(700, EngagementReplay.xpForLevel(1))
+        assertEquals(1510, EngagementReplay.xpForLevel(2))
+        assertEquals(2430, EngagementReplay.xpForLevel(3))
+        assertEquals(163_660, EngagementReplay.xpForLevel(49))
+        assertEquals(0, EngagementReplay.levelFor(699))
+        assertEquals(1, EngagementReplay.levelFor(700))
+        assertEquals(2, EngagementReplay.levelFor(1510))
         // Capped at displayed level 50.
         assertEquals(49, EngagementReplay.levelFor(10_000_000))
         assertEquals("Legend", EngagementReplay.title(49))

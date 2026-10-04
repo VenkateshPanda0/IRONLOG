@@ -301,6 +301,50 @@ interface IronlogDao {
 
     @Query("DELETE FROM progress_photo") suspend fun deleteAllPhotos()
 
+    // Cardio
+    @Insert suspend fun addCardio(value: CardioSessionEntity): Long
+
+    @Query("DELETE FROM cardio_session WHERE id=:id") suspend fun deleteCardio(id: Long)
+
+    @Query("SELECT * FROM cardio_session ORDER BY date DESC, createdAt DESC") fun cardio(): Flow<List<CardioSessionEntity>>
+
+    // Daily log
+    @Query("SELECT * FROM daily_log WHERE date=:date") fun dailyLog(date: String): Flow<DailyLogEntity?>
+
+    @Query("SELECT * FROM daily_log WHERE date=:date") suspend fun dailyLogOnce(date: String): DailyLogEntity?
+
+    @Query("SELECT * FROM daily_log ORDER BY date") fun dailyLogs(): Flow<List<DailyLogEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun saveDailyLog(value: DailyLogEntity)
+
+    // Habits
+    @Query("SELECT * FROM habit WHERE isActive=1 ORDER BY createdAt") fun habits(): Flow<List<HabitEntity>>
+
+    @Insert suspend fun addHabit(value: HabitEntity): Long
+
+    @Query("UPDATE habit SET isActive=0 WHERE id=:id") suspend fun archiveHabit(id: Long)
+
+    @Query("SELECT * FROM habit_check") fun habitChecks(): Flow<List<HabitCheckEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE) suspend fun checkHabit(value: HabitCheckEntity)
+
+    @Query("DELETE FROM habit_check WHERE habitId=:habitId AND date=:date") suspend fun uncheckHabit(habitId: Long, date: String)
+
+    // Measurements
+    @Insert suspend fun addMeasurement(value: BodyMeasurementEntity): Long
+
+    @Query("DELETE FROM body_measurement WHERE id=:id") suspend fun deleteMeasurement(id: Long)
+
+    @Query("SELECT * FROM body_measurement ORDER BY date") fun measurements(): Flow<List<BodyMeasurementEntity>>
+
+    @Query("DELETE FROM cardio_session") suspend fun deleteAllCardio()
+
+    @Query("DELETE FROM daily_log") suspend fun deleteAllDailyLogs()
+
+    @Query("DELETE FROM habit") suspend fun deleteAllHabits()
+
+    @Query("DELETE FROM body_measurement") suspend fun deleteAllMeasurements()
+
     @Query("SELECT * FROM program ORDER BY isBuiltIn DESC,name")
     fun programs(): Flow<List<ProgramEntity>>
 
@@ -557,8 +601,13 @@ interface IronlogDao {
             BodyWeightEntity::class,
             GoalEntity::class,
             ProgressPhotoEntity::class,
+            CardioSessionEntity::class,
+            DailyLogEntity::class,
+            HabitEntity::class,
+            HabitCheckEntity::class,
+            BodyMeasurementEntity::class,
         ],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 abstract class IronlogDatabase : RoomDatabase() {
@@ -577,6 +626,40 @@ abstract class IronlogDatabase : RoomDatabase() {
                             "fileName TEXT NOT NULL, note TEXT NOT NULL, createdAt INTEGER NOT NULL)"
                     )
                     db.execSQL("CREATE INDEX IF NOT EXISTS index_progress_photo_date ON progress_photo (date)")
+                }
+            }
+
+        /** v3: cardio, daily log (steps, water, sleep, check-in), habits, measurements, wellness goals. */
+        val MIGRATION_2_3 =
+            object : androidx.room.migration.Migration(2, 3) {
+                override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                    db.execSQL("ALTER TABLE goal ADD COLUMN stepGoal INTEGER NOT NULL DEFAULT 8000")
+                    db.execSQL("ALTER TABLE goal ADD COLUMN waterGoalMl INTEGER NOT NULL DEFAULT 3000")
+                    db.execSQL("ALTER TABLE goal ADD COLUMN sleepGoalHours REAL NOT NULL DEFAULT 8.0")
+                    db.execSQL(
+                        "CREATE TABLE IF NOT EXISTS cardio_session (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, date TEXT NOT NULL, " +
+                            "type TEXT NOT NULL, durationMin REAL NOT NULL, distanceKm REAL, calories INTEGER, avgHeartRate INTEGER, " +
+                            "notes TEXT NOT NULL, createdAt INTEGER NOT NULL)"
+                    )
+                    db.execSQL("CREATE INDEX IF NOT EXISTS index_cardio_session_date ON cardio_session (date)")
+                    db.execSQL(
+                        "CREATE TABLE IF NOT EXISTS daily_log (date TEXT NOT NULL, steps INTEGER, waterMl INTEGER NOT NULL, " +
+                            "sleepHours REAL, sleepQuality INTEGER, energy INTEGER, soreness INTEGER, stress INTEGER, mood INTEGER, PRIMARY KEY(date))"
+                    )
+                    db.execSQL(
+                        "CREATE TABLE IF NOT EXISTS habit (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, " +
+                            "isActive INTEGER NOT NULL, createdAt INTEGER NOT NULL)"
+                    )
+                    db.execSQL(
+                        "CREATE TABLE IF NOT EXISTS habit_check (habitId INTEGER NOT NULL, date TEXT NOT NULL, PRIMARY KEY(habitId, date), " +
+                            "FOREIGN KEY(habitId) REFERENCES habit(id) ON UPDATE NO ACTION ON DELETE CASCADE)"
+                    )
+                    db.execSQL("CREATE INDEX IF NOT EXISTS index_habit_check_date ON habit_check (date)")
+                    db.execSQL(
+                        "CREATE TABLE IF NOT EXISTS body_measurement (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, date TEXT NOT NULL, " +
+                            "waistCm REAL, chestCm REAL, armCm REAL, thighCm REAL, hipsCm REAL, neckCm REAL, bodyFatPct REAL, createdAt INTEGER NOT NULL)"
+                    )
+                    db.execSQL("CREATE INDEX IF NOT EXISTS index_body_measurement_date ON body_measurement (date)")
                 }
             }
     }

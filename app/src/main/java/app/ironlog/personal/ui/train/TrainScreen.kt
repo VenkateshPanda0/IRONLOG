@@ -6,6 +6,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
@@ -41,6 +42,8 @@ private val QUICK_TARGETS =
         "Pull" to setOf("lats", "middle back", "biceps", "traps"),
         "Arms" to setOf("biceps", "triceps", "forearms"),
         "Core" to setOf("abdominals", "lower back"),
+        // Stretching exercises from the library, for recovery days.
+        "Mobility" to app.ironlog.personal.domain.Recommender.ALL_MUSCLES.toSet(),
     )
 
 @Composable
@@ -118,6 +121,15 @@ fun TrainScreen(container: AppContainer, nav: Navigator) {
             { nav.open(Routes.BUILDER) },
             icon = Icons.Filled.AutoAwesome,
         )
+
+        SectionHeader("Cardio & conditioning")
+        IronCard {
+            Text(
+                "Runs, rides, swims, HIIT and sport count toward your week, XP and achievements. Use the Mobility quick workout on recovery days.",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            PrimaryButton("Log cardio", { nav.open(Routes.CARDIO) }, icon = Icons.Filled.DirectionsRun)
+        }
 
         SectionHeader("All programs")
         programs.filter { it.id != current?.id }.forEach { program ->
@@ -205,9 +217,10 @@ private suspend fun startQuickWorkout(
     targets: Set<String>,
     minutes: Int,
 ): Long? {
+    val mobility = label == "Mobility"
     val candidates =
         exercises
-            .filter { it.category.equals("strength", true) || it.isCustom }
+            .filter { if (mobility) it.category.equals("stretching", true) else it.category.equals("strength", true) || it.isCustom }
             .map {
                 ExerciseCandidate(
                     id = it.id,
@@ -222,7 +235,7 @@ private suspend fun startQuickWorkout(
         profile?.avoidList.orEmpty().split(',').map(String::trim).filter(String::isNotEmpty).toSet()
     // Spread picks across the target muscles instead of taking alphabetically-first matches.
     val pool =
-        QuickWorkoutGenerator.generate(candidates, targets, equipmentFor(profile), avoid, 240)
+        QuickWorkoutGenerator.generate(candidates, targets, if (mobility) emptySet() else equipmentFor(profile), avoid, 240)
     val perMuscle = pool.groupBy { it.primaryMuscles.first { m -> m in targets } }
     val limit = QuickWorkoutGenerator.exerciseCount(minutes)
     val picked = mutableListOf<ExerciseCandidate>()
@@ -234,7 +247,7 @@ private suspend fun startQuickWorkout(
         round++
     }
     if (picked.isEmpty()) return null
-    return container.workouts.start("Quick · $label", picked.map { Triple(it.id, it.name, 3) })
+    return container.workouts.start("Quick · $label", picked.map { Triple(it.id, it.name, if (mobility) 2 else 3) })
 }
 
 /** Program builder: suggests a split from the profile and saves it as a custom program. */

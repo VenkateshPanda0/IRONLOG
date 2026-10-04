@@ -14,7 +14,16 @@ import org.junit.Test
 class GrindSimulationTest {
     private val day0 = LocalDate.parse("2026-01-05") // Monday
 
-    private data class Profile(val days: Set<DayOfWeek>, val exercisesPerSession: Int, val setsPerExercise: Int, val foodDaysPerWeek: Int)
+    private data class Profile(
+        val days: Set<DayOfWeek>,
+        val exercisesPerSession: Int,
+        val setsPerExercise: Int,
+        val foodDaysPerWeek: Int,
+        val cardioDays: Set<DayOfWeek> = emptySet(),
+        val habits: Int = 0,
+        /** Days per week (Mon first) on which steps, water and sleep goals are all met and a check-in is done. */
+        val wellnessDaysPerWeek: Int = 0,
+    )
 
     private data class Outcome(
         val weekLevel: (Int) -> Int,
@@ -58,6 +67,17 @@ class GrindSimulationTest {
             }
             if (date.dayOfWeek.value <= p.foodDaysPerWeek) foodDays += date
         }
+        val cardio = mutableListOf<CardioRecord>()
+        val wellDays = mutableListOf<DayRecord>()
+        val habitDays = mutableMapOf<Long, MutableList<LocalDate>>()
+        for (offset in 0 until totalDays) {
+            val date = day0.plusDays(offset)
+            if (date.dayOfWeek in p.cardioDays) cardio += CardioRecord(date, CardioType.RUN, 30.0, 5.0)
+            if (date.dayOfWeek.value <= p.wellnessDaysPerWeek) wellDays += DayRecord(date, 9000, 3000, 8.0, true)
+            // Habits are kept six days out of seven.
+            if (date.dayOfWeek != DayOfWeek.SUNDAY) (1..p.habits).forEach { habitDays.getOrPut(it.toLong()) { mutableListOf() } += date }
+        }
+        val wellness = WellnessInput(cardio, wellDays, habitDays, emptyList(), emptyList(), emptyList(), 8000, 3000, 8.0)
         val dateOf = { ms: Long -> LocalDate.ofEpochDay(ms / 86_400_000) }
         val workouts = EngagementInputs.workouts(sets, dateOf)
         val achievements =
@@ -73,12 +93,14 @@ class GrindSimulationTest {
                     photoDates = (0 until years * 12).map { day0.plusMonths(it.toLong()) },
                     goalReachedOn = null,
                     plannedPerWeek = p.days.size,
+                    wellness = wellness,
                 )
             )
         // XP timeline: workouts, complete food days and achievement bonuses on the day earned.
         val events = mutableListOf<Pair<LocalDate, Int>>()
         workouts.forEach { w -> events += w.date to (100 + (5 * w.completedWorkingSets).coerceAtMost(250) + 50 * w.newPrCount) }
         foodDays.forEach { events += it to 10 }
+        events += WellnessXp.events(wellness)
         achievements.filter { it.earned }.forEach { events += it.earnedOn!! to Engagement.tierXp(it.def.tier) }
         val byWeek = events.groupBy { ChronoUnit.WEEKS.between(day0, it.first).toInt() }.mapValues { (_, e) -> e.sumOf { it.second } }
         val cumulative = (0..(years * 53)).runningFold(0) { total, week -> total + (byWeek[week] ?: 0) }.drop(1)
@@ -96,8 +118,9 @@ class GrindSimulationTest {
         )
     }
 
-    private val dedicated = Profile(setOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY), 5, 4, 7)
-    private val regular = Profile(setOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY), 5, 4, 5)
+    private val dedicated =
+        Profile(setOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY), 5, 4, 7, setOf(DayOfWeek.WEDNESDAY, DayOfWeek.SATURDAY), 3, 5)
+    private val regular = Profile(setOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY), 5, 4, 5, setOf(DayOfWeek.SATURDAY), 2, 3)
     private val casual = Profile(setOf(DayOfWeek.TUESDAY, DayOfWeek.SATURDAY), 4, 3, 0)
 
     @Test

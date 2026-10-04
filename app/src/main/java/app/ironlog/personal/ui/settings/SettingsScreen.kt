@@ -191,6 +191,8 @@ fun SettingsScreen(
                 }
             },
         )
+        SectionHeader("Daily goals")
+        DailyGoals(c, nutritionGoal)
         SectionHeader("Data sources")
         Text("Units · kg / cm")
         Text("FoodData Central: disabled until an API key is configured.")
@@ -253,4 +255,24 @@ fun SettingsScreen(
 @Composable
 private fun ChoiceRow(options: List<String>, selected: String, onSelect: (String) -> Unit) {
     app.ironlog.personal.ui.components.ChipRow(options, selected, { it.replace('_', ' ') }, onSelect)
+}
+
+@Composable
+private fun DailyGoals(c: AppContainer, goal: GoalEntity?) {
+    val scope = rememberCoroutineScope()
+    val current = goal ?: GoalEntity()
+    var steps by remember(goal) { mutableStateOf(current.stepGoal.toString()) }
+    var water by remember(goal) { mutableStateOf("%.1f".format(current.waterGoalMl / 1000.0)) }
+    var sleep by remember(goal) { mutableStateOf(current.sleepGoalHours.toString()) }
+    Field("Steps per day", steps, { steps = it }, true)
+    Field("Water per day (L)", water, { water = it }, true)
+    Field("Sleep per night (h)", sleep, { sleep = it }, true)
+    val s = steps.toIntOrNull()?.takeIf { it in 1000..60000 }
+    val w = water.replace(',', '.').toDoubleOrNull()?.takeIf { it in 0.5..10.0 }
+    val h = sleep.replace(',', '.').toDoubleOrNull()?.takeIf { it in 4.0..12.0 }
+    PrimaryButton(
+        "Save daily goals",
+        enabled = s != null && w != null && h != null,
+        onClick = { scope.launch { c.goals.save(current.copy(stepGoal = s!!, waterGoalMl = (w!! * 1000).toInt(), sleepGoalHours = h!!)) } },
+    )
 }

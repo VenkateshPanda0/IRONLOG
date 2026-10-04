@@ -313,6 +313,9 @@ data class GoalEntity(
     val proteinG: Double = 120.0,
     val carbsG: Double = 220.0,
     val fatG: Double = 65.0,
+    val stepGoal: Int = 8000,
+    val waterGoalMl: Int = 3000,
+    val sleepGoalHours: Double = 8.0,
 )
 
 /** Progress photo stored as a file in app-private storage; the row keeps only its name. */
@@ -345,3 +348,66 @@ data class DailyTotal(val date: String, val kcal: Double, val protein: Double, v
 data class FoodRef(val id: Long, val sourceRef: String)
 
 data class FoodDay(val date: String, val kcal: Double, val mealTypes: String)
+
+/** Run, ride, swim, HIIT or any other conditioning session. */
+@Serializable
+@Entity(tableName = "cardio_session", indices = [Index("date")])
+data class CardioSessionEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val date: String,
+    val type: String,
+    val durationMin: Double,
+    val distanceKm: Double? = null,
+    val calories: Int? = null,
+    val avgHeartRate: Int? = null,
+    val notes: String = "",
+    val createdAt: Long = System.currentTimeMillis(),
+)
+
+/** One row per day: steps, water, sleep and the morning readiness check-in. */
+@Serializable
+@Entity(tableName = "daily_log")
+data class DailyLogEntity(
+    @PrimaryKey val date: String,
+    val steps: Int? = null,
+    val waterMl: Int = 0,
+    val sleepHours: Double? = null,
+    val sleepQuality: Int? = null,
+    val energy: Int? = null,
+    val soreness: Int? = null,
+    val stress: Int? = null,
+    val mood: Int? = null,
+)
+
+@Serializable
+@Entity(tableName = "habit")
+data class HabitEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val name: String,
+    val isActive: Boolean = true,
+    val createdAt: Long = System.currentTimeMillis(),
+)
+
+@Serializable
+@Entity(
+    tableName = "habit_check",
+    primaryKeys = ["habitId", "date"],
+    foreignKeys = [ForeignKey(entity = HabitEntity::class, parentColumns = ["id"], childColumns = ["habitId"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index("date")],
+)
+data class HabitCheckEntity(val habitId: Long, val date: String)
+
+@Serializable
+@Entity(tableName = "body_measurement", indices = [Index("date")])
+data class BodyMeasurementEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val date: String,
+    val waistCm: Double? = null,
+    val chestCm: Double? = null,
+    val armCm: Double? = null,
+    val thighCm: Double? = null,
+    val hipsCm: Double? = null,
+    val neckCm: Double? = null,
+    val bodyFatPct: Double? = null,
+    val createdAt: Long = System.currentTimeMillis(),
+)

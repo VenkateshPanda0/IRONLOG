@@ -6,13 +6,15 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import app.ironlog.personal.IronlogApp
 import app.ironlog.personal.MainActivity
 import app.ironlog.personal.SeedState
@@ -33,10 +35,15 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(qualifiers = "w411dp-h891dp-xxhdpi")
 class AppScreenshotTest {
-    @get:Rule val compose = createAndroidComposeRule<MainActivity>()
+    @get:Rule val compose = androidx.compose.ui.test.junit4.createEmptyComposeRule()
+
+    private lateinit var scenario: androidx.test.core.app.ActivityScenario<MainActivity>
+    private lateinit var activity: MainActivity
 
     private val container
-        get() = (compose.activity.application as IronlogApp).container
+        get() = androidx.test.core.app.ApplicationProvider.getApplicationContext<IronlogApp>().container
+
+    private fun back() = scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
 
     private fun shot(name: String) {
         compose.waitForIdle()
@@ -44,8 +51,18 @@ class AppScreenshotTest {
     }
 
     private fun tap(text: String) {
+        // Lazy rows only compose what is visible; scroll them until the target exists.
+        if (compose.onAllNodes(hasText(text, ignoreCase = true)).fetchSemanticsNodes().isEmpty()) {
+            val lists = compose.onAllNodes(androidx.compose.ui.test.hasScrollToNodeAction())
+            for (i in 0 until lists.fetchSemanticsNodes().size) {
+                if (runCatching { lists[i].performScrollToNode(hasText(text, ignoreCase = true)) }.isSuccess) break
+            }
+        }
         compose.waitUntilAtLeastOneExists(hasText(text, ignoreCase = true), 10_000)
-        compose.onAllNodes(hasText(text, ignoreCase = true))[0].performClick()
+        val node = compose.onAllNodes(hasText(text, ignoreCase = true))[0]
+        // Bring off-screen targets into view; nodes outside a scrollable parent are left as is.
+        runCatching { node.performScrollTo() }
+        node.performClick()
         compose.waitForIdle()
     }
 
@@ -67,15 +84,16 @@ class AppScreenshotTest {
 
     @Test
     fun walkMainScreens() {
-        // Seeding runs on a background thread at app start; pump the main looper until the UI
-        // has observed the Ready state and shows onboarding.
+        // Let the bundled data finish seeding before the first screen is composed.
         val deadline = System.currentTimeMillis() + 120_000
-        while (compose.onAllNodes(hasText("IRONLOG")).fetchSemanticsNodes().isEmpty()) {
-            check(System.currentTimeMillis() < deadline) { "Onboarding never appeared; seed state ${container.seedState.value}" }
+        while (container.seedState.value !is SeedState.Ready) {
+            check(System.currentTimeMillis() < deadline) { "Seeding did not finish: ${container.seedState.value}" }
             org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
-            compose.mainClock.advanceTimeBy(250)
-            Thread.sleep(50)
+            Thread.sleep(100)
         }
+        scenario = androidx.test.core.app.ActivityScenario.launch(MainActivity::class.java)
+        scenario.onActivity { activity = it }
+        compose.waitUntilAtLeastOneExists(hasText("IRONLOG"), 30_000)
         type("What should we call you?", "Alex Doe")
         shot("00_onboarding_welcome")
         tap("Continue")
@@ -97,10 +115,44 @@ class AppScreenshotTest {
         compose.waitUntilDoesNotExist(hasText("0 exercises · 0 sets", substring = true), 10_000)
         shot("01_home")
 
+        // Daily section: check in, water, habits.
+        compose.onRoot().performTouchInput { swipeUp() }
+        compose.waitUntilAtLeastOneExists(hasText("Morning check-in", ignoreCase = true), 10_000)
+        tap("+500")
+        compose.waitUntilAtLeastOneExists(hasText("0.5 L"), 10_000)
+        shot("01_home_daily")
+        // The check-in dialog's taps are covered by CheckInDialogTest; record it directly here.
+        runBlocking {
+            container.wellness.setSleep(java.time.LocalDate.now(), 7.5, 4)
+            container.wellness.checkIn(java.time.LocalDate.now(), 4, 2, 2, 4)
+        }
+        compose.waitUntilAtLeastOneExists(hasText("Slept", substring = true), 10_000)
+        tap("Add habits")
+        compose.waitUntilAtLeastOneExists(hasText("+ Creatine"), 10_000)
+        tap("+ Creatine")
+        tap("+ Multivitamin")
+        compose.waitUntilAtLeastOneExists(hasText("CREATINE"), 10_000)
+        shot("14_habits")
+        back()
+        compose.waitUntilAtLeastOneExists(hasText("Creatine"), 10_000)
+        tap("Creatine")
+        compose.waitUntilAtLeastOneExists(hasText("1 day streak"), 10_000)
+        shot("01_home_daily_done")
+        tap("Log cardio")
+        compose.waitUntilAtLeastOneExists(hasText("Log session", ignoreCase = true), 10_000)
+        type("Duration (minutes)", "26")
+        type("Distance (km)", "5")
+        shot("15_cardio")
+        tap("Save Run")
+        compose.waitUntilAtLeastOneExists(hasText("Run · 26 min", substring = true), 10_000)
+        back()
+        compose.onRoot().performTouchInput { swipeDown() }
+        compose.onRoot().performTouchInput { swipeDown() }
+
         tap("View program")
         compose.waitUntilAtLeastOneExists(hasText("Schedule", ignoreCase = true), 10_000)
         shot("05_program_detail")
-        compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
+        back()
 
         compose.onNodeWithContentDescription("Profile and settings").performClick()
         compose.waitUntilAtLeastOneExists(hasText("Achievements", substring = true, ignoreCase = true), 10_000)
@@ -108,8 +160,8 @@ class AppScreenshotTest {
         compose.onNodeWithContentDescription("Settings").performClick()
         compose.waitUntilAtLeastOneExists(hasText("Your data", ignoreCase = true), 10_000)
         shot("06_settings")
-        compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
-        compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
+        back()
+        back()
 
         // Log an earlier session with today's exercises so hints and PRs have history.
         runBlocking {
@@ -159,7 +211,7 @@ class AppScreenshotTest {
         shot("13_profile")
         compose.onRoot().performTouchInput { swipeUp() }
         shot("13_profile_medals")
-        compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
+        back()
 
         tap("Train")
         compose.waitUntilAtLeastOneExists(hasText("All programs", ignoreCase = true), 10_000)
@@ -178,7 +230,7 @@ class AppScreenshotTest {
         compose.mainClock.advanceTimeBy(1_500)
         compose.waitUntilAtLeastOneExists(hasText("END"), 10_000)
         shot("08_exercise_detail_end")
-        compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
+        back()
 
         tap("Nutrition")
         compose.waitUntilAtLeastOneExists(hasText("Breakfast", ignoreCase = true), 10_000)
@@ -208,10 +260,10 @@ class AppScreenshotTest {
             val today = java.time.LocalDate.now()
             for (day in 42 downTo 1 step 2) container.body.log(today.minusDays(day.toLong()), 84.0 - (42 - day) * 0.05 + (day % 3) * 0.2)
             listOf(android.graphics.Color.DKGRAY, android.graphics.Color.GRAY).forEachIndexed { i, color ->
-                val file = java.io.File(compose.activity.cacheDir, "sample$i.png")
+                val file = java.io.File(activity.cacheDir, "sample$i.png")
                 val bitmap = android.graphics.Bitmap.createBitmap(300, 400, android.graphics.Bitmap.Config.ARGB_8888).apply { eraseColor(color) }
                 file.outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
-                container.body.addPhoto(compose.activity.contentResolver, android.net.Uri.fromFile(file), today.minusDays(30L * (1 - i)))
+                container.body.addPhoto(activity.contentResolver, android.net.Uri.fromFile(file), today.minusDays(30L * (1 - i)))
             }
         }
         tap("Progress")
@@ -226,5 +278,18 @@ class AppScreenshotTest {
         tap("Photos")
         compose.waitUntilAtLeastOneExists(hasText("First vs latest", ignoreCase = true), 10_000)
         shot("04_progress_photos")
+        tap("Cardio")
+        compose.waitUntilAtLeastOneExists(hasText("By type", ignoreCase = true), 10_000)
+        shot("04_progress_cardio")
+        tap("Daily")
+        compose.waitUntilAtLeastOneExists(hasText("Water · 14 days", ignoreCase = true), 10_000)
+        shot("04_progress_daily")
+        tap("Body")
+        compose.waitUntilAtLeastOneExists(hasText("Log measurements", substring = true, ignoreCase = true), 10_000)
+        type("Waist (cm)", "84")
+        type("Arm (cm)", "38")
+        tap("Save measurements")
+        compose.waitUntilAtLeastOneExists(hasText("Waist · 84 cm"), 10_000)
+        shot("04_progress_body")
     }
 }

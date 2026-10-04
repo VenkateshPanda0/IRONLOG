@@ -150,7 +150,7 @@ private fun LevelCard(e: Engagement) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Text(
-            "XP: workout 100 · working set 5 · personal best 50 · complete food day 10 · achievements 25 (Bronze) to 1,000 (Legend).",
+            "XP: workout 100 · working set 5 · personal best 50 · cardio 50 + 1/min · habit 5 · step, water or sleep goal 10 · check-in 5 · complete food day 10 · achievements 25 (Bronze) to 1,000 (Legend).",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

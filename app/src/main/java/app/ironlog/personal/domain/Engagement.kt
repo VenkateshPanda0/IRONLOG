@@ -40,11 +40,11 @@ object EngagementReplay {
     const val MAX_LEVEL = 50
 
     /**
-     * XP needed to complete [level] levels. Each level costs 75 XP more than the previous one,
-     * starting at 500, so early levels arrive within days and level 50 needs 112,700 XP — about
-     * two years of four workouts a week with food logging (see the simulation test).
+     * XP needed to complete [level] levels. Each level costs 110 XP more than the previous one,
+     * starting at 700, so early levels arrive within days and level 50 needs 163,660 XP: about two
+     * years of four lifting days, two cardio days, habits and daily goals (see GrindSimulationTest).
      */
-    fun xpForLevel(level: Int) = 500 * level + 75 * level * (level - 1) / 2
+    fun xpForLevel(level: Int) = 700 * level + 110 * level * (level - 1) / 2
 
     fun levelFor(xp: Int): Int {
         var level = 0

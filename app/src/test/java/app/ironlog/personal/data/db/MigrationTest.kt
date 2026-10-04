@@ -28,12 +28,12 @@ class MigrationTest {
             execSQL("INSERT INTO set_log (id, sessionExerciseId, setIndex, type, weightKg, reps, isCompleted) VALUES (1, 1, 1, 'WORKING', 100.0, 5, 1)")
             close()
         }
-        helper.runMigrationsAndValidate(name, 2, true, IronlogDatabase.MIGRATION_1_2).close()
+        helper.runMigrationsAndValidate(name, 3, true, IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3).close()
 
         // Open with Room itself to prove the migrated schema matches the entities.
         val db =
             Room.databaseBuilder(RuntimeEnvironment.getApplication(), IronlogDatabase::class.java, name)
-                .addMigrations(IronlogDatabase.MIGRATION_1_2)
+                .addMigrations(IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3)
                 .allowMainThreadQueries()
                 .build()
         try {
@@ -43,6 +43,37 @@ class MigrationTest {
                 assertNull(row.originalExerciseId)
                 val sets = db.dao().allLoggedSets().first()
                 assertEquals(100.0, sets.single().weightKg!!, 0.0)
+            }
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
+    fun v2GoalsGainWellnessDefaultsAndNewTablesWork() {
+        val v2 = "migration-v2.db"
+        helper.createDatabase(v2, 2).apply {
+            execSQL("INSERT INTO goal (id, goalWeightKg, targetDate, kcalTarget, proteinG, carbsG, fatG) VALUES (1, 75.0, NULL, 2400, 160.0, 250.0, 70.0)")
+            close()
+        }
+        helper.runMigrationsAndValidate(v2, 3, true, IronlogDatabase.MIGRATION_2_3).close()
+        val db =
+            Room.databaseBuilder(RuntimeEnvironment.getApplication(), IronlogDatabase::class.java, v2)
+                .addMigrations(IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3)
+                .allowMainThreadQueries()
+                .build()
+        try {
+            runBlocking {
+                val goal = db.dao().goalOnce()!!
+                assertEquals(2400, goal.kcalTarget)
+                assertEquals(8000, goal.stepGoal)
+                assertEquals(3000, goal.waterGoalMl)
+                db.dao().saveDailyLog(DailyLogEntity(date = "2026-10-04", steps = 9000, waterMl = 1500))
+                assertEquals(9000, db.dao().dailyLogOnce("2026-10-04")!!.steps)
+                val habit = db.dao().addHabit(HabitEntity(name = "Creatine"))
+                db.dao().checkHabit(HabitCheckEntity(habit, "2026-10-04"))
+                db.dao().checkHabit(HabitCheckEntity(habit, "2026-10-04"))
+                assertEquals(1, db.dao().habitChecks().first().size)
             }
         } finally {
             db.close()
