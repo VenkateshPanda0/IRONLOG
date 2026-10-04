@@ -343,14 +343,94 @@ interface IronlogDao {
     }
 
     @Query(
-        "SELECT s.id AS sessionId, s.startedAt AS startedAt, s.name AS sessionName, l.setIndex AS setIndex, " +
-            "l.type AS type, l.weightKg AS weightKg, l.reps AS reps FROM set_log l " +
+        LOGGED_SET_COLUMNS +
             "JOIN session_exercise e ON l.sessionExerciseId = e.id " +
             "JOIN workout_session s ON e.sessionId = s.id " +
             "WHERE e.exerciseId = :exerciseId AND s.status = 'COMPLETED' AND l.isCompleted = 1 " +
             "ORDER BY s.startedAt DESC, e.orderIndex, l.setIndex"
     )
     fun exerciseHistory(exerciseId: String): Flow<List<LoggedSet>>
+
+    /** Every completed set in every completed workout, oldest first, for records and stats. */
+    @Query(
+        LOGGED_SET_COLUMNS +
+            "JOIN session_exercise e ON l.sessionExerciseId = e.id " +
+            "JOIN workout_session s ON e.sessionId = s.id " +
+            "WHERE s.status = 'COMPLETED' AND l.isCompleted = 1 " +
+            "ORDER BY s.startedAt, e.orderIndex, l.setIndex"
+    )
+    fun allLoggedSets(): Flow<List<LoggedSet>>
+
+    @Query("SELECT * FROM session_exercise WHERE id=:id") suspend fun sessionExercise(id: Long): SessionExerciseEntity?
+
+    @Query("SELECT * FROM workout_session WHERE id=:id") fun observeSession(id: Long): Flow<WorkoutSessionEntity?>
+
+    @Query(
+        "SELECT l.* FROM set_log l JOIN session_exercise e ON l.sessionExerciseId = e.id " +
+            "WHERE e.sessionId = :sessionId ORDER BY e.orderIndex, l.setIndex"
+    )
+    fun sessionSets(sessionId: Long): Flow<List<SetLogEntity>>
+
+    @Query("UPDATE set_log SET setIndex = setIndex + 1 WHERE sessionExerciseId=:exerciseRowId AND setIndex > :after")
+    suspend fun shiftSetsAfter(exerciseRowId: Long, after: Int)
+
+    @Query("UPDATE set_log SET setIndex = setIndex - 1 WHERE sessionExerciseId=:exerciseRowId AND setIndex > :removed")
+    suspend fun closeSetGap(exerciseRowId: Long, removed: Int)
+
+    @Query("DELETE FROM set_log WHERE id=:id") suspend fun deleteSetRow(id: Long)
+
+    @Query("SELECT COALESCE(MAX(setIndex), 0) FROM set_log WHERE sessionExerciseId=:exerciseRowId")
+    suspend fun maxSetIndex(exerciseRowId: Long): Int
+
+    @Query("SELECT COALESCE(MAX(orderIndex), -1) FROM session_exercise WHERE sessionId=:sessionId")
+    suspend fun maxOrderIndex(sessionId: Long): Int
+
+    @Query("DELETE FROM session_exercise WHERE id=:id") suspend fun deleteSessionExercise(id: Long)
+
+    @Query("DELETE FROM workout_session WHERE id=:id") suspend fun deleteSession(id: Long)
+
+    @Query("UPDATE workout_session SET notes=:notes WHERE id=:id") suspend fun setSessionNotes(id: Long, notes: String)
+
+    /** Inserts a set directly after [after], shifting later sets down by one. */
+    @Transaction
+    suspend fun insertSetAfter(exerciseRowId: Long, after: Int, type: String, weightKg: Double?): Long {
+        shiftSetsAfter(exerciseRowId, after)
+        return addSet(SetLogEntity(sessionExerciseId = exerciseRowId, setIndex = after + 1, type = type, weightKg = weightKg))
+    }
+
+    @Transaction
+    suspend fun removeSet(id: Long) {
+        val row = set(id) ?: return
+        deleteSetRow(id)
+        closeSetGap(row.sessionExerciseId, row.setIndex)
+    }
+
+    @Transaction
+    suspend fun addExerciseToSession(sessionId: Long, exerciseId: String, name: String, sets: Int): Long {
+        val rowId =
+            addSessionExercise(
+                SessionExerciseEntity(
+                    sessionId = sessionId,
+                    exerciseId = exerciseId,
+                    exerciseNameSnapshot = name,
+                    orderIndex = maxOrderIndex(sessionId) + 1,
+                    targetSets = sets,
+                )
+            )
+        repeat(sets) { addSet(SetLogEntity(sessionExerciseId = rowId, setIndex = it + 1)) }
+        return rowId
+    }
+
+    /** Swaps two adjacent exercises' order; [direction] is -1 for up and +1 for down. */
+    @Transaction
+    suspend fun moveSessionExercise(id: Long, direction: Int) {
+        val row = sessionExercise(id) ?: return
+        val rows = sessionExercisesOnce(row.sessionId)
+        val index = rows.indexOfFirst { it.id == id }
+        val other = rows.getOrNull(index + direction) ?: return
+        updateSessionExercise(row.copy(orderIndex = other.orderIndex))
+        updateSessionExercise(other.copy(orderIndex = row.orderIndex))
+    }
 
     @Query("DELETE FROM workout_session") suspend fun clearSessions()
 
@@ -420,10 +500,33 @@ interface IronlogDao {
             MealEntryEntity::class,
             BodyWeightEntity::class,
             GoalEntity::class,
+            ProgressPhotoEntity::class,
         ],
-    version = 1,
+    version = 2,
     exportSchema = true,
 )
 abstract class IronlogDatabase : RoomDatabase() {
     abstract fun dao(): IronlogDao
+
+    companion object {
+        /** v2: exercise swap tracking on session exercises and the progress photo table. */
+        val MIGRATION_1_2 =
+            object : androidx.room.migration.Migration(1, 2) {
+                override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                    db.execSQL("ALTER TABLE session_exercise ADD COLUMN originalExerciseId TEXT")
+                    db.execSQL("ALTER TABLE session_exercise ADD COLUMN originalNameSnapshot TEXT")
+                    db.execSQL(
+                        "CREATE TABLE IF NOT EXISTS progress_photo (" +
+                            "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, date TEXT NOT NULL, " +
+                            "fileName TEXT NOT NULL, note TEXT NOT NULL, createdAt INTEGER NOT NULL)"
+                    )
+                    db.execSQL("CREATE INDEX IF NOT EXISTS index_progress_photo_date ON progress_photo (date)")
+                }
+            }
+    }
 }
+
+private const val LOGGED_SET_COLUMNS =
+    "SELECT s.id AS sessionId, s.startedAt AS startedAt, s.name AS sessionName, " +
+        "e.exerciseId AS exerciseId, e.exerciseNameSnapshot AS exerciseName, l.setIndex AS setIndex, " +
+        "l.type AS type, l.weightKg AS weightKg, l.reps AS reps FROM set_log l "

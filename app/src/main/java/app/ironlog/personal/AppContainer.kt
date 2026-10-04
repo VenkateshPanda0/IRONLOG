@@ -22,7 +22,9 @@ private val Context.preferences by preferencesDataStore(name = "ironlog_settings
 
 class AppContainer(context: Context) {
     private val appContext = context.applicationContext
-    val db = Room.databaseBuilder(context, IronlogDatabase::class.java, "ironlog.db").build()
+    val db = Room.databaseBuilder(context, IronlogDatabase::class.java, "ironlog.db")
+            .addMigrations(IronlogDatabase.MIGRATION_1_2)
+            .build()
     val workouts = WorkoutRepository(db)
     val nutrition = NutritionRepository(db.dao())
     val body = BodyRepository(db.dao())
@@ -43,6 +45,8 @@ class AppContainer(context: Context) {
     }
 
     val profile = db.dao().profile()
+
+    fun dao() = db.dao()
 
     suspend fun saveProfile(value: app.ironlog.personal.data.db.UserProfileEntity) =
         db.dao().saveProfile(value)

@@ -24,7 +24,8 @@ android {
     kotlinOptions { jvmTarget = "17" }
     buildFeatures { compose = true }
     ksp { arg("room.schemaLocation", "$projectDir/schemas") }
-    sourceSets { getByName("test").assets.srcDir("$projectDir/schemas") }
+    // Exported Room schemas are needed by MigrationTestHelper in Robolectric tests.
+    sourceSets { getByName("debug").assets.srcDir("$projectDir/schemas") }
     testOptions {
         unitTests.isIncludeAndroidResources = true
         unitTests.all {

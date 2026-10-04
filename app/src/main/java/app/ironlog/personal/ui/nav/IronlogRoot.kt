@@ -40,6 +40,7 @@ import app.ironlog.personal.ui.train.HistoryRoute
 import app.ironlog.personal.ui.train.ProgramBuilderScreen
 import app.ironlog.personal.ui.train.ProgramDetailScreen
 import app.ironlog.personal.ui.train.TrainScreen
+import app.ironlog.personal.ui.train.WorkoutSummaryScreen
 
 object Routes {
     const val HOME = "home"
@@ -53,10 +54,13 @@ object Routes {
     const val BUILDER = "builder"
     const val PROGRAM = "program/{id}"
     const val WORKOUT = "workout/{id}"
+    const val SUMMARY = "summary/{id}"
 
     fun program(id: Long) = "program/$id"
 
     fun workout(id: Long) = "workout/$id"
+
+    fun summary(id: Long) = "summary/$id"
 
     fun exercise(id: String) = "exercise/${android.net.Uri.encode(id)}"
 }
@@ -82,26 +86,37 @@ private val tabs =
         ),
     )
 
-/** Navigation callbacks shared by screens so they never touch the controller directly. */
+/**
+ * Navigation callbacks shared by screens so they never touch the controller directly. Calls are
+ * marshalled to the main thread because many are made after a suspending database call.
+ */
 class Navigator(private val controller: NavHostController) {
-    fun tab(route: String) =
+    private val main = android.os.Handler(android.os.Looper.getMainLooper())
+
+    private fun onMain(action: () -> Unit) {
+        if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) action() else main.post(action)
+    }
+
+    fun tab(route: String) = onMain {
         controller.navigate(route) {
             popUpTo(controller.graph.findStartDestination().id) { saveState = true }
             launchSingleTop = true
             restoreState = true
         }
+    }
 
-    fun open(route: String) = controller.navigate(route)
+    fun open(route: String) = onMain { controller.navigate(route) }
 
-    fun workout(id: Long) = controller.navigate(Routes.workout(id)) { launchSingleTop = true }
+    fun workout(id: Long) = onMain { controller.navigate(Routes.workout(id)) { launchSingleTop = true } }
 
     /** Replaces the current screen, e.g. moving from the active workout to its summary. */
-    fun replace(route: String) =
+    fun replace(route: String) = onMain {
         controller.navigate(route) {
             controller.currentDestination?.route?.let { popUpTo(it) { inclusive = true } }
         }
+    }
 
-    fun back() = controller.popBackStack()
+    fun back() = onMain { controller.popBackStack() }
 }
 
 @Composable
@@ -222,6 +237,9 @@ private fun IronlogNavHost(
         }
         composable(Routes.WORKOUT, listOf(navArgument("id") { type = NavType.LongType })) {
             ActiveWorkoutRoute(container, nav, it.arguments?.getLong("id") ?: -1L)
+        }
+        composable(Routes.SUMMARY, listOf(navArgument("id") { type = NavType.LongType })) {
+            WorkoutSummaryScreen(container, nav, it.arguments?.getLong("id") ?: -1L)
         }
     }
 }

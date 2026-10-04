@@ -3,7 +3,12 @@ package app.ironlog.personal.ui
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onRoot
@@ -26,7 +31,7 @@ import org.robolectric.annotation.GraphicsMode
 @OptIn(ExperimentalTestApi::class)
 @RunWith(RobolectricTestRunner::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
-@Config(sdk = [34], qualifiers = "w411dp-h891dp-xxhdpi")
+@Config(qualifiers = "w411dp-h891dp-xxhdpi")
 class AppScreenshotTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
 
@@ -83,6 +88,45 @@ class AppScreenshotTest {
         compose.waitUntilAtLeastOneExists(hasText("Settings", ignoreCase = true), 10_000)
         shot("06_settings")
         compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
+
+        // Log an earlier session with today's exercises so hints and PRs have history.
+        runBlocking {
+            val active = container.programs.active.first()!!
+            val day = container.programs.nextDay(active.programId)
+            val rows = container.programs.prescriptions(day.id).first()
+            val names = container.workouts.exercises.first().associate { it.id to it.name }
+            val earlier = container.workouts.start("Earlier session", rows.map { Triple(it.exerciseId, names.getValue(it.exerciseId), 2) })
+            container.dao().sessionSets(earlier).first().forEach { container.workouts.completeWithFallback(it.id, 60.0, 8) }
+            container.workouts.finish(earlier)
+        }
+        tap("Start workout")
+        compose.waitUntilAtLeastOneExists(hasText("Last time", substring = true), 10_000)
+        compose.onAllNodes(hasSetTextAction())[0].performTextInput("70")
+        compose.mainClock.advanceTimeBy(1_000)
+        compose.waitForIdle()
+        Thread.sleep(500)
+        compose.onAllNodesWithContentDescription("Complete set")[0].performClick()
+        compose.waitUntil(5_000) { compose.onAllNodesWithContentDescription("Mark set not done").fetchSemanticsNodes().size == 1 }
+        compose.onAllNodesWithContentDescription("Complete set")[0].performClick()
+        compose.waitUntil(5_000) { compose.onAllNodesWithContentDescription("Mark set not done").fetchSemanticsNodes().size == 2 }
+        compose.waitUntilAtLeastOneExists(hasText("REST"), 10_000)
+        shot("09_active_workout")
+        compose.onAllNodes(hasText("1"))[0].performClick()
+        compose.waitUntilAtLeastOneExists(hasText("Add drop set after"), 5_000)
+        shot("10_set_menu")
+        tap("Add drop set after")
+        compose.waitUntilAtLeastOneExists(hasText("D"), 5_000)
+        shot("10_drop_set_added")
+        tap("Finish")
+        compose.waitUntilAtLeastOneExists(hasText("Finish workout?"), 5_000)
+        compose.onAllNodes(hasText("FINISH"))[1].performClick()
+        compose.waitUntilAtLeastOneExists(hasText("Workout complete", ignoreCase = true), 10_000)
+        compose.waitUntilAtLeastOneExists(hasText("Personal bests", ignoreCase = true), 10_000)
+        shot("11_summary")
+        compose.onRoot().performTouchInput { swipeUp() }
+        compose.onRoot().performTouchInput { swipeUp() }
+        shot("12_summary_share")
+        tap("Done")
 
         tap("Train")
         compose.waitUntilAtLeastOneExists(hasText("All programs", ignoreCase = true), 10_000)

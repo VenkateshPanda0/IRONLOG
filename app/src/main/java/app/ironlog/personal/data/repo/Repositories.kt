@@ -3,6 +3,7 @@ package app.ironlog.personal.data.repo
 import androidx.room.withTransaction
 import app.ironlog.personal.data.db.*
 import app.ironlog.personal.domain.Calculations
+import app.ironlog.personal.domain.WorkoutMath
 import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -110,6 +111,87 @@ class WorkoutRepository(private val db: IronlogDatabase) {
     suspend fun resume(id: Long) = dao.resumeSession(id, System.currentTimeMillis())
 
     suspend fun skipExercise(id: Long) = dao.setExerciseStatus(id, "SKIPPED")
+
+    suspend fun unskipExercise(id: Long) = dao.setExerciseStatus(id, "PENDING")
+
+    fun observeSession(id: Long) = dao.observeSession(id)
+
+    fun sessionSets(sessionId: Long) = dao.sessionSets(sessionId)
+
+    val allLoggedSets = dao.allLoggedSets()
+
+    /** Marks a set done; blank fields are filled from [fallbackWeight]/[fallbackReps] (the hint). */
+    suspend fun completeWithFallback(id: Long, fallbackWeight: Double?, fallbackReps: Int?) {
+        val row = dao.set(id) ?: return
+        dao.updateSet(
+            row.copy(
+                weightKg = row.weightKg ?: fallbackWeight,
+                reps = row.reps ?: fallbackReps,
+                isCompleted = true,
+                completedAt = System.currentTimeMillis(),
+            )
+        )
+    }
+
+    suspend fun setType(id: Long, type: String) {
+        dao.set(id)?.let { dao.updateSet(it.copy(type = type)) }
+    }
+
+    /** Adds a drop or rest-pause set right after [setId]; drop sets start at a lighter load. */
+    suspend fun addSubSet(setId: Long, type: String): Long? {
+        val row = dao.set(setId) ?: return null
+        val weight = if (type == "DROP") WorkoutMath.dropWeight(row.weightKg) else row.weightKg
+        return dao.insertSetAfter(row.sessionExerciseId, row.setIndex, type, weight)
+    }
+
+    suspend fun addSet(exerciseRowId: Long) {
+        val index = dao.maxSetIndex(exerciseRowId)
+        dao.insertSetAfter(exerciseRowId, index, "WORKING", null)
+    }
+
+    suspend fun removeSet(id: Long) = dao.removeSet(id)
+
+    suspend fun addExercise(sessionId: Long, exercise: ExerciseEntity, sets: Int = 3) =
+        dao.addExerciseToSession(sessionId, exercise.id, exercise.name, sets)
+
+    /** Swaps the exercise but keeps the logged sets; the first swap remembers the original. */
+    suspend fun replaceExercise(rowId: Long, exercise: ExerciseEntity) {
+        val row = dao.sessionExercise(rowId) ?: return
+        dao.updateSessionExercise(
+            row.copy(
+                exerciseId = exercise.id,
+                exerciseNameSnapshot = exercise.name,
+                originalExerciseId = row.originalExerciseId ?: row.exerciseId,
+                originalNameSnapshot = row.originalNameSnapshot ?: row.exerciseNameSnapshot,
+            )
+        )
+    }
+
+    suspend fun revertExercise(rowId: Long) {
+        val row = dao.sessionExercise(rowId) ?: return
+        val original = row.originalExerciseId ?: return
+        dao.updateSessionExercise(
+            row.copy(
+                exerciseId = original,
+                exerciseNameSnapshot = row.originalNameSnapshot ?: original,
+                originalExerciseId = null,
+                originalNameSnapshot = null,
+            )
+        )
+    }
+
+    suspend fun moveExercise(rowId: Long, direction: Int) = dao.moveSessionExercise(rowId, direction)
+
+    suspend fun removeExercise(rowId: Long) = dao.deleteSessionExercise(rowId)
+
+    suspend fun setExerciseNotes(rowId: Long, notes: String) {
+        dao.sessionExercise(rowId)?.let { dao.updateSessionExercise(it.copy(notes = notes)) }
+    }
+
+    suspend fun setSessionNotes(id: Long, notes: String) = dao.setSessionNotes(id, notes)
+
+    /** Deletes the session and everything logged in it. */
+    suspend fun discard(id: Long) = dao.deleteSession(id)
 }
 
 class NutritionRepository(private val dao: IronlogDao) {
@@ -268,7 +350,8 @@ class ProgramRepository(private val db: IronlogDatabase) {
         return db.withTransaction {
             val sessionId =
                 dao.startWorkout(
-                    "${program.name} · ${day.name}",
+                    // Day first so the workout header reads "Push · PPL" rather than the program.
+                    "${day.name} · ${program.name.removeSuffix(" (Recommended)")}",
                     id,
                     day.name,
                     rows,

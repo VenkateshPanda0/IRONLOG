@@ -180,6 +180,9 @@ data class SessionExerciseEntity(
     val restSeconds: Int = 90,
     val sourceProgramDayExerciseId: Long? = null,
     val notes: String = "",
+    /** Set when the exercise was swapped mid-workout so it can be reverted. */
+    val originalExerciseId: String? = null,
+    val originalNameSnapshot: String? = null,
 )
 
 @Serializable
@@ -312,11 +315,24 @@ data class GoalEntity(
     val fatG: Double = 65.0,
 )
 
+/** Progress photo stored as a file in app-private storage; the row keeps only its name. */
+@Serializable
+@Entity(tableName = "progress_photo", indices = [Index("date")])
+data class ProgressPhotoEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val date: String,
+    val fileName: String,
+    val note: String = "",
+    val createdAt: Long = System.currentTimeMillis(),
+)
+
 /** A completed set joined with its session, used for exercise history and records. */
 data class LoggedSet(
     val sessionId: Long,
     val startedAt: Long,
     val sessionName: String,
+    val exerciseId: String,
+    val exerciseName: String,
     val setIndex: Int,
     val type: String,
     val weightKg: Double?,
