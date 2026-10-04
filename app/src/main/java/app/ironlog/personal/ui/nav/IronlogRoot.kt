@@ -1,5 +1,6 @@
 package app.ironlog.personal.ui.nav
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,6 +26,7 @@ fun IronlogRoot(
     var selected by remember { mutableIntStateOf(0) }
     val profile by container.profile.collectAsState(initial = null)
     val seedState by container.seedState.collectAsState()
+    BackHandler(enabled = selected != 0) { selected = 0 }
     Scaffold(
         bottomBar = {
             if (profile != null)

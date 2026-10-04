@@ -10,6 +10,7 @@ import app.ironlog.personal.data.provider.OpenFoodFactsProvider
 import app.ironlog.personal.data.provider.UsdaProvider
 import app.ironlog.personal.data.repo.*
 import app.ironlog.personal.data.seed.FoodSeedLoader
+import app.ironlog.personal.data.seed.ProgramSeedLoader
 import app.ironlog.personal.data.seed.SeedLoader
 import app.ironlog.personal.timer.RestTimerController
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,6 +30,7 @@ class AppContainer(context: Context) {
     val programs = ProgramRepository(db)
     val seed = SeedLoader(context, db)
     val foodSeed = FoodSeedLoader(context, db)
+    val programSeed = ProgramSeedLoader(context, db)
     val openFoodFacts = OpenFoodFactsProvider(db.dao())
     val usda = UsdaProvider(null)
     val restTimer = RestTimerController(context, db.dao())

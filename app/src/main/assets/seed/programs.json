@@ -1,0 +1,36 @@
+[
+  {
+    "name": "Full Body 3x",
+    "description": "A three-session repeating full-body strength routine.",
+    "daysPerWeek": 3,
+    "goal": "MAINTAIN",
+    "days": [
+      {"name":"Full Body A","exercises":[{"id":"Barbell_Full_Squat","sets":3,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Barbell_Bench_Press_-_Medium_Grip","sets":3,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Bent_Over_Barbell_Row","sets":3,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Romanian_Deadlift","sets":3,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Alternating_Cable_Shoulder_Press","sets":3,"repMin":6,"repMax":12,"restSeconds":150}]},
+      {"name":"Full Body B","exercises":[{"id":"Barbell_Hack_Squat","sets":3,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Alternating_Floor_Press","sets":3,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Chin-Up","sets":3,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Hip_Extension_with_Bands","sets":3,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Alternate_Hammer_Curl","sets":3,"repMin":10,"repMax":15,"restSeconds":90}]},
+      {"name":"Full Body C","exercises":[{"id":"Barbell_Lunge","sets":3,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Barbell_Incline_Bench_Press_-_Medium_Grip","sets":3,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Bent_Over_Two-Dumbbell_Row","sets":3,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Flutter_Kicks","sets":3,"repMin":8,"repMax":15,"restSeconds":90},{"id":"Barbell_Seated_Calf_Raise","sets":3,"repMin":10,"repMax":15,"restSeconds":90}]}
+    ]
+  },
+  {
+    "name": "Upper / Lower",
+    "description": "Four sessions alternating upper-body and lower-body training.",
+    "daysPerWeek": 4,
+    "goal": "MAINTAIN",
+    "days": [
+      {"name":"Upper A","exercises":[{"id":"Barbell_Bench_Press_-_Medium_Grip","sets":3,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Bent_Over_Barbell_Row","sets":3,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Alternating_Cable_Shoulder_Press","sets":3,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Close-Grip_Barbell_Bench_Press","sets":3,"repMin":8,"repMax":12,"restSeconds":90},{"id":"Alternate_Hammer_Curl","sets":3,"repMin":10,"repMax":15,"restSeconds":90}]},
+      {"name":"Lower A","exercises":[{"id":"Barbell_Full_Squat","sets":3,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Romanian_Deadlift","sets":3,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Barbell_Lunge","sets":3,"repMin":8,"repMax":12,"restSeconds":120},{"id":"Barbell_Seated_Calf_Raise","sets":3,"repMin":10,"repMax":15,"restSeconds":90},{"id":"Barbell_Ab_Rollout","sets":3,"repMin":8,"repMax":15,"restSeconds":90}]},
+      {"name":"Upper B","exercises":[{"id":"Barbell_Incline_Bench_Press_-_Medium_Grip","sets":3,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Chin-Up","sets":3,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Bent_Over_Two-Dumbbell_Row","sets":3,"repMin":8,"repMax":12,"restSeconds":120},{"id":"Bench_Dips","sets":3,"repMin":8,"repMax":12,"restSeconds":90},{"id":"Barbell_Curl","sets":3,"repMin":10,"repMax":15,"restSeconds":90}]},
+      {"name":"Lower B","exercises":[{"id":"Barbell_Hack_Squat","sets":3,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Stiff-Legged_Dumbbell_Deadlift","sets":3,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Hip_Extension_with_Bands","sets":3,"repMin":8,"repMax":12,"restSeconds":120},{"id":"Calf_Press","sets":3,"repMin":10,"repMax":15,"restSeconds":90},{"id":"Ab_Roller","sets":3,"repMin":8,"repMax":15,"restSeconds":90}]}
+    ]
+  },
+  {
+    "name": "Push / Pull / Legs",
+    "description": "A three-session repeating push, pull and legs routine.",
+    "daysPerWeek": 3,
+    "goal": "MAINTAIN",
+    "days": [
+      {"name":"Push","exercises":[{"id":"Barbell_Bench_Press_-_Medium_Grip","sets":4,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Barbell_Incline_Bench_Press_-_Medium_Grip","sets":3,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Alternating_Cable_Shoulder_Press","sets":3,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Bench_Dips","sets":3,"repMin":8,"repMax":12,"restSeconds":90},{"id":"Cable_Lying_Triceps_Extension","sets":3,"repMin":10,"repMax":15,"restSeconds":90}]},
+      {"name":"Pull","exercises":[{"id":"Chin-Up","sets":4,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Bent_Over_Barbell_Row","sets":4,"repMin":6,"repMax":12,"restSeconds":150},{"id":"Close-Grip_Front_Lat_Pulldown","sets":3,"repMin":8,"repMax":12,"restSeconds":120},{"id":"Barbell_Curl","sets":3,"repMin":10,"repMax":15,"restSeconds":90},{"id":"Alternate_Hammer_Curl","sets":3,"repMin":10,"repMax":15,"restSeconds":90}]},
+      {"name":"Legs","exercises":[{"id":"Barbell_Full_Squat","sets":4,"repMin":6,"repMax":12,"restSeconds":180},{"id":"Romanian_Deadlift","sets":4,"repMin":6,"repMax":12,"restSeconds":180},{"id":"Barbell_Lunge","sets":3,"repMin":8,"repMax":12,"restSeconds":120},{"id":"Barbell_Seated_Calf_Raise","sets":3,"repMin":10,"repMax":15,"restSeconds":90},{"id":"Barbell_Ab_Rollout","sets":3,"repMin":8,"repMax":15,"restSeconds":90}]}
+    ]
+  }
+]

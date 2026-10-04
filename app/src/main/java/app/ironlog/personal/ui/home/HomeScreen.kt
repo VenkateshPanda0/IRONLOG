@@ -13,6 +13,11 @@ fun HomeScreen(c: AppContainer, onTrain: () -> Unit) {
     val active by c.workouts.active.collectAsState(initial = null)
     val history by c.workouts.history.collectAsState(initial = emptyList())
     val weights by c.body.weights.collectAsState(initial = emptyList())
+    val activeProgram by c.programs.active.collectAsState(initial = null)
+    val programs by c.programs.programs.collectAsState(initial = emptyList())
+    val activeProgramEntity = programs.firstOrNull { it.id == activeProgram?.programId }
+    val scheduledDays by
+        c.programs.days(activeProgram?.programId ?: -1L).collectAsState(initial = emptyList())
     Page("Today") {
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -29,6 +34,26 @@ fun HomeScreen(c: AppContainer, onTrain: () -> Unit) {
         Text(
             "This week · ${history.count { it.startedAt>=System.currentTimeMillis()-7*86400000L }} completed workouts"
         )
+        if (activeProgram != null && activeProgramEntity != null && scheduledDays.isNotEmpty()) {
+            val nextDay =
+                scheduledDays.getOrNull(
+                    ((activeProgram.currentDay - 1).coerceAtLeast(0)) % scheduledDays.size
+                )
+            Card(Modifier.fillMaxWidth()) {
+                Column(
+                    Modifier.padding(18.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Text(
+                        "Program · ${activeProgramEntity.name}",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    nextDay?.let { Text("Next · ${it.name}") }
+                    Text("${scheduledDays.size}-session repeating cycle")
+                    Button(onClick = onTrain) { Text("View program") }
+                }
+            }
+        }
         Text(
             weights.lastOrNull()?.let { "Latest weight · %.1f kg".format(it.weightKg) }
                 ?: "No weight entries yet"

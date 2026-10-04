@@ -24,7 +24,7 @@ data class ExerciseEntity(
 )
 
 @Serializable
-@Entity(tableName = "program")
+@Entity(tableName = "program", indices = [Index(value = ["name", "isBuiltIn"], unique = true)])
 data class ProgramEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val name: String,
@@ -46,7 +46,8 @@ data class ProgramEntity(
                 onDelete = ForeignKey.CASCADE,
             )
         ],
-    indices = [Index("programId")],
+    indices =
+        [Index("programId"), Index(value = ["programId", "weekIndex", "dayIndex"], unique = true)],
 )
 data class ProgramDayEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
@@ -69,7 +70,7 @@ data class ProgramDayEntity(
                 onDelete = ForeignKey.CASCADE,
             )
         ],
-    indices = [Index("programDayId")],
+    indices = [Index("programDayId"), Index(value = ["programDayId", "orderIndex"], unique = true)],
 )
 data class ProgramDayExerciseEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
@@ -80,6 +81,7 @@ data class ProgramDayExerciseEntity(
     val repMin: Int = 8,
     val repMax: Int = 12,
     val restSeconds: Int = 90,
+    val originalExerciseId: String? = null,
     val notes: String = "",
 )
 
@@ -107,6 +109,9 @@ data class UserProfileEntity(
     val goal: String = "MAINTAIN",
     val daysPerWeek: Int = 3,
     val equipment: String = "GYM",
+    val experience: String = "BEGINNER",
+    val sessionMinutes: Int = 45,
+    val avoidList: String = "",
 )
 
 @Serializable
@@ -150,6 +155,7 @@ data class SessionExerciseEntity(
     val repMin: Int = 8,
     val repMax: Int = 12,
     val restSeconds: Int = 90,
+    val sourceProgramDayExerciseId: Long? = null,
     val notes: String = "",
 )
 

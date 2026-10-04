@@ -16,10 +16,15 @@ class IronlogApp : Application() {
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             runCatching {
                 val currentVersion = container.seedVersion()
-                val exerciseCount = if (currentVersion < SEED_VERSION) container.seed.load() else 0
-                val foodCounts =
-                    if (currentVersion < SEED_VERSION) container.foodSeed.load() else null
-                if (currentVersion < SEED_VERSION) container.setSeedVersion(SEED_VERSION)
+                val shouldLoadExercises = currentVersion < EXERCISE_SEED_VERSION
+                val exerciseCount = if (shouldLoadExercises) container.seed.load() else 0
+                val shouldLoadFoods = currentVersion < FOOD_SEED_VERSION
+                val foodCounts = if (shouldLoadFoods) container.foodSeed.load() else null
+                val shouldLoadPrograms = currentVersion < PROGRAM_SEED_VERSION
+                if (shouldLoadExercises || shouldLoadPrograms) container.programSeed.load()
+                val latestSeedVersion =
+                    maxOf(EXERCISE_SEED_VERSION, FOOD_SEED_VERSION, PROGRAM_SEED_VERSION)
+                if (currentVersion < latestSeedVersion) container.setSeedVersion(latestSeedVersion)
                 container.updateSeedState(
                     SeedState.Ready(
                         insertedExercises = exerciseCount,
@@ -37,6 +42,8 @@ class IronlogApp : Application() {
     }
 
     private companion object {
-        const val SEED_VERSION = 2
+        const val EXERCISE_SEED_VERSION = 2
+        const val FOOD_SEED_VERSION = 2
+        const val PROGRAM_SEED_VERSION = 3
     }
 }

@@ -20,7 +20,10 @@ This file tracks source that needs verification in Android Studio while the loca
 - Exercise/food seed assets and wrapper files are present. Exercise metadata count is 876; USDA subset has 1,200 foods and 2,271 portions. Loader integration and actual seeding are unverified.
 - Runtime notification permission, reboot timer recovery, seed completion synchronization, and theme flow have not been tested.
 - New recommender source has deterministic split selection, ranked per-muscle prescriptions, and onboarding wiring. Kotlin syntax formatting succeeded, but this increment has not been type-checked or unit-tested. In particular, Compose Flow collection/imports and the pure recommender tests need Gradle verification.
-- Onboarding still persists only the existing thin Room profile. Experience, session duration, and avoid-list are currently preview-only UI state. No built-in program seed file/catalog is wired; the recommendation is not saved.
+- The user profile schema now adds experience, sessionMinutes, and avoidList; program seed JSON/loader, program uniqueness/order indices, program screens, and recommendation persistence were added afterward. This mutates the version-1 schema and requires KSP export. There is no schema JSON or compiled Room validation yet.
+- Program seed ID integrity was compared with the bundled exercise JSON using a local Python script; all 50 referenced IDs existed at authoring time. Robolectric loader/idempotency/count tests are not run. The seed migration relies on independent DataStore seed versions (exercise 2, food 2, program 3); upgrade-path runtime behavior is unverified.
+- Program screen now combines prescription flows outside day rendering loops; all Compose and Flow types are unverified. Program start copies set/rep/rest prescription fields into session snapshots, but this code is not type-checked or executed.
+- Program seed loading now compares full prescription shapes and transactionally updates built-in rows while preserving their IDs. Linked workout completion advances the active cycle in a Room transaction, and Home renders that persisted cycle position without a suspend call during composition. New loader/progression Robolectric tests remain NOT RUN; Room transaction generation and UI compilation remain unverified.
 
 ## Gate policy
 

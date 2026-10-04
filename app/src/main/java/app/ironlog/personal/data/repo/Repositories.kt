@@ -5,6 +5,8 @@ import app.ironlog.personal.data.db.*
 import app.ironlog.personal.domain.Calculations
 import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
 
 class WorkoutRepository(private val db: IronlogDatabase) {
     private val dao = db.dao()
@@ -26,7 +28,28 @@ class WorkoutRepository(private val db: IronlogDatabase) {
         rows: List<Triple<String, String, Int>>,
         programId: Long? = null,
         day: String? = null,
-    ) = db.withTransaction { dao.startWorkout(name, programId, day, rows) }
+    ) = db.withTransaction {
+        dao.startWorkout(
+            name,
+            programId,
+            day,
+            rows.mapIndexed { index, (exerciseId, exerciseName, sets) ->
+                Triple(
+                    exerciseId,
+                    exerciseName,
+                    ProgramDayExerciseEntity(
+                        programDayId = 0,
+                        exerciseId = exerciseId,
+                        orderIndex = index,
+                        targetSets = sets,
+                        repMin = 8,
+                        repMax = 12,
+                        restSeconds = 90,
+                    ),
+                )
+            },
+        )
+    }
 
     suspend fun completeSet(id: Long, weightKg: Double?, reps: Int?) {
         dao.set(id)?.let {
@@ -57,7 +80,7 @@ class WorkoutRepository(private val db: IronlogDatabase) {
     }
 
     suspend fun finish(id: Long) =
-        dao.finishSession(id, "COMPLETED", System.currentTimeMillis(), System.currentTimeMillis())
+        dao.finishWorkoutAndAdvanceProgram(id, System.currentTimeMillis())
 
     suspend fun pause(id: Long) = dao.pauseSession(id, System.currentTimeMillis())
 
@@ -119,20 +142,107 @@ class ProgramRepository(private val db: IronlogDatabase) {
     private val dao = db.dao()
     val programs = dao.programs()
     val active = dao.activeProgram()
+    val exerciseOptions = dao.exercises()
+
+    fun days(programId: Long): Flow<List<ProgramDayEntity>> = dao.observeDays(programId)
+
+    fun prescriptions(dayId: Long): Flow<List<ProgramDayExerciseEntity>> =
+        dao.observePrescriptions(dayId)
+
+    fun prescriptionsForDays(
+        days: List<ProgramDayEntity>
+    ): Flow<Map<Long, List<ProgramDayExerciseEntity>>> {
+        if (days.isEmpty()) return flowOf(emptyMap())
+        val dayFlows = days.map { day ->
+            dao.observePrescriptions(day.id).combine(flowOf(day.id)) { rows, id -> id to rows }
+        }
+        return combine(dayFlows) { rows -> rows.toMap() }
+    }
 
     suspend fun activate(id: Long) =
         dao.activate(ActiveProgramEntity(programId = id, startDate = LocalDate.now().toString()))
 
-    suspend fun start(id: Long, dayIndex: Int): Long {
+    suspend fun renameRecommended(id: Long, name: String, description: String): Unit {
+        val program = dao.programOnce(id) ?: error("Program missing")
+        require(!program.isBuiltIn) { "Built-in programs are read-only." }
+        val nameConflict = dao.programByName("$name (Recommended)")
+        require(nameConflict == null || nameConflict.id == id) {
+            "A program with that name already exists."
+        }
+        dao.updateProgram(program.copy(name = "$name (Recommended)", description = description))
+    }
+
+    suspend fun nextDay(programId: Long): ProgramDayEntity {
+        val activeProgram = dao.activeProgramOnce()?.takeIf { it.programId == programId }
+        val programDays = dao.days(programId)
+        require(programDays.isNotEmpty()) { "This program has no scheduled days." }
+        val currentIndex = activeProgram?.currentDay?.minus(1) ?: 0
+        return programDays.getOrNull(currentIndex.mod(programDays.size)) ?: programDays.first()
+    }
+
+    suspend fun saveRecommended(
+        name: String,
+        description: String,
+        daysPerWeek: Int,
+        days: List<Pair<String, List<ProgramDayExerciseEntity>>>,
+    ): Long = db.withTransaction {
+        val programName = "$name (Recommended)"
+        val existing = dao.programByName(programName)
+        val programId =
+            if (existing == null) {
+                val inserted =
+                    dao.addProgram(
+                        ProgramEntity(
+                            name = programName,
+                            description = description,
+                            daysPerWeek = daysPerWeek,
+                            isBuiltIn = false,
+                        )
+                    )
+                if (inserted != -1L) inserted
+                else
+                    dao.programByName(programName)?.id
+                        ?: error("Could not save recommended program")
+            } else {
+                require(!existing.isBuiltIn) {
+                    "Built-in programs are read-only; duplicate it before editing."
+                }
+                dao.updateProgram(
+                    existing.copy(description = description, daysPerWeek = daysPerWeek)
+                )
+                dao.deleteProgramDays(existing.id)
+                existing.id
+            }
+        days.forEachIndexed { dayIndex, (dayName, exercises) ->
+            val dayId =
+                dao.addProgramDay(
+                    ProgramDayEntity(programId = programId, dayIndex = dayIndex + 1, name = dayName)
+                )
+            exercises.forEach { exercise ->
+                dao.addPrescription(exercise.copy(id = 0, programDayId = dayId))
+            }
+        }
+        programId
+    }
+
+    suspend fun start(id: Long, dayId: Long): Long {
         val program = dao.program(id) ?: error("Program missing")
-        val day = dao.days(id).getOrNull(dayIndex) ?: error("Program day missing")
+        val day =
+            dao.programDay(dayId)?.takeIf { it.programId == id } ?: error("Program day missing")
         val rows =
             dao.prescriptions(day.id).map { p ->
                 val ex = dao.exercise(p.exerciseId)
-                Triple(p.exerciseId, ex?.name ?: p.exerciseId, p.targetSets)
+                Triple(p.exerciseId, ex?.name ?: p.exerciseId, p)
             }
         return db.withTransaction {
-            dao.startWorkout("${program.name} · ${day.name}", id, day.name, rows)
+            val sessionId =
+                dao.startWorkout(
+                    "${program.name} · ${day.name}",
+                    id,
+                    day.name,
+                    rows,
+                )
+            sessionId
         }
     }
 }

@@ -147,6 +147,8 @@ interface IronlogDao {
 
     @Insert suspend fun addSessionExercise(value: SessionExerciseEntity): Long
 
+    @Update suspend fun updateSessionExercise(value: SessionExerciseEntity)
+
     @Insert suspend fun addSet(value: SetLogEntity): Long
 
     @Query("SELECT * FROM session_exercise WHERE sessionId=:id ORDER BY orderIndex")
@@ -225,7 +227,27 @@ interface IronlogDao {
 
     @Query("SELECT * FROM program WHERE id=:id") suspend fun program(id: Long): ProgramEntity?
 
-    @Insert suspend fun addProgram(value: ProgramEntity): Long
+    @Query("SELECT * FROM program WHERE name=:name LIMIT 1")
+    suspend fun programByName(name: String): ProgramEntity?
+
+    @Query("SELECT * FROM program WHERE id=:id") suspend fun programOnce(id: Long): ProgramEntity?
+
+    @Update suspend fun updateProgram(value: ProgramEntity)
+
+    @Query("DELETE FROM program_day WHERE programId=:programId")
+    suspend fun deleteProgramDays(programId: Long)
+
+    @Query("DELETE FROM active_program WHERE programId=:programId")
+    suspend fun clearActiveProgramFor(programId: Long)
+
+    @Query("SELECT * FROM program_day WHERE programId=:id ORDER BY weekIndex,dayIndex")
+    fun observeDays(id: Long): Flow<List<ProgramDayEntity>>
+
+    @Query("SELECT * FROM program_day_exercise WHERE programDayId=:id ORDER BY orderIndex")
+    fun observePrescriptions(id: Long): Flow<List<ProgramDayExerciseEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun addProgram(value: ProgramEntity): Long
 
     @Insert suspend fun addProgramDay(value: ProgramDayEntity): Long
 
@@ -233,6 +255,12 @@ interface IronlogDao {
 
     @Query("SELECT * FROM program_day WHERE programId=:id ORDER BY weekIndex,dayIndex")
     suspend fun days(id: Long): List<ProgramDayEntity>
+
+    @Query("SELECT * FROM program_day WHERE id=:id")
+    suspend fun programDay(id: Long): ProgramDayEntity?
+
+    @Query("SELECT * FROM program_day WHERE programId=:programId AND name=:name LIMIT 1")
+    suspend fun programDay(programId: Long, name: String): ProgramDayEntity?
 
     @Query("SELECT * FROM program_day_exercise WHERE programDayId=:id ORDER BY orderIndex")
     suspend fun prescriptions(id: Long): List<ProgramDayExerciseEntity>
@@ -242,6 +270,28 @@ interface IronlogDao {
 
     @Query("SELECT * FROM active_program WHERE id=1")
     fun activeProgram(): Flow<ActiveProgramEntity?>
+
+    @Query("SELECT * FROM active_program WHERE id=1")
+    suspend fun activeProgramOnce(): ActiveProgramEntity?
+
+    @Transaction
+    suspend fun finishWorkoutAndAdvanceProgram(id: Long, now: Long) {
+        val session = session(id) ?: return
+        if (session.status !in setOf("IN_PROGRESS", "PAUSED")) return
+        finishSession(id, "COMPLETED", now, now)
+        if (session.programId == null || session.programDayName == null) return
+        val active = activeProgramOnce()?.takeIf { it.programId == session.programId } ?: return
+        val completedDay = programDay(session.programId, session.programDayName) ?: return
+        val days = days(session.programId)
+        if (days.isEmpty()) return
+        val nextDay =
+            days
+                .indexOfFirst { it.id == completedDay.id }
+                .let { index ->
+                    if (index < 0) 1 else (index + 1) % days.size + 1
+                }
+        activate(active.copy(currentWeek = 1, currentDay = nextDay))
+    }
 
     @Query("SELECT * FROM exercise WHERE id=:id") suspend fun exercise(id: String): ExerciseEntity?
 
@@ -265,13 +315,13 @@ interface IronlogDao {
         name: String,
         programId: Long?,
         day: String?,
-        entries: List<Triple<String, String, Int>>,
+        entries: List<Triple<String, String, ProgramDayExerciseEntity>>,
     ): Long {
         val sessionId =
             startSession(
                 WorkoutSessionEntity(name = name, programId = programId, programDayName = day)
             )
-        entries.forEachIndexed { order, (exerciseId, exerciseName, sets) ->
+        entries.forEachIndexed { order, (exerciseId, exerciseName, prescription) ->
             val exerciseRow =
                 addSessionExercise(
                     SessionExerciseEntity(
@@ -279,10 +329,16 @@ interface IronlogDao {
                         exerciseId = exerciseId,
                         exerciseNameSnapshot = exerciseName,
                         orderIndex = order,
-                        targetSets = sets,
+                        targetSets = prescription.targetSets,
+                        repMin = prescription.repMin,
+                        repMax = prescription.repMax,
+                        restSeconds = prescription.restSeconds,
+                        notes = prescription.notes,
+                        sourceProgramDayExerciseId =
+                            prescription.id.takeIf { programId != null && it > 0 },
                     )
                 )
-            repeat(sets) { index ->
+            repeat(prescription.targetSets) { index ->
                 addSet(SetLogEntity(sessionExerciseId = exerciseRow, setIndex = index + 1))
             }
         }

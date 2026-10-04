@@ -12,10 +12,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import app.ironlog.personal.AppContainer
+import app.ironlog.personal.data.db.ProgramDayExerciseEntity
 import app.ironlog.personal.data.db.UserProfileEntity
 import app.ironlog.personal.domain.Calculations
 import app.ironlog.personal.domain.ExerciseOption
 import app.ironlog.personal.domain.ExperienceLevel
+import app.ironlog.personal.domain.RecommendedDay
 import app.ironlog.personal.domain.Recommender
 import app.ironlog.personal.domain.TrainingProfile
 import app.ironlog.personal.ui.components.Field
@@ -41,6 +43,7 @@ fun OnboardingScreen(c: AppContainer) {
     var avoidList by remember { mutableStateOf("") }
     var sex by remember { mutableStateOf("UNSPECIFIED") }
     var activity by remember { mutableDoubleStateOf(1.4) }
+    var recommendationMessage by remember { mutableStateOf<String?>(null) }
     val w = weight.toDoubleOrNull() ?: 70.0
     val h = height.toDoubleOrNull() ?: 170.0
     val a = age.toIntOrNull() ?: 30
@@ -87,22 +90,7 @@ fun OnboardingScreen(c: AppContainer) {
         }
         Field("Session length (minutes)", sessionMinutes, { sessionMinutes = it }, true)
         Field("Exercises or movements to avoid", avoidList, { avoidList = it })
-        val equipmentSet =
-            if (equipment == "BODYWEIGHT") setOf("body only")
-            else
-                setOf(
-                    "barbell",
-                    "dumbbell",
-                    "cable",
-                    "machine",
-                    "body only",
-                    "kettlebells",
-                    "bands",
-                    "e-z curl bar",
-                    "exercise ball",
-                    "medicine ball",
-                    "other",
-                )
+        val equipmentSet = if (equipment == "BODYWEIGHT") setOf("body only") else GYM_EQUIPMENT
         val exerciseOptions by
             c.workouts.exercises
                 .map { rows -> rows.filter { it.category.equals("strength", ignoreCase = true) } }
@@ -157,6 +145,27 @@ fun OnboardingScreen(c: AppContainer) {
                 )
             }
         }
+        recommendationMessage?.let { Text(it) }
+        Button(
+            enabled = suggestion.days.any { it.exercises.isNotEmpty() },
+            onClick = {
+                scope.launch {
+                    val programDays = recommendationProgramDays(suggestion.days)
+                    val programId =
+                        c.programs.saveRecommended(
+                            name = suggestion.template,
+                            description = suggestion.why,
+                            daysPerWeek = days.toIntOrNull()?.coerceIn(2, 6) ?: 3,
+                            days = programDays,
+                        )
+                    c.programs.activate(programId)
+                    recommendationMessage = "Saved and activated ${suggestion.template}."
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("Save and activate program")
+        }
         val kcal = Calculations.targetCalories(sex, w, h, a, activity, goal)
         Text(
             kcal?.let {
@@ -179,6 +188,9 @@ fun OnboardingScreen(c: AppContainer) {
                             goal = goal,
                             equipment = equipment,
                             daysPerWeek = chosenDays,
+                            experience = experience.name,
+                            sessionMinutes = sessionMinutes.toIntOrNull()?.coerceIn(20, 120) ?: 45,
+                            avoidList = avoidList,
                         )
                     )
                     c.body.log(LocalDate.now(), w, "Starting weight")
@@ -190,3 +202,35 @@ fun OnboardingScreen(c: AppContainer) {
         }
     }
 }
+
+private fun recommendationProgramDays(
+    days: List<RecommendedDay>
+): List<Pair<String, List<ProgramDayExerciseEntity>>> = days.map { day ->
+    day.name to
+        day.exercises.mapIndexed { index, prescription ->
+            ProgramDayExerciseEntity(
+                programDayId = 0,
+                exerciseId = prescription.exerciseId,
+                orderIndex = index,
+                targetSets = prescription.sets,
+                repMin = prescription.repMin,
+                repMax = prescription.repMax,
+                restSeconds = prescription.restSeconds,
+            )
+        }
+}
+
+private val GYM_EQUIPMENT =
+    setOf(
+        "barbell",
+        "dumbbell",
+        "cable",
+        "machine",
+        "body only",
+        "kettlebells",
+        "bands",
+        "e-z curl bar",
+        "exercise ball",
+        "medicine ball",
+        "other",
+    )

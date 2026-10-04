@@ -12,6 +12,7 @@ Open this folder as an existing Gradle project. The pinned versions are in `grad
 - Room v1 models and repositories for profile, programs, exercises, sessions/sets, foods/meals, weight and goals.
 - Bundled source metadata for 876 exercises and sourced USDA SR Legacy values for 1,200 foods and 2,271 portions. See `docs/SEED_DATA.md`; exercise images are not bundled.
 - Local quick workout start, pause/finish, set completion, custom exercise and custom food entry, meal totals, and weight log/trend calculation.
+- Three seeded program templates (10 workout days / 50 prescriptions), profile-based recommendation save/activation, prescription snapshots, and cycle advancement after a linked workout is finished.
 - Unit conversion, meal scaling, volume, Epley e1RM and seven-day mean pure Kotlin calculations.
 - Database seeding is authored but has not been verified at runtime. Built-in program prescriptions are still absent.
 
@@ -40,7 +41,7 @@ Implemented flows persist on-device using Room. Open Food Facts text/barcode req
 
 ## Known limitations and future work
 
-The brief's full feature set is not complete: schema JSON still needs regeneration by Room KSP; built-in program prescriptions, complete profile onboarding, workout summary/replace/revert, barcode scanning, recipes, strength/volume/nutrition charts, measurements/photos, reminders, goal UI, engagement UI, AI coach and M10 extras remain incomplete. No CI is configured. All gates remain NOT RUN. See `docs/STATE.md`, `docs/COMPILE_RISKS.md`, and `BUILD_LOG.md`.
+The brief's full feature set is not complete: schema JSON still needs regeneration by Room KSP; full profile onboarding, calendar-based weekly schedule and missed-day handling, program builder/detail/duplication, workout summary/replace/revert, barcode scanning, recipes, strength/volume/nutrition charts, measurements/photos, reminders, goal UI, engagement UI, AI coach and M10 extras remain incomplete. The source inventory is roughly 35% complete; no app build/test/lint/device gate is verified, and no APK exists. No CI is configured. See `docs/STATE.md`, `docs/COMPILE_RISKS.md`, and `BUILD_LOG.md`.
 
 ## License and attribution
 
@@ -56,4 +57,4 @@ Backup and import sources use JSON through Storage Access Framework document pic
 
 The M7b domain slice now has deterministic XP/level replay, workout/food/photo/goal medal unlock calculations, weekly/food streak rules, and a quick-workout selector that honors target, equipment and avoid filters. Corresponding test source was authored. The M7b screens, event extraction from Room history, unlock settings, backfill, reminders, photos and share flow remain incomplete; no gate was run.
 
-The recommender source now generates day-by-day exercise prescriptions from locally seeded exercise metadata and current onboarding inputs for days/week, broad equipment choice, goal, experience, session length and an avoid-list. The preview is deterministic. It is not yet a saved program, and the schema still does not persist the added onboarding inputs. Its test source is not run. Current split/duration/sets/equipment assumptions are recorded in `docs/STATE.md`.
+The recommender source now generates deterministic day-by-day prescriptions from locally seeded exercise metadata and onboarding inputs. Three built-in program templates seed 10 days and 50 prescriptions; loader validation checks exercise references and prescription bounds. The onboarding and Train program builder can save/activate custom recommendations. Experience, session length, and avoid-list are stored in the current Room v1 source schema, which has not been generated or compiled. Program prescriptions are copied into workout-session snapshots; completing a linked session advances the active program cycle transactionally. Program seed/recommender/progression tests are authored but NOT RUN. Calendar-based weekly rotation, missed-day handling, full profile editing and a full custom program builder remain incomplete. Current assumptions are recorded in `docs/STATE.md`.
