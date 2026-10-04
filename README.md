@@ -13,8 +13,9 @@ Open this folder as an existing Gradle project. The pinned versions are in `grad
 - Bundled source metadata for 876 exercises and sourced USDA SR Legacy values for 1,200 foods and 2,271 portions. See `docs/SEED_DATA.md`; exercise images are not bundled.
 - Local quick workout start, pause/finish, set completion, custom exercise and custom food entry, meal totals, and weight log/trend calculation.
 - Three seeded program templates (10 workout days / 50 prescriptions), profile-based recommendation save/activation, prescription snapshots, and cycle advancement after a linked workout is finished.
+- Onboarding stores estimated calorie/macronutrient targets in Room; Nutrition displays them and Settings can edit the profile fields currently collected plus targets.
 - Unit conversion, meal scaling, volume, Epley e1RM and seven-day mean pure Kotlin calculations.
-- Database seeding is authored but has not been verified at runtime. Built-in program prescriptions are still absent.
+- Exercise, food and program seeding is authored but has not been verified at runtime.
 
 ## Build/install (not run)
 
@@ -41,7 +42,7 @@ Implemented flows persist on-device using Room. Open Food Facts text/barcode req
 
 ## Known limitations and future work
 
-The brief's full feature set is not complete: schema JSON still needs regeneration by Room KSP; full profile onboarding, calendar-based weekly schedule and missed-day handling, program builder/detail/duplication, workout summary/replace/revert, barcode scanning, recipes, strength/volume/nutrition charts, measurements/photos, reminders, goal UI, engagement UI, AI coach and M10 extras remain incomplete. The source inventory is roughly 35% complete; no app build/test/lint/device gate is verified, and no APK exists. No CI is configured. See `docs/STATE.md`, `docs/COMPILE_RISKS.md`, and `BUILD_LOG.md`.
+The brief's full feature set is not complete: schema JSON still needs regeneration by Room KSP; full onboarding details such as birth date and training weekdays, calendar-based weekly schedule and missed-day handling, program builder/detail/duplication, workout summary/replace/revert, barcode scanning, recipes, strength/volume/nutrition charts, measurements/photos, reminders, advanced goal UI, engagement UI, AI coach and M10 extras remain incomplete. The source inventory is roughly 37% complete; no app build/test/lint/device gate is verified, and no APK exists. No CI is configured. See `docs/STATE.md`, `docs/COMPILE_RISKS.md`, and `BUILD_LOG.md`.
 
 ## License and attribution
 

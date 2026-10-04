@@ -165,11 +165,9 @@ fun SettingsScreen(
         Text("Nutrition targets", style = MaterialTheme.typography.titleLarge)
         Text("Calculated targets can be edited here, including for profiles under 18.")
         Field("Calories (kcal)", targetKcal, { targetKcal = it }, true)
-        Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-            Field("Protein (g)", targetProtein, { targetProtein = it }, true)
-            Field("Carbs (g)", targetCarbs, { targetCarbs = it }, true)
-            Field("Fat (g)", targetFat, { targetFat = it }, true)
-        }
+        Field("Protein (g)", targetProtein, { targetProtein = it }, true)
+        Field("Carbs (g)", targetCarbs, { targetCarbs = it }, true)
+        Field("Fat (g)", targetFat, { targetFat = it }, true)
         Button(
             onClick = {
                 val calories = targetKcal.toIntOrNull()?.takeIf { it in 500..10000 }

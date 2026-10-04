@@ -30,7 +30,7 @@ fun ProgressScreen(c: AppContainer) {
     val scope = rememberCoroutineScope()
     var value by remember { mutableStateOf("") }
     var range by remember { mutableStateOf("3M") }
-    Page("Progress") {
+    Page("Progress", scrollable = false) {
         Text("Body weight", style = MaterialTheme.typography.titleLarge)
         Field("Weight (kg)", value, { value = it }, true)
         Button(

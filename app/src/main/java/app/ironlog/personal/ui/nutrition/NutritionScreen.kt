@@ -52,7 +52,7 @@ fun NutritionScreen(container: AppContainer) {
         container.nutrition.foods(query).collect { foods = it }
     }
 
-    Page("Nutrition") {
+    Page("Nutrition", scrollable = false) {
         Text("Today · $today")
         Text(
             "${meals.sumOf { it.kcal }.toInt()} kcal · " +

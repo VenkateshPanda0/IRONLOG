@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter
 fun HistoryScreen(sessions: List<WorkoutSessionEntity>, onBack: () -> Unit) {
     val formatter =
         DateTimeFormatter.ofPattern("MMM d, yyyy · h:mm a").withZone(ZoneId.systemDefault())
-    Page("Workout history") {
+    Page("Workout history", scrollable = false) {
         TextButton(onClick = onBack) { Text("Back to Train") }
         if (sessions.isEmpty()) {
             Text("No completed workouts yet.")

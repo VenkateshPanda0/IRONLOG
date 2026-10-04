@@ -42,7 +42,7 @@ fun ActiveWorkoutScreen(
         }
     }
 
-    Page(session.name) {
+    Page(session.name, scrollable = false) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             TextButton(
                 onClick = {
