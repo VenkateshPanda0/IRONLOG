@@ -31,7 +31,7 @@ import app.ironlog.personal.ui.theme.IronTheme
 import java.time.LocalDate
 import kotlinx.coroutines.launch
 
-private const val STEPS = 5
+private const val STEPS = 6
 
 private val GOALS =
     listOf(
@@ -66,6 +66,8 @@ fun OnboardingScreen(c: AppContainer) {
     var weekdays by rememberSaveable { mutableStateOf(listOf("MON", "WED", "FRI")) }
     var minutes by rememberSaveable { mutableIntStateOf(60) }
     var equipment by rememberSaveable { mutableStateOf("GYM") }
+    var physique by rememberSaveable { mutableStateOf("") }
+    val physiqueType = app.ironlog.personal.ui.physique.physiqueGoalOf(physique)
     var saving by remember { mutableStateOf(false) }
 
     val w = weight.toDoubleOrNull()?.takeIf { it in 25.0..400.0 }
@@ -75,7 +77,7 @@ fun OnboardingScreen(c: AppContainer) {
 
     val exercises by c.workouts.exercises.collectAsState(initial = emptyList())
     val suggestion =
-        remember(exercises, daysPerWeek, goal, experience, minutes, equipment) {
+        remember(exercises, daysPerWeek, goal, experience, minutes, equipment, physiqueType) {
             Recommender.suggest(
                 TrainingProfile(
                     daysPerWeek = daysPerWeek.coerceIn(2, 6),
@@ -84,6 +86,7 @@ fun OnboardingScreen(c: AppContainer) {
                     experience = experience,
                     sessionMinutes = minutes,
                     avoidList = emptySet(),
+                    priorityMuscles = physiqueType?.emphasis.orEmpty(),
                 ),
                 exercises
                     .filter { it.category.equals("strength", ignoreCase = true) }
@@ -106,7 +109,7 @@ fun OnboardingScreen(c: AppContainer) {
         when (step) {
             0 -> true
             1 -> w != null && h != null && a != null
-            3 -> daysPerWeek in 2..6
+            4 -> daysPerWeek in 2..6
             else -> true
         }
 
@@ -178,6 +181,17 @@ fun OnboardingScreen(c: AppContainer) {
                     }
                 }
                 3 -> {
+                    StepTitle("Your goal look", "Pick the physique you are training for. Later, check a photo to compare yourself with it.")
+                    app.ironlog.personal.ui.physique.PhysiqueTypePicker(
+                        app.ironlog.personal.domain.PhysiqueType.forSex(sex),
+                        physiqueType,
+                    ) { physique = if (physique == it.name) "" else it.name }
+                    Text(
+                        if (physiqueType == null) "Optional: skip if you are not sure yet." else "Your program will give extra volume to ${physiqueType.emphasis.take(3).joinToString()}.",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                4 -> {
                     StepTitle("Training", "Pick the days you can train. 2 to 6 days.")
                     WeekdaySelector(weekdays.toSet()) { day ->
                         weekdays = if (day in weekdays) weekdays - day else weekdays + day
@@ -270,6 +284,7 @@ fun OnboardingScreen(c: AppContainer) {
                                 experience = experience.name,
                                 sessionMinutes = minutes,
                                 trainingWeekdays = WEEKDAYS.filter { it in weekdays }.joinToString(","),
+                                physiqueGoal = physique,
                             )
                         )
                     }

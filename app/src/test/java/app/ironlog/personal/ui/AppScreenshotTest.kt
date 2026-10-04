@@ -100,9 +100,15 @@ class AppScreenshotTest {
         type("Age", "29")
         type("Height (cm)", "180")
         type("Weight (kg)", "82")
+        tap("Male")
         shot("00_onboarding_body")
         tap("Continue")
         shot("00_onboarding_goal")
+        tap("Continue")
+        compose.waitUntilAtLeastOneExists(hasText("Your goal look", ignoreCase = true), 10_000)
+        tap("Classic")
+        compose.waitUntilAtLeastOneExists(hasText("extra volume", substring = true), 10_000)
+        shot("00_onboarding_physique")
         tap("Continue")
         shot("00_onboarding_training")
         tap("Continue")
@@ -293,5 +299,38 @@ class AppScreenshotTest {
         tap("Save measurements")
         compose.waitUntilAtLeastOneExists(hasText("Waist · 84 cm"), 10_000)
         shot("04_progress_body")
+    
+
+        // Physique check: ML Kit cannot run here, so a synthetic body stands in for the detector,
+        // and the photo picker result is delivered by hand.
+        container.physique.detector =
+            app.ironlog.personal.data.repo.BodyDetector { app.ironlog.personal.domain.SyntheticBody.build(170, 118, 130, 66) }
+        tap("Photos")
+        tap("Physique check")
+        compose.waitUntilAtLeastOneExists(hasText("For an accurate check", ignoreCase = true), 10_000)
+        shot("16_physique")
+        val photo = java.io.File(activity.cacheDir, "front.png")
+        android.graphics.Bitmap.createBitmap(400, 800, android.graphics.Bitmap.Config.ARGB_8888)
+            .apply { eraseColor(android.graphics.Color.LTGRAY) }
+            .let { b -> photo.outputStream().use { b.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) } }
+        tap("Check a photo")
+        scenario.onActivity {
+            val shadow = org.robolectric.Shadows.shadowOf(it)
+            val request = shadow.nextStartedActivityForResult
+            shadow.receiveResult(request.intent, android.app.Activity.RESULT_OK, android.content.Intent().setData(android.net.Uri.fromFile(photo)))
+        }
+        compose.waitUntilAtLeastOneExists(hasText("match to Classic", substring = true), 20_000)
+        shot("16_physique_report")
+        compose.onRoot().performTouchInput { swipeUp() }
+        shot("16_physique_findings")
+        tap("Save this check")
+        compose.waitUntilAtLeastOneExists(hasText("History", ignoreCase = true), 10_000)
+        compose.onRoot().performTouchInput { swipeUp() }
+        compose.onRoot().performTouchInput { swipeUp() }
+        shot("16_physique_history")
+        tap("Build a program with this focus")
+        compose.waitUntilAtLeastOneExists(hasText("Classic focus", ignoreCase = true), 10_000)
+        compose.onRoot().performTouchInput { swipeUp() }
+        shot("17_builder_focus")
     }
 }

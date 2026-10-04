@@ -94,3 +94,12 @@ Each step was built, tested and pushed to `main` separately: redesign and naviga
 - Final gate: `./gradlew testDebugUnitTest assembleDebug lintDebug`: 89 tests pass, APK about 40.7 MB, lint 0 errors (warnings are mostly newer dependency versions available).
 - Real bugs found and fixed along the way: programs never selected back exercises ("back" vs "lats/middle back"), Settings import button never opened the picker, deleting personal data wiped the bundled library, 1-rep e1RM, the food subset lacked staples (oats, eggs, rice, milk), food search ranking and main-thread scoring, Open Food Facts free-text search endpoint, quadratic PR recounting, navigation off the main thread, set hints misaligned after inserting drop sets, unused CAMERA permission, old Fragment version for activity results.
 - Decisions: exercise demos are the public-domain start/end photos animated as a loop (no freely licensed video set exists); levels capped at 50 with a curve tuned by simulation.
+
+## 2026-10-04 · Physique check
+
+- Rule-based analysis (`domain/Physique.kt`): frontal widths from a person mask and pose joints, photo-quality checks (no body, not full body, side-on, tilted, arms touching), ten goal physique types with target ratios, findings, priority muscles and calorie direction. Unit-tested on synthetic bodies with known widths.
+- On-device detection with ML Kit pose-detection-accurate and segmentation-selfie (bundled models). Gallery photos are decoded upright from EXIF at about 1024 px.
+- Schema v5, onboarding goal-physique step, Physique screen with You-vs-goal figures (original vector drawings), history, entry cards on Home, Progress > Photos and Profile, and a "physique focus" switch in the program builder.
+- APK grew to about 70 MB (ML Kit native library); 32-bit x86 dropped and native libraries compressed (was 130 MB before that).
+- Gate: 96 tests pass, lint 0 errors. Not verified: ML Kit on a real device and accuracy on real photos.
+

@@ -67,6 +67,7 @@ object Routes {
     const val SUMMARY = "summary/{id}"
     const val FOOD = "food/{meal}/{date}"
     const val RECIPE = "recipe"
+    const val PHYSIQUE = "physique"
 
     fun program(id: Long) = "program/$id"
 
@@ -249,7 +250,8 @@ private fun IronlogNavHost(
             )
         }
         composable(Routes.RECIPE) { RecipeScreen(container, nav) }
-        composable(Routes.PROGRESS) { ProgressScreen(container) }
+        composable(Routes.PHYSIQUE) { app.ironlog.personal.ui.physique.PhysiqueScreen(container, nav) }
+        composable(Routes.PROGRESS) { ProgressScreen(container, nav) }
         composable(Routes.PROFILE) { ProfileScreen(container, nav) }
         composable(Routes.CARDIO) { CardioScreen(container, nav) }
         composable(Routes.HABITS) { HabitsScreen(container, nav) }

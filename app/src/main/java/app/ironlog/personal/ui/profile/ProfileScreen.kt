@@ -80,6 +80,7 @@ fun ProfileScreen(c: AppContainer, nav: Navigator) {
             return@Page
         }
         LevelCard(e)
+        app.ironlog.personal.ui.physique.PhysiqueCard(c, nav)
 
         SectionHeader("Lifetime stats")
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {

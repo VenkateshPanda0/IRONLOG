@@ -58,7 +58,7 @@ private val LONG = DateTimeFormatter.ofPattern("d MMM yyyy")
 private val COMPACT = DateTimeFormatter.ofPattern("d/M")
 
 @Composable
-fun ProgressScreen(c: AppContainer) {
+fun ProgressScreen(c: AppContainer, nav: app.ironlog.personal.ui.nav.Navigator) {
     var tab by rememberSaveable { mutableStateOf("Weight") }
     Page("Progress") {
         ChipRow(listOf("Weight", "Body", "Strength", "Volume", "Cardio", "Daily", "Photos"), tab, { it }, { tab = it })
@@ -69,7 +69,10 @@ fun ProgressScreen(c: AppContainer) {
             "Volume" -> VolumeSection(c)
             "Cardio" -> app.ironlog.personal.ui.wellness.CardioSection(c)
             "Daily" -> app.ironlog.personal.ui.wellness.DailyTrendsSection(c)
-            else -> PhotoSection(c)
+            else -> {
+                app.ironlog.personal.ui.physique.PhysiqueCard(c, nav)
+                PhotoSection(c)
+            }
         }
     }
 }

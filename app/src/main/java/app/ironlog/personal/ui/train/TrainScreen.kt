@@ -262,6 +262,10 @@ fun ProgramBuilderScreen(container: AppContainer, nav: Navigator) {
     var goal by remember { mutableStateOf("BUILD_MUSCLE") }
     var experience by remember { mutableStateOf(ExperienceLevel.BEGINNER) }
     var avoid by remember { mutableStateOf("") }
+    val scans by container.physique.scans.collectAsState(initial = emptyList())
+    val physiqueGoal = app.ironlog.personal.ui.physique.physiqueGoalOf(profile?.physiqueGoal)
+    val focus = remember(physiqueGoal, scans.firstOrNull()) { app.ironlog.personal.ui.physique.physiqueFocus(physiqueGoal, scans.firstOrNull()) }
+    var useFocus by remember { mutableStateOf(true) }
 
     profile?.let { current ->
         LaunchedEffect(current.id) {
@@ -277,7 +281,7 @@ fun ProgramBuilderScreen(container: AppContainer, nav: Navigator) {
 
     val namesById = remember(exercises) { exercises.associate { it.id to it.name } }
     val recommendation =
-        remember(exercises, days, minutes, goal, experience, avoid, profile?.equipment) {
+        remember(exercises, days, minutes, goal, experience, avoid, profile?.equipment, focus, useFocus) {
             Recommender.suggest(
                 TrainingProfile(
                     daysPerWeek = days,
@@ -286,6 +290,7 @@ fun ProgramBuilderScreen(container: AppContainer, nav: Navigator) {
                     experience = experience,
                     sessionMinutes = minutes,
                     avoidList = avoid.split(',').map { it.trim() }.filter { it.isNotEmpty() }.toSet(),
+                    priorityMuscles = if (useFocus) focus else emptyList(),
                 ),
                 exercises
                     .filter { it.category.equals("strength", true) }
@@ -322,6 +327,19 @@ fun ProgramBuilderScreen(container: AppContainer, nav: Navigator) {
             { experience = it },
         )
         Field("Exercises or muscles to avoid (comma separated)", avoid, { avoid = it })
+        if (focus.isNotEmpty() && physiqueGoal != null) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Eyebrow("${physiqueGoal.title} focus")
+                    Text(
+                        "Extra volume for ${focus.take(3).joinToString()}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Switch(checked = useFocus, onCheckedChange = { useFocus = it })
+            }
+        }
 
         SectionHeader(recommendation.template)
         Text(recommendation.why, color = MaterialTheme.colorScheme.onSurfaceVariant)
