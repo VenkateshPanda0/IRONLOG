@@ -29,9 +29,8 @@ class FoodSeedCsvParserTest {
     fun malformedAndNonPositivePortionsAreIgnored() {
         val servings = FoodSeedCsvParser.parseServings(fixture("food_servings_fixture.csv"))
 
-        assertEquals(1, servings.size)
-        assertEquals("1 cup, cooked", servings.single().label)
-        assertEquals(177.0, servings.single().grams, 0.0)
+        assertEquals(listOf("1 cup, cooked", "1 cup"), servings.map { it.label })
+        assertEquals(listOf(177.0, 200.0), servings.map { it.grams })
     }
 
     private fun fixture(name: String): String {

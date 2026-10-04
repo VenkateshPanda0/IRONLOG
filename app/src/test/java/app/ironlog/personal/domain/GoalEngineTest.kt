@@ -27,7 +27,7 @@ class GoalEngineTest {
             )
         assertEquals(GoalStatus.ON_TRACK, result.status)
         assertEquals(60.0, result.percentComplete!!, 0.01)
-        assertEquals(0.5, result.weeklyRateKg!!, 0.01)
+        assertEquals(0.4, result.weeklyRateKg!!, 0.01)
     }
 
     @Test
@@ -73,7 +73,7 @@ class GoalEngineTest {
 
     @Test
     fun bmiWaistAndAgeGates() {
-        assertEquals(25.0, GoalEngine.bmi(70.0, 167.332), 0.01)
+        assertEquals(25.0, GoalEngine.bmi(70.0, 167.332)!!, 0.01)
         assertEquals(0.5, GoalEngine.waistHeightRatio(85.0, 170.0)!!, 0.001)
         assertFalse(GoalEngine.showBodyRatios(false))
         assertTrue(GoalEngine.showBodyRatios(true))

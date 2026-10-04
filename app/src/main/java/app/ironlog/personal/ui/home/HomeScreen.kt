@@ -34,10 +34,11 @@ fun HomeScreen(c: AppContainer, onTrain: () -> Unit) {
         Text(
             "This week · ${history.count { it.startedAt>=System.currentTimeMillis()-7*86400000L }} completed workouts"
         )
-        if (activeProgram != null && activeProgramEntity != null && scheduledDays.isNotEmpty()) {
+        val currentProgram = activeProgram
+        if (currentProgram != null && activeProgramEntity != null && scheduledDays.isNotEmpty()) {
             val nextDay =
                 scheduledDays.getOrNull(
-                    ((activeProgram.currentDay - 1).coerceAtLeast(0)) % scheduledDays.size
+                    ((currentProgram.currentDay - 1).coerceAtLeast(0)) % scheduledDays.size
                 )
             Card(Modifier.fillMaxWidth()) {
                 Column(

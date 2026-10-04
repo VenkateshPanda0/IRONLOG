@@ -14,7 +14,7 @@ data class WorkoutUiState(
     val history: List<WorkoutSessionEntity> = emptyList(),
 )
 
-class WorkoutViewModel(repository: WorkoutRepository) : ViewModel() {
+class WorkoutViewModel(private val repository: WorkoutRepository) : ViewModel() {
     val state: StateFlow<WorkoutUiState> =
         combine(repository.active, repository.history) { active, history ->
                 WorkoutUiState(active, history)

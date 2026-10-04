@@ -40,6 +40,14 @@ class RecommenderTest {
                 ),
                 ExerciseOption("row", "Cable Row", setOf("back"), "cable", "beginner", "compound"),
                 ExerciseOption(
+                    "squat",
+                    "Barbell Squat",
+                    setOf("quadriceps"),
+                    "barbell",
+                    "beginner",
+                    "compound",
+                ),
+                ExerciseOption(
                     "curl",
                     "Biceps Curl",
                     setOf("biceps"),

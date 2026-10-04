@@ -201,6 +201,7 @@ fun OnboardingScreen(c: AppContainer) {
                             experience = experience.name,
                             sessionMinutes = sessionMinutes.toIntOrNull()?.coerceIn(20, 120) ?: 45,
                             avoidList = avoidList,
+                            trainingWeekdays = WEEKDAYS.filter { it in trainingWeekdays }.joinToString(","),
                         )
                     )
                     kcal?.let { calorieTarget ->
@@ -260,3 +261,14 @@ private val GYM_EQUIPMENT =
         "medicine ball",
         "other",
     )
+
+private val WEEKDAYS = listOf("MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN")
+
+@Composable
+private fun WeekdaySelector(selected: Set<String>, onToggle: (String) -> Unit) {
+    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        WEEKDAYS.forEach { day ->
+            FilterChip(day in selected, { onToggle(day) }, label = { Text(day.take(2)) })
+        }
+    }
+}

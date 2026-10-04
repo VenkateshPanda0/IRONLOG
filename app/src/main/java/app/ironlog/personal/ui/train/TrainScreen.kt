@@ -64,15 +64,15 @@ fun TrainScreen(container: AppContainer) {
     }
     var recommendationAvoid by remember { mutableStateOf(profile?.avoidList ?: "") }
 
-    if (profile != null) {
-        LaunchedEffect(profile) {
-            recommendationDays = profile.daysPerWeek.toString()
-            recommendationMinutes = profile.sessionMinutes.toString()
-            recommendationGoal = profile.goal
+    profile?.let { current ->
+        LaunchedEffect(current) {
+            recommendationDays = current.daysPerWeek.toString()
+            recommendationMinutes = current.sessionMinutes.toString()
+            recommendationGoal = current.goal
             recommendationExperience =
-                runCatching { ExperienceLevel.valueOf(profile.experience) }
+                runCatching { ExperienceLevel.valueOf(current.experience) }
                     .getOrDefault(ExperienceLevel.BEGINNER)
-            recommendationAvoid = profile.avoidList
+            recommendationAvoid = current.avoidList
         }
     }
 

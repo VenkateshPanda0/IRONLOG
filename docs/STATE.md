@@ -1,5 +1,7 @@
 # Ironlog build state
 
+- **2026-10-04 update:** `assembleDebug` and `testDebugUnitTest` (33/33) now PASS in a Linux cloud session with the Android SDK at `/opt/android-sdk`. Lint and device install remain NOT RUN. Work now proceeds on `main` only, toward STNDRD-style feature parity (local-first): exercise library screen, advanced set types, exercise swap, workout summary/share, camera barcode scan, recipes, weekly balance, progress photos, strength/volume charts, XP/medals screen, dark redesign.
+
 - Last passed check: `gradlew.bat --version` reported Gradle 8.9 / JDK 17.0.18. No app milestone gate has passed; assemble, tests, lint, sync, and device gates remain NOT RUN.
 - Source authored: prior partial M1-M7b work; this continuation adds wrapper, `.gitattributes`, 876 exercise records, 1,200 USDA foods / 2,271 portions, transactional/versioned loaders, seed readiness state, ViewModel factory and usage, feature screen split, full-screen workout/history views, seed fixtures/idempotency tests, and ktfmt formatting. Kotlin files parse under ktfmt but none are compiled.
 - Current repo: local `main` tracks `origin/main`; app histories/tags remain preserved. Environment has JDK 17.0.18; SDK under `C:\Users\VENKATESH PANDA\AppData\Local\Android\Sdk` with platforms 33/34/36/36.1 and build tools; no `sdkmanager` on PATH; no attached devices. `C:\Android\Sdk` does not exist in this shell. Gradle/Google/Maven HEAD probes returned 200.

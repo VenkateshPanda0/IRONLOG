@@ -20,7 +20,11 @@ object Calculations {
         else 0.0
 
     fun e1rm(weightKg: Double, reps: Int): Double? =
-        if (reps in 1..12) weightKg * (1.0 + reps / 30.0) else null
+        when (reps) {
+            1 -> weightKg
+            in 2..12 -> weightKg * (1.0 + reps / 30.0)
+            else -> null
+        }
 
     fun sevenDayMean(values: Map<LocalDate, Double>, end: LocalDate): Double? {
         val points = (0L..6L).mapNotNull { values[end.minusDays(it)] }

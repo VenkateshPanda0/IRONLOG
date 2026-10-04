@@ -73,3 +73,16 @@ The continuation brief authorizes Gradle, tests, and dataset downloads; current 
 - M7 backup implementation added as source: serializable Room rows, SAF JSON export/import, structural checks and transactional restore. Round-trip test authored but NOT RUN.
 
 - M7b: XP/level replay, medals, food/training streaks and quick-workout generator source plus tests authored. Full engagement UI/persistence and all gates remain NOT RUN.
+
+## 2026-10-04 · First verified build (Linux cloud session)
+
+Environment: OpenJDK 21.0.11, Android SDK installed via cmdline-tools at `/opt/android-sdk` (platform 35, build-tools 35.0.0/34.0.0), Gradle 8.9 wrapper. The earlier Windows loopback blocker does not occur here.
+
+- `./gradlew assembleDebug` — **PASS**. Output `app/build/outputs/apk/debug/app-debug.apk` (~11 MB). Room KSP generated `app/schemas/.../1.json`.
+- `./gradlew testDebugUnitTest --rerun-tasks` — **PASS**, 33 tests, 0 failures, 0 skipped (incl. Robolectric backup/seed tests).
+- Not run: `lintDebug`, device/emulator install, live network food lookup.
+
+Fixes needed to get there:
+- Pinned Java/Kotlin JVM target 17 (KSP vs javac target mismatch under JDK 21).
+- Compile errors: missing `private val` on `WorkoutViewModel.repository`, missing `Column` import, invalid `weight` imports, smart-cast on delegated state in Home/Train, missing `WeekdaySelector` composable (now added; onboarding persists selected weekdays).
+- Tests: `e1rm` now returns the lifted weight for a 1-rep set (code bug); corrected three wrong test expectations (servings fixture count, 0.4 kg/week trend rate, Recommender fixture lacked a lower-body exercise; nullable `bmi` assertion).
