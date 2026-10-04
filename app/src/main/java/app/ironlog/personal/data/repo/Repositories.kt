@@ -138,6 +138,14 @@ class BodyRepository(private val dao: IronlogDao) {
         dao.addWeight(BodyWeightEntity(date = date.toString(), weightKg = kg, note = note))
 }
 
+class GoalRepository(private val dao: IronlogDao) {
+    val current = dao.goal()
+
+    suspend fun currentOnce(): GoalEntity? = dao.goalOnce()
+
+    suspend fun save(value: GoalEntity) = dao.saveGoal(value)
+}
+
 class ProgramRepository(private val db: IronlogDatabase) {
     private val dao = db.dao()
     val programs = dao.programs()

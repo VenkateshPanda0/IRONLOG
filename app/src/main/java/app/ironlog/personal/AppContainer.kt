@@ -26,6 +26,7 @@ class AppContainer(context: Context) {
     val workouts = WorkoutRepository(db)
     val nutrition = NutritionRepository(db.dao())
     val body = BodyRepository(db.dao())
+    val goals = GoalRepository(db.dao())
     val backup = BackupRepository(db)
     val programs = ProgramRepository(db)
     val seed = SeedLoader(context, db)
@@ -42,7 +43,6 @@ class AppContainer(context: Context) {
     }
 
     val profile = db.dao().profile()
-
     suspend fun saveProfile(value: app.ironlog.personal.data.db.UserProfileEntity) =
         db.dao().saveProfile(value)
 

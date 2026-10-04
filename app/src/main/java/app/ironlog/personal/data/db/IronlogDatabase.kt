@@ -9,6 +9,10 @@ interface IronlogDao {
 
     @Query("SELECT * FROM user_profile WHERE id=1") suspend fun profileOnce(): UserProfileEntity?
 
+    @Query("SELECT * FROM goal WHERE id=1") fun goal(): Flow<GoalEntity?>
+
+    @Query("SELECT * FROM goal WHERE id=1") suspend fun goalOnce(): GoalEntity?
+
     @Query("SELECT * FROM exercise") suspend fun allExercises(): List<ExerciseEntity>
 
     @Query("SELECT * FROM program") suspend fun allPrograms(): List<ProgramEntity>
@@ -131,6 +135,9 @@ interface IronlogDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveProfile(value: UserProfileEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun saveGoal(value: GoalEntity)
 
     @Query(
         "SELECT * FROM workout_session WHERE status IN ('IN_PROGRESS','PAUSED') ORDER BY startedAt DESC LIMIT 1"

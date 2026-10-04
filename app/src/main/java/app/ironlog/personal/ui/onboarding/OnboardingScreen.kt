@@ -12,6 +12,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import app.ironlog.personal.AppContainer
+import app.ironlog.personal.data.db.GoalEntity
 import app.ironlog.personal.data.db.ProgramDayExerciseEntity
 import app.ironlog.personal.data.db.UserProfileEntity
 import app.ironlog.personal.domain.Calculations
@@ -193,6 +194,20 @@ fun OnboardingScreen(c: AppContainer) {
                             avoidList = avoidList,
                         )
                     )
+                    kcal?.let { calorieTarget ->
+                        val proteinTarget = w * 2
+                        val fatTarget = calorieTarget * .25 / 9
+                        val carbsTarget =
+                            ((calorieTarget - proteinTarget * 4 - fatTarget * 9) / 4).coerceAtLeast(0.0)
+                        c.goals.save(
+                            GoalEntity(
+                                kcalTarget = calorieTarget,
+                                proteinG = proteinTarget,
+                                carbsG = carbsTarget,
+                                fatG = fatTarget,
+                            )
+                        )
+                    }
                     c.body.log(LocalDate.now(), w, "Starting weight")
                 }
             },

@@ -35,6 +35,7 @@ fun NutritionScreen(container: AppContainer) {
     val nutritionViewModel: NutritionViewModel =
         viewModel(factory = IronlogViewModelFactory(container, today))
     val nutritionState by nutritionViewModel.state.collectAsState()
+    val goal by container.goals.current.collectAsState(initial = null)
     val scope = rememberCoroutineScope()
     val meals = nutritionState.entries
     var query by remember { mutableStateOf("") }
@@ -59,6 +60,14 @@ fun NutritionScreen(container: AppContainer) {
                 "C ${"%.1f".format(meals.sumOf { it.carbs })} g · " +
                 "F ${"%.1f".format(meals.sumOf { it.fat })} g"
         )
+        goal?.let { target ->
+            Text(
+                "Targets · ${target.kcalTarget} kcal · " +
+                    "P ${"%.0f".format(target.proteinG)} g · " +
+                    "C ${"%.0f".format(target.carbsG)} g · " +
+                    "F ${"%.0f".format(target.fatG)} g"
+            )
+        } ?: Text("Nutrition targets are not set yet. Complete your profile to calculate them.")
         Field("Search local foods", query, { query = it })
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(
