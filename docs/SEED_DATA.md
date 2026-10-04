@@ -26,3 +26,12 @@ To refresh from the upstream source, run `tools/fetch_exercise_seed.ps1`, inspec
 `SeedLoader` and `FoodSeedLoader` insert source records inside Room transactions. Seed IDs/source references and `IGNORE` conflict handling make reruns safe. DataStore stores the seed version; the root UI waits for both seed operations before showing the app. Users' custom exercise and food IDs are independent of USDA/exercise source IDs.
 
 Seed counts reflect generated records, not a verified installed database. CSV parser fixtures and a Robolectric loader idempotency test are authored but NOT RUN. Android startup seeding remains unverified until the Android build/runtime gate can execute.
+
+## Indian dishes, Indian packaged products and world dishes (seed version 5)
+
+Built with `tools/build_food_bundles.py`; values are copied, never estimated.
+
+- **Indian dishes** (`foods_indian.csv`, 1,014 recipes, 792 servings): Indian Nutrient Databank (INDB), Vijayakumar A. et al., "Development of an Indian Food Composition Database", Current Developments in Nutrition 2024 (CC BY article); data from https://github.com/lindsayjaacks/Indian-Nutrient-Databank-INDB- (described by the authors as publicly and freely available, no separate data licence file). Values derive from ICMR-NIN Indian Food Composition Tables 2017. **Before any public distribution, obtain permission from the INDB authors / ICMR-NIN.** Serving sizes come from per-serving and per-100 g energy; servings implausible for their unit (whole-recipe yields) are dropped. Some INDB recipes are weighed by raw ingredients (e.g. plain dosa 381 kcal/100 g), so per-serving values (1 dosa = 137 kcal) are the reliable unit; the portion picker defaults to the serving and says so.
+- **Indian packaged products** (`foods_packaged_in.csv`, 1,583 products): Open Food Facts (ODbL 1.0) products of ~60 major Indian brands (Amul, Haldiram's, Britannia, Parle, MTR, Mother Dairy...); global brands kept only when sold in India; rows whose label energy contradicts protein/carbs/fat by more than 35% are dropped. Popularity = Open Food Facts scan count.
+- **World dishes** (`foods_world.csv`, 5,431 foods, 16,824 portions): USDA FNDDS 2021-2023 survey foods (public domain), tagged by cuisine with keyword rules (Italian, Mexican, Chinese, Japanese, Thai, Middle Eastern, American...).
+- Search ranks: favourites, all-words matches, curated everyday Indian staples, plain foods for one-word queries, then Indian dishes, Indian packaged, world dishes and raw ingredients.

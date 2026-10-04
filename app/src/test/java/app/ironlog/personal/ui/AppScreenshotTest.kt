@@ -237,6 +237,8 @@ class AppScreenshotTest {
         shot("03_nutrition_empty")
         compose.onNodeWithContentDescription("Add food to Breakfast").performClick()
         compose.waitUntilAtLeastOneExists(hasText("Add to Breakfast", ignoreCase = true), 10_000)
+        compose.waitUntilAtLeastOneExists(hasText("Popular in India", ignoreCase = true), 10_000)
+        shot("03_food_popular")
         compose.onNode(hasSetTextAction()).performTextInput("oats dry")
         compose.waitUntilAtLeastOneExists(hasText("Cereals, oats", substring = true), 10_000)
         shot("03_food_search")

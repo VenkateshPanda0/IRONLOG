@@ -222,11 +222,19 @@ interface IronlogDao {
     )
     fun searchFoods(q: String): Flow<List<FoodEntity>>
 
-    @Query("SELECT id, sourceRef FROM food WHERE source = 'USDA' AND sourceRef IS NOT NULL")
-    suspend fun usdaIds(): List<FoodRef>
+    @Query("SELECT id, sourceRef FROM food WHERE source IN (:sources) AND sourceRef IS NOT NULL")
+    suspend fun seededIds(sources: List<String>): List<FoodRef>
 
-    @Query("DELETE FROM food_serving WHERE foodId IN (SELECT id FROM food WHERE source = 'USDA')")
-    suspend fun deleteUsdaServings()
+    /** Bundled portions are replaced on reseed; user foods and online caches keep theirs. */
+    @Query("DELETE FROM food_serving WHERE foodId IN (SELECT id FROM food WHERE source IN (:sources))")
+    suspend fun deleteSeededServings(sources: List<String>)
+
+    @Query("UPDATE food SET cuisine = :cuisine, popularity = :popularity WHERE id = :id")
+    suspend fun tagFood(id: Long, cuisine: String?, popularity: Int)
+
+    /** Curated everyday Indian dishes shown before the user types anything. */
+    @Query("SELECT * FROM food WHERE sourceRef IN (:refs)")
+    fun foodsByRefs(refs: List<String>): Flow<List<FoodEntity>>
 
     @Query("SELECT * FROM food WHERE id=:id") fun observeFood(id: Long): Flow<FoodEntity?>
 
@@ -607,7 +615,7 @@ interface IronlogDao {
             HabitCheckEntity::class,
             BodyMeasurementEntity::class,
         ],
-    version = 3,
+    version = 4,
     exportSchema = true,
 )
 abstract class IronlogDatabase : RoomDatabase() {
@@ -626,6 +634,15 @@ abstract class IronlogDatabase : RoomDatabase() {
                             "fileName TEXT NOT NULL, note TEXT NOT NULL, createdAt INTEGER NOT NULL)"
                     )
                     db.execSQL("CREATE INDEX IF NOT EXISTS index_progress_photo_date ON progress_photo (date)")
+                }
+            }
+
+        /** v4: cuisine and popularity on foods for Indian-first search and cuisine filters. */
+        val MIGRATION_3_4 =
+            object : androidx.room.migration.Migration(3, 4) {
+                override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                    db.execSQL("ALTER TABLE food ADD COLUMN cuisine TEXT")
+                    db.execSQL("ALTER TABLE food ADD COLUMN popularity INTEGER NOT NULL DEFAULT 0")
                 }
             }
 

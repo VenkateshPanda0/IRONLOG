@@ -40,8 +40,10 @@ private fun FoodEntity.subtitle() =
 
 private fun sourceLabel(food: FoodEntity) =
     when (food.source) {
-        "USDA" -> "USDA"
-        "OFF" -> "Open Food Facts"
+        "USDA" -> "Ingredient"
+        "INDB" -> "Indian"
+        "FNDDS" -> food.cuisine ?: "World"
+        "OFF" -> if (food.cuisine == "Indian (packaged)") "Packaged · IN" else "Packaged"
         "RECIPE" -> "Recipe"
         else -> "Custom"
     }
@@ -58,7 +60,9 @@ fun FoodSearchScreen(c: AppContainer, nav: Navigator, meal: String, date: LocalD
     var status by remember { mutableStateOf<String?>(null) }
     var selected by remember { mutableStateOf<FoodEntity?>(null) }
     var creating by remember { mutableStateOf(false) }
-    val local by remember(query) { c.nutrition.foods(query.trim()) }.collectAsState(initial = emptyList())
+    var filter by rememberSaveable { mutableStateOf(app.ironlog.personal.data.repo.FoodFilter.ALL) }
+    val local by remember(query, filter) { c.nutrition.foods(query.trim(), filter) }.collectAsState(initial = emptyList())
+    val popular by c.nutrition.popularIndian.collectAsState(initial = emptyList())
     val recent by c.nutrition.recent.collectAsState(initial = emptyList())
     val favorites by c.nutrition.favorites.collectAsState(initial = emptyList())
     val mine by c.nutrition.myFoods.collectAsState(initial = emptyList())
@@ -106,6 +110,9 @@ fun FoodSearchScreen(c: AppContainer, nav: Navigator, meal: String, date: LocalD
             modifier = Modifier.fillMaxWidth(),
         )
         Segments(listOf("Search", "Recent", "Favourites", "My foods"), tab) { tab = it }
+        if (tab == "Search") {
+            ChipRow(app.ironlog.personal.data.repo.FoodFilter.entries.toList(), filter, { it.label }, { filter = it })
+        }
         status?.let { Text(it, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall) }
 
         val list =
@@ -113,7 +120,7 @@ fun FoodSearchScreen(c: AppContainer, nav: Navigator, meal: String, date: LocalD
                 "Recent" -> recent
                 "Favourites" -> favorites
                 "My foods" -> mine
-                else -> if (query.isBlank()) emptyList() else online + local.filter { food -> online.none { it.id == food.id } }
+                else -> if (query.isBlank()) popular.filter { filter.matches(it) } else online + local.filter { food -> online.none { it.id == food.id } }
             }
         LazyColumn(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
             if (tab == "Search" && query.isNotBlank()) {
@@ -146,6 +153,9 @@ fun FoodSearchScreen(c: AppContainer, nav: Navigator, meal: String, date: LocalD
                     }
                 }
             }
+            if (tab == "Search" && query.isBlank() && list.isNotEmpty()) {
+                item { Eyebrow("Popular in India") }
+            }
             if (list.isEmpty()) {
                 item {
                     EmptyState(
@@ -154,7 +164,7 @@ fun FoodSearchScreen(c: AppContainer, nav: Navigator, meal: String, date: LocalD
                             "Recent" -> "Nothing logged yet"
                             "Favourites" -> "No favourites yet"
                             "My foods" -> "No custom foods or recipes"
-                            else -> if (query.isBlank()) "Search 1,200 foods" else "No local matches"
+                            else -> if (query.isBlank()) "Search 16,000 foods" else "No local matches"
                         },
                         when (tab) {
                             "Favourites" -> "Star a food when adding it to keep it here."
@@ -237,6 +247,14 @@ fun PortionDialog(c: AppContainer, food: FoodEntity, meal: String, onDismiss: ()
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 food.brand?.let { Text(it, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                if (food.source == "INDB" && servings.isNotEmpty()) {
+                    // INDB per-100 g values follow the recipe's ingredient weights; servings are the reliable unit.
+                    Text(
+                        "Tip: log Indian dishes by serving (e.g. ${servings.first().label}); gram values follow the recipe's raw ingredients.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
                 ChipFlow(listOf("g") + servings.map { it.label }, unit, { if (it == "g") "grams" else it }, {
                     unit = it
                     amount = if (it == "g") "100" else "1"

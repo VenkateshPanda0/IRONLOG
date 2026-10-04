@@ -237,6 +237,10 @@ data class FoodEntity(
     val isFavorite: Boolean = false,
     val createdAt: Long = System.currentTimeMillis(),
     val confidence: String = "USER",
+    /** "Indian", "Indian (packaged)", "Italian", "Ingredient"... null for user foods. */
+    val cuisine: String? = null,
+    /** Source popularity (e.g. Open Food Facts scans); higher ranks first among equals. */
+    val popularity: Int = 0,
 )
 
 @Serializable

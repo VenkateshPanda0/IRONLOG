@@ -196,34 +196,127 @@ class WorkoutRepository(private val db: IronlogDatabase) {
     suspend fun discard(id: Long) = dao.deleteSession(id)
 }
 
+enum class FoodFilter(val label: String) {
+    ALL("All"),
+    INDIAN("Indian"),
+    PACKAGED("Packaged"),
+    WORLD("World"),
+    INGREDIENTS("Ingredients"),
+    MINE("Mine");
+
+    fun matches(food: FoodEntity): Boolean =
+        when (this) {
+            ALL -> true
+            INDIAN -> food.cuisine?.startsWith("Indian") == true
+            PACKAGED -> food.source == "OFF"
+            WORLD -> food.source == "FNDDS"
+            INGREDIENTS -> food.source == "USDA"
+            MINE -> food.source == "CUSTOM" || food.source == "RECIPE"
+        }
+}
+
+/** Words that describe a plain food rather than make it a dish ("Bananas, raw", "Milk, whole"). */
+private val BASIC_DESCRIPTORS =
+    setOf("raw", "fresh", "whole", "cooked", "boiled", "plain", "ripe", "dried", "skim", "nonfat", "lowfat", "white", "brown", "green", "red", "yellow", "uncooked", "unsweetened", "nfs", "regular")
+
+private val POPULAR_INDIAN =
+    listOf(
+        "INDB:ASC096", // Chapati/Roti
+        "INDB:ASC113", // Boiled rice
+        "INDB:ASC151", // Moong dal
+        "INDB:ASC165", // Rajmah curry
+        "INDB:ASC162", // Chickpea curry (chole)
+        "INDB:ASC097", // Plain paratha
+        "INDB:ASC098", // Aloo paratha
+        "INDB:ASC144", // Idli
+        "INDB:BFP148", // Plain dosa
+        "INDB:ASC146", // Masala dosa
+        "INDB:ASC167", // Sambar
+        "INDB:BFP044", // Poha
+        "INDB:BFP039", // Upma
+        "INDB:BFP144", // Khichdi
+        "INDB:ASC215", // Palak paneer
+        "INDB:ASC191", // Matar paneer
+        "INDB:ASC240", // Chicken curry
+        "INDB:ASC241", // Tandoori chicken
+        "INDB:ASC242", // Butter chicken
+        "INDB:OSR139", // Dal makhani
+        "INDB:ASC122", // Mutton biryani
+        "INDB:ASC114", // Plain pulao
+        "INDB:ASC126", // Curd rice
+        "INDB:ASC171", // Aloo gobi
+        "INDB:ASC056", // Boiled egg
+        "INDB:ASC061", // Omelette
+        "INDB:BFP240", // Egg curry
+        "INDB:OSR100", // Besan chilla
+        "INDB:ASC001", // Chai
+        "INDB:ASC021", // Sweet lassi
+    )
+
 class NutritionRepository(private val dao: IronlogDao) {
     /**
      * Every word must appear in the name or brand, in any order ("chicken breast" finds
-     * "Chicken, broilers or fryers, breast"). Ranking: favourites, then whole-word matches, then
-     * matches at the start of a word, then shorter (more generic) names. Filtering and scoring run
-     * off the main thread.
+     * "Chicken, broilers or fryers, breast"). Ranking: favourites; then foods where every word is a
+     * whole word; then everyday Indian staples; then plain foods named by a one-word query; then Indian
+     * dishes, Indian packaged products, world dishes and finally raw
+     * ingredients; then word-start matches, popularity and shorter names. Scoring runs off the main
+     * thread. [filter] narrows to one group (see [FoodFilter]).
      */
-    fun foods(q: String): Flow<List<FoodEntity>> {
+    fun foods(q: String, filter: FoodFilter = FoodFilter.ALL): Flow<List<FoodEntity>> {
         val words = searchWords(q)
         if (words.isEmpty()) return flowOf(emptyList())
         val anchor = words.maxBy { it.length }
         return dao.searchFoods(anchor)
             .map { rows ->
                 rows
+                    .filter { filter.matches(it) }
                     .mapNotNull { food ->
                         val text = (food.name + " " + food.brand.orEmpty()).lowercase()
-                        if (words.all { it in text }) food to matchScore(searchWords(food.name), words) else null
+                        if (!words.all { it in text }) return@mapNotNull null
+                        val nameWords = searchWords(food.name + " " + food.brand.orEmpty())
+                        val whole = words.all { w -> nameWords.any { it == w || it == w + "s" } }
+                        // "Bananas, raw" for "banana": a short name led by the query is the basic food.
+                        val basic =
+                            (food.source == "USDA" || food.source == "FNDDS") && words.size == 1 && nameWords.size <= 3 &&
+                                nameWords.first().let { it == words[0] || it == words[0] + "s" } &&
+                                nameWords.drop(1).all { it in BASIC_DESCRIPTORS }
+                        Ranked(food, whole, basic, sourceRank(food), matchScore(nameWords, words))
                     }
                     .sortedWith(
-                        compareByDescending<Pair<FoodEntity, Int>> { it.first.isFavorite }
-                            .thenByDescending { it.second }
-                            .thenBy { it.first.name.length }
+                        compareByDescending<Ranked> { it.food.isFavorite }
+                            .thenByDescending { it.whole }
+                            // Everyday Indian staples first, in curated order (boiled egg before egg nog)...
+                            .thenBy { POPULAR_INDIAN.indexOf(it.food.sourceRef).let { i -> if (i < 0) Int.MAX_VALUE else i } }
+                            // ...then plain foods named by the query ("Bananas, raw"), then by source.
+                            .thenByDescending { it.basic }
+                            .thenBy { it.sourceRank }
+                            .thenByDescending { it.score }
+                            .thenByDescending { it.food.popularity }
+                            .thenBy { it.food.name.length }
                     )
                     .take(100)
-                    .map { it.first }
+                    .map { it.food }
             }
             .flowOn(kotlinx.coroutines.Dispatchers.Default)
     }
+
+    private class Ranked(val food: FoodEntity, val whole: Boolean, val basic: Boolean, val sourceRank: Int, val score: Int)
+
+    /** Lower ranks first: the user's own foods, Indian dishes, Indian packaged, world, ingredients. */
+    private fun sourceRank(food: FoodEntity): Int =
+        when {
+            food.source == "CUSTOM" || food.source == "RECIPE" -> 0
+            food.source == "INDB" -> 1
+            food.source == "OFF" && food.cuisine == "Indian (packaged)" -> 2
+            food.source == "FNDDS" && food.cuisine == "Indian" -> 2
+            food.source == "FNDDS" -> 3
+            food.source == "OFF" -> 4
+            else -> 5
+        }
+
+    /** Everyday Indian dishes shown before anything is typed, in this order. */
+    val popularIndian: Flow<List<FoodEntity>> =
+        dao.foodsByRefs(POPULAR_INDIAN).map { rows -> rows.sortedBy { POPULAR_INDIAN.indexOf(it.sourceRef) } }
 
     private fun searchWords(text: String) =
         text.lowercase().split(Regex("[^\\p{L}\\p{N}]+")).filter { it.isNotEmpty() }

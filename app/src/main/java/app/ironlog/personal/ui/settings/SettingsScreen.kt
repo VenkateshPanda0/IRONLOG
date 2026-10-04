@@ -199,7 +199,7 @@ fun SettingsScreen(
         Text("Open Food Facts contact: unset@example.invalid")
         SectionHeader("Attributions")
         Text(
-            "Exercise data and demo images: free-exercise-db by yuhonas (from wrkout/exercises.json), released into the public domain under the Unlicense.\nNutrition data: FoodData Central, U.S. Department of Agriculture (CC0 1.0).\nPackaged-food data: Open Food Facts contributors, ODbL 1.0, world.openfoodfacts.org/terms-of-use.\nIronlog is independent and not affiliated with any fitness brand."
+            "Exercise data and demo images: free-exercise-db by yuhonas (from wrkout/exercises.json), released into the public domain under the Unlicense.\nNutrition data: FoodData Central SR Legacy and FNDDS, U.S. Department of Agriculture (public domain).\nIndian dishes: Indian Nutrient Databank (INDB), Vijayakumar A. et al., Curr Dev Nutr 2024, derived from ICMR-NIN Indian Food Composition Tables 2017.\nPackaged-food data (online lookups and the bundled Indian brands list): Open Food Facts contributors, ODbL 1.0, world.openfoodfacts.org/terms-of-use.\nIronlog is independent and not affiliated with any fitness brand."
         )
         SectionHeader("Your data")
         PrimaryButton("Export backup", onExport)

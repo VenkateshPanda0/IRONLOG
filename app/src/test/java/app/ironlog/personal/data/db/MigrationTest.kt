@@ -28,12 +28,12 @@ class MigrationTest {
             execSQL("INSERT INTO set_log (id, sessionExerciseId, setIndex, type, weightKg, reps, isCompleted) VALUES (1, 1, 1, 'WORKING', 100.0, 5, 1)")
             close()
         }
-        helper.runMigrationsAndValidate(name, 3, true, IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3).close()
+        helper.runMigrationsAndValidate(name, 4, true, IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3, IronlogDatabase.MIGRATION_3_4).close()
 
         // Open with Room itself to prove the migrated schema matches the entities.
         val db =
             Room.databaseBuilder(RuntimeEnvironment.getApplication(), IronlogDatabase::class.java, name)
-                .addMigrations(IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3)
+                .addMigrations(IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3, IronlogDatabase.MIGRATION_3_4)
                 .allowMainThreadQueries()
                 .build()
         try {
@@ -56,10 +56,10 @@ class MigrationTest {
             execSQL("INSERT INTO goal (id, goalWeightKg, targetDate, kcalTarget, proteinG, carbsG, fatG) VALUES (1, 75.0, NULL, 2400, 160.0, 250.0, 70.0)")
             close()
         }
-        helper.runMigrationsAndValidate(v2, 3, true, IronlogDatabase.MIGRATION_2_3).close()
+        helper.runMigrationsAndValidate(v2, 4, true, IronlogDatabase.MIGRATION_2_3, IronlogDatabase.MIGRATION_3_4).close()
         val db =
             Room.databaseBuilder(RuntimeEnvironment.getApplication(), IronlogDatabase::class.java, v2)
-                .addMigrations(IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3)
+                .addMigrations(IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3, IronlogDatabase.MIGRATION_3_4)
                 .allowMainThreadQueries()
                 .build()
         try {

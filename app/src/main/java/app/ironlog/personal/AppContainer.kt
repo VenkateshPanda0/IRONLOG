@@ -23,7 +23,7 @@ private val Context.preferences by preferencesDataStore(name = "ironlog_settings
 class AppContainer(context: Context) {
     private val appContext = context.applicationContext
     val db = Room.databaseBuilder(context, IronlogDatabase::class.java, "ironlog.db")
-            .addMigrations(IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3)
+            .addMigrations(IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3, IronlogDatabase.MIGRATION_3_4)
             .build()
     val workouts = WorkoutRepository(db)
     val nutrition = NutritionRepository(db.dao())
@@ -127,7 +127,8 @@ class AppContainer(context: Context) {
 
 private const val EXERCISE_SEED_VERSION = 2
 // 4: full SR Legacy table (7,793 foods) with amount-bearing portion labels.
-private const val FOOD_SEED_VERSION = 4
+// 5: Indian dishes (INDB), Indian packaged products (Open Food Facts) and world dishes (FNDDS).
+private const val FOOD_SEED_VERSION = 5
 private const val PROGRAM_SEED_VERSION = 3
 
 sealed interface SeedState {

@@ -1,0 +1,1015 @@
+name,brand,kcal,protein,carbs,fat,fiber,sourceRef,source,cuisine,popularity
+Hot tea (Garam Chai),,16.1,0.39,2.58,0.53,0.0,INDB:ASC001,INDB,Indian,0
+Instant coffee,,23.2,0.64,3.65,0.75,0.0,INDB:ASC002,INDB,Indian,0
+Espreso coffee,,51.5,1.75,6.62,2.14,0.0,INDB:ASC003,INDB,Indian,0
+Iced tea,,10.3,0.03,2.7,0.01,0.0,INDB:ASC004,INDB,Indian,0
+Raw mango drink (Aam panna),,35.9,0.16,9.05,0.03,0.61,INDB:ASC005,INDB,Indian,0
+Fruit Punch (with fresh juices),,36.1,0.14,9.38,0.03,0.06,INDB:ASC006,INDB,Indian,0
+Fruit Punch (with squashes),,23.1,0.07,5.99,0.02,0.17,INDB:ASC007,INDB,Indian,0
+Lemonade,,20.8,0.03,5.48,0.01,0.02,INDB:ASC008,INDB,Indian,0
+Lem-o-gin,,21.5,0.08,5.55,0.03,0.13,INDB:ASC009,INDB,Indian,0
+Cumin infused water (Jeere/Zeere ka pani),,9.1,0.17,1.86,0.11,0.46,INDB:ASC010,INDB,Indian,0
+Coco pine cooler,,32.7,0.56,5.72,1.0,0.26,INDB:ASC011,INDB,Indian,0
+Summer cooler,,22.4,0.37,5.43,0.04,0.2,INDB:ASC012,INDB,Indian,0
+Hot cocoa,,90.1,3.36,9.23,4.56,0.0,INDB:ASC014,INDB,Indian,0
+Cold coffee with ice cream,,67.8,1.57,11.24,2.11,0.01,INDB:ASC015,INDB,Indian,0
+Banana milkshake (Kele milkshake),,65.3,1.84,9.15,2.37,0.26,INDB:ASC016,INDB,Indian,0
+Mango milkshake (Aam milkshake),,56.9,1.73,7.23,2.35,0.26,INDB:ASC017,INDB,Indian,0
+Pineapple milkshake (Ananas milkshake),,55.7,1.66,7.62,2.23,0.0,INDB:ASC018,INDB,Indian,0
+Orange milkshake (Narangi milkshake),,57.4,1.86,7.11,2.52,0.0,INDB:ASC019,INDB,Indian,0
+Egg nog,,97.1,4.78,8.15,5.11,0.02,INDB:ASC020,INDB,Indian,0
+Sweet Lassi (Meethi lassi),,35.7,1.29,6.51,0.68,0.0,INDB:ASC021,INDB,Indian,0
+Lassi (salted),,18.8,1.35,1.86,0.72,0.02,INDB:ASC022,INDB,Indian,0
+Cheese and chilli sandwich,,218.1,6.8,27.4,9.78,2.08,INDB:ASC023,INDB,Indian,0
+Egg sandwich (Ande ka sandwich),,286.0,8.69,29.16,15.8,1.88,INDB:ASC024,INDB,Indian,0
+Cucumber sandwich (Kheere ka sandwich),,188.6,4.8,25.77,8.0,2.45,INDB:ASC025,INDB,Indian,0
+Cheese and pineapple sandwich (Cheese aur ananas ka sandwich),,257.7,8.2,29.1,12.8,2.33,INDB:ASC026,INDB,Indian,0
+Cheese and tomato sandwich (Cheese aur tamatar ke sandwich),,243.3,7.92,26.92,12.27,1.97,INDB:ASC027,INDB,Indian,0
+Chicken sandwich,,253.3,13.12,25.38,11.75,1.64,INDB:ASC028,INDB,Indian,0
+Peanut and tomato sandwich (Moongfali aur tamatar ka sandwich),,291.4,9.53,28.54,16.14,4.03,INDB:ASC029,INDB,Indian,0
+Rainbow sandwich,,272.8,7.75,34.26,12.54,2.1,INDB:ASC030,INDB,Indian,0
+Club sandwich,,235.3,7.31,18.51,15.12,1.81,INDB:ASC031,INDB,Indian,0
+Vegetarian club sandwich,,198.3,5.45,19.68,11.33,2.06,INDB:ASC032,INDB,Indian,0
+Pin wheel sandwich,,311.5,8.77,14.0,24.93,0.93,INDB:ASC033,INDB,Indian,0
+Carrot apple sandwich (Gajar aur seb ka sandwich),,214.1,5.3,29.04,9.12,3.66,INDB:ASC034,INDB,Indian,0
+Salami sandwich,,255.6,8.7,21.54,15.51,1.97,INDB:ASC035,INDB,Indian,0
+Vegetable and mayonnaise sandwich,,244.3,4.47,23.2,15.4,2.35,INDB:ASC036,INDB,Indian,0
+Egg and tomato sandwich (Ande aur tamatar ka sandwich),,222.1,7.66,25.9,10.51,1.77,INDB:ASC037,INDB,Indian,0
+Sweet open sandwich,,244.2,4.99,39.24,8.15,2.36,INDB:ASC038,INDB,Indian,0
+Mushroom and cheese sandwich (toasted),,227.4,7.79,21.01,13.01,2.28,INDB:ASC039,INDB,Indian,0
+Cheese and tomato sandwich (toasted) (Cheese aur tamatar ke sandwich (toasted)),,224.6,6.82,21.42,12.95,1.78,INDB:ASC040,INDB,Indian,0
+Pea potato sandwich (toasted) (Matar aloo ka sandwich),,164.9,4.6,25.17,5.43,2.89,INDB:ASC041,INDB,Indian,0
+Paneer pea sandwich (toasted) (Paneer matar ka sandwich),,249.6,12.4,24.05,11.98,2.12,INDB:ASC042,INDB,Indian,0
+Chicken sandwich (toasted),,167.4,12.08,18.82,5.32,1.64,INDB:ASC043,INDB,Indian,0
+Pea keema sandwich (toasted) (Matar aur keema ka sandwich),,171.8,11.06,20.26,5.61,2.45,INDB:ASC044,INDB,Indian,0
+Classic club sandwich,,200.8,6.74,18.49,11.56,1.62,INDB:ASC045,INDB,Indian,0
+Sesame toast,,495.2,1.9,11.15,49.38,1.32,INDB:ASC046,INDB,Indian,0
+Cracked wheat porridge (Meetha daliya),,81.6,2.64,8.87,4.08,0.62,INDB:ASC047,INDB,Indian,0
+Semolina porridge (Suji/Rava daliya),,100.9,3.75,12.39,4.08,0.7,INDB:ASC048,INDB,Indian,0
+Oatmeal Porridge,,72.9,2.6,8.77,3.22,0.39,INDB:ASC050,INDB,Indian,0
+Cornflakes with milk,,117.3,3.59,14.95,5.12,0.78,INDB:ASC051,INDB,Indian,0
+Rice flakes (Chiwda/Aval),,112.4,3.62,15.57,3.99,0.37,INDB:ASC052,INDB,Indian,0
+Wheat flakes,,112.4,3.62,15.57,3.99,0.37,INDB:ASC053,INDB,Indian,0
+Murmura (Puffed rice),,113.3,3.62,15.67,4.04,0.28,INDB:ASC054,INDB,Indian,0
+Puffed wheat (Murmure/Moori),,113.3,3.62,15.67,4.04,0.28,INDB:ASC055,INDB,Indian,0
+Boiled egg (Ubla anda),,45.4,4.43,0.12,3.04,0.11,INDB:ASC056,INDB,Indian,0
+Fried Egg,,223.7,11.59,0.31,19.62,0.29,INDB:ASC057,INDB,Indian,0
+Poached egg,,123.9,11.98,0.37,8.19,0.3,INDB:ASC058,INDB,Indian,0
+Scrambled egg (Ande ki bhurji),,156.0,10.29,1.35,12.21,0.24,INDB:ASC059,INDB,Indian,0
+Baked egg,,218.8,11.88,15.42,12.65,1.03,INDB:ASC060,INDB,Indian,0
+Plain omelette/omlet,,272.4,9.66,0.64,25.74,0.12,INDB:ASC061,INDB,Indian,0
+Stuffed egg omelette/omlet,,203.5,8.6,2.3,17.77,0.75,INDB:ASC062,INDB,Indian,0
+Pancake,,203.4,5.68,20.49,10.82,0.65,INDB:ASC063,INDB,Indian,0
+Keema pancake,,176.3,9.01,9.56,11.25,0.84,INDB:ASC064,INDB,Indian,0
+Vegetable pancake,,125.2,3.87,12.24,6.57,2.48,INDB:ASC065,INDB,Indian,0
+Jam and fruit pancake,,162.0,3.79,20.73,7.01,1.21,INDB:ASC066,INDB,Indian,0
+Khoa and coconut pancake,,272.0,6.98,27.32,15.29,1.65,INDB:ASC067,INDB,Indian,0
+Brown stock,,21.3,1.95,0.25,1.38,0.09,INDB:ASC068,INDB,Indian,0
+Vegetable stock,,17.6,0.3,0.96,1.38,0.38,INDB:ASC069,INDB,Indian,0
+Chicken stock,,29.9,3.69,0.37,1.51,0.1,INDB:ASC070,INDB,Indian,0
+Clear tomato soup (Tamatar ka soup),,80.1,4.79,3.45,12.22,1.96,INDB:ASC079,INDB,Indian,0
+Lentil soup,,31.2,9.65,3.94,11.68,2.57,INDB:ASC080,INDB,Indian,0
+Chicken consomme (Clear chicken soup),,47.9,11.47,1.19,12.02,1.57,INDB:ASC081,INDB,Indian,0
+Cream of tomato soup,,97.8,4.61,3.93,13.12,1.38,INDB:ASC082,INDB,Indian,0
+Cream of green peas soup,,127.8,7.13,6.75,14.78,2.95,INDB:ASC083,INDB,Indian,0
+Cream of spinach soup,,100.5,5.21,3.45,13.31,1.74,INDB:ASC084,INDB,Indian,0
+Cream of mixed vegetable soup,,59.6,6.84,4.93,9.05,2.14,INDB:ASC085,INDB,Indian,0
+Cream of mushroom soup,,117.3,6.64,3.74,15.5,1.34,INDB:ASC086,INDB,Indian,0
+Chicken sweet corn soup,,28.3,14.48,1.63,12.59,0.47,INDB:ASC087,INDB,Indian,0
+Minestrone soup,,42.7,9.3,3.71,11.09,1.92,INDB:ASC088,INDB,Indian,0
+Egg drop soup,,26.6,12.93,1.1,13.52,0.81,INDB:ASC089,INDB,Indian,0
+Chinese cabbage and meat ball soup,,484.3,5.21,1.43,56.57,0.57,INDB:ASC090,INDB,Indian,0
+French onion soup,,55.6,11.41,4.28,14.39,1.01,INDB:ASC091,INDB,Indian,0
+Hot and sour soup,,31.5,3.12,1.78,1.31,0.6,INDB:ASC092,INDB,Indian,0
+Talaumein soup,,35.6,10.12,4.17,12.78,1.94,INDB:ASC093,INDB,Indian,0
+Cold cucumber soup (Thanda kheere ka soup),,48.0,2.99,4.58,1.99,0.88,INDB:ASC094,INDB,Indian,0
+Cold summer garden soup,,49.2,8.57,2.65,14.08,1.86,INDB:ASC095,INDB,Indian,0
+Chapati/Roti,,202.3,5.88,35.65,3.56,6.31,INDB:ASC096,INDB,Indian,0
+Plain parantha/paratha,,298.3,5.06,30.69,16.86,5.43,INDB:ASC097,INDB,Indian,0
+Potato parantha/paratha (Aloo ka parantha/paratha),,205.0,3.7,23.92,10.22,4.18,INDB:ASC098,INDB,Indian,0
+Radish parantha/paratha (Mooli ka parantha/paratha),,183.5,3.3,20.54,9.53,4.32,INDB:ASC099,INDB,Indian,0
+Cauliflower parantha/paratha (Phoolgobhi ka parantha/paratha),,178.1,3.73,18.84,9.47,4.68,INDB:ASC100,INDB,Indian,0
+Dal parantha/paratha,,268.2,6.78,30.03,13.05,6.46,INDB:ASC101,INDB,Indian,0
+Sprouted moong parantha/paratha,,228.6,4.29,24.31,12.43,4.49,INDB:ASC102,INDB,Indian,0
+Pea parantha/paratha (Matar ka parantha/paratha),,190.7,5.59,21.51,8.8,5.61,INDB:ASC103,INDB,Indian,0
+Keema parantha/paratha,,238.1,9.41,18.36,13.91,3.44,INDB:ASC104,INDB,Indian,0
+Paneer parantha/paratha,,263.0,7.98,24.33,14.62,4.0,INDB:ASC105,INDB,Indian,0
+Besan and spinach parantha/paratha (Besan aur palak ka parantha/paratha),,216.5,5.54,21.39,12.09,4.39,INDB:ASC106,INDB,Indian,0
+Poori,,737.6,1.35,8.22,77.61,1.46,INDB:ASC107,INDB,Indian,0
+Spinach poori (Palak poori),,684.3,1.42,7.76,71.86,1.55,INDB:ASC108,INDB,Indian,0
+Methi poori,,710.0,1.45,7.98,74.6,1.61,INDB:ASC109,INDB,Indian,0
+Dal stuffed poori,,785.2,2.08,10.14,81.69,1.96,INDB:ASC110,INDB,Indian,0
+Potato stuffed poori (Aloo ki poori),,776.7,1.52,9.4,81.35,1.64,INDB:ASC111,INDB,Indian,0
+Tandoori parantha/paratha,,295.4,5.08,30.74,16.51,5.44,INDB:ASC112,INDB,Indian,0
+Boiled rice (Uble chawal),,117.2,2.6,25.72,0.18,1.25,INDB:ASC113,INDB,Indian,0
+Plain pulao,,140.2,2.34,21.82,4.62,1.69,INDB:ASC114,INDB,Indian,0
+Mixed vegetable pulao,,113.0,2.72,17.49,3.33,2.67,INDB:ASC115,INDB,Indian,0
+Mushroom pulao,,124.3,2.52,19.02,4.03,1.88,INDB:ASC116,INDB,Indian,0
+Sprouted moong pulao,,113.0,2.19,17.49,3.61,1.78,INDB:ASC117,INDB,Indian,0
+Paneer pulao,,581.9,1.98,8.76,59.81,0.62,INDB:ASC118,INDB,Indian,0
+Peanut pulao,,193.3,5.32,21.18,9.51,2.9,INDB:ASC119,INDB,Indian,0
+Navratan pulao,,261.7,6.2,36.98,9.45,3.82,INDB:ASC120,INDB,Indian,0
+Green chickpeas pulao (Choliya pulao/Hare chane ka pulao),,173.4,4.88,27.57,4.82,3.15,INDB:ASC121,INDB,Indian,0
+Mutton biryani/biriyani,,190.8,7.38,22.5,7.72,2.42,INDB:ASC122,INDB,Indian,0
+Vegetable biryani/biriyani,,174.6,3.16,18.56,9.51,3.31,INDB:ASC123,INDB,Indian,0
+"Lemon rice (Pulihora, Elumichai sadam, Chitranna)",,176.3,4.26,21.62,7.88,2.52,INDB:ASC124,INDB,Indian,0
+Sweet rice (Meethe chawal),,215.4,2.1,42.59,4.57,1.13,INDB:ASC125,INDB,Indian,0
+Curd rice (Dahi bhaat/Dahi chawal/ Perugu annam/Daddojanam/Thayir saadam),,195.7,5.75,32.93,4.32,2.13,INDB:ASC126,INDB,Indian,0
+Tamarind rice (Chintapandu pulihora/Puliyodharai/Puli sadam/Huli anna),,373.0,7.45,65.08,8.53,5.12,INDB:ASC127,INDB,Indian,0
+Spanish rice,,164.2,4.19,31.1,2.23,2.78,INDB:ASC128,INDB,Indian,0
+Chinese fried rice,,120.6,4.05,13.4,5.43,2.31,INDB:ASC129,INDB,Indian,0
+Macroni cheese pie,,170.6,5.85,21.1,7.48,0.4,INDB:ASC133,INDB,Indian,0
+Vegetable chowmein,,129.7,3.07,15.44,6.36,1.86,INDB:ASC134,INDB,Indian,0
+Chicken chowmein,,151.3,6.33,13.3,8.23,1.64,INDB:ASC135,INDB,Indian,0
+Cheese noodle ring,,133.7,6.22,13.96,6.12,1.27,INDB:ASC136,INDB,Indian,0
+Spaghetti and cheese balls in tomato sauce,,508.3,2.41,7.82,52.08,0.59,INDB:ASC137,INDB,Indian,0
+Penne platter,,177.4,5.04,20.87,8.71,1.09,INDB:ASC138,INDB,Indian,0
+Pasta hot pot,,125.2,5.84,11.6,6.47,0.8,INDB:ASC139,INDB,Indian,0
+Chicken lasagne,,187.5,10.45,13.9,10.36,0.11,INDB:ASC140,INDB,Indian,0
+Fettuccine with spinach sauce,,129.2,3.1,12.19,7.83,0.77,INDB:ASC141,INDB,Indian,0
+Naan,,286.4,8.05,51.75,4.99,1.91,INDB:ASC142,INDB,Indian,0
+Bhatura,,793.2,1.63,10.73,82.56,0.38,INDB:ASC143,INDB,Indian,0
+Idli,,137.5,4.64,28.18,0.33,2.31,INDB:ASC144,INDB,Indian,0
+Masala dosa,,164.6,3.29,19.57,7.84,2.52,INDB:ASC146,INDB,Indian,0
+Semolina dosa (Suji/Rava dosa),,227.1,7.3,32.84,7.12,4.04,INDB:ASC147,INDB,Indian,0
+Onion tomato uttapam,,462.0,1.91,11.32,45.3,1.26,INDB:ASC148,INDB,Indian,0
+Paneer kaathi roll,,285.9,6.92,20.1,19.55,2.4,INDB:ASC149,INDB,Indian,0
+Makki ki roti,,264.0,3.49,24.19,16.85,5.19,INDB:ASC150,INDB,Indian,0
+Washed moong dal (Dhuli moong ki dal),,50.0,2.68,5.91,1.68,1.17,INDB:ASC151,INDB,Indian,0
+Washed urad dal (Dhuli urad ki dal),,61.3,2.51,5.84,2.98,1.53,INDB:ASC152,INDB,Indian,0
+Split bengal gram with bottle gourd (Channa dal with ghiya/lauki),,73.3,2.79,7.1,3.6,2.72,INDB:ASC153,INDB,Indian,0
+Dry washed urad,,124.7,6.85,15.66,3.5,4.06,INDB:ASC154,INDB,Indian,0
+Mixed dal,,61.9,2.51,5.79,3.1,1.62,INDB:ASC155,INDB,Indian,0
+Whole moong (Moong ki dal),,53.7,2.25,5.22,2.56,2.02,INDB:ASC156,INDB,Indian,0
+Whole masoor (Masoor ki dal),,54.1,2.28,5.37,2.52,1.98,INDB:ASC157,INDB,Indian,0
+Whole moth (Moth ki dal),,55.0,2.01,5.74,2.62,1.85,INDB:ASC158,INDB,Indian,0
+Whole urad (Urad ki dal),,53.8,2.21,5.05,2.62,2.32,INDB:ASC159,INDB,Indian,0
+Moti mahal dal (Urad rajmah mix dal),,103.1,3.93,8.74,5.66,3.38,INDB:ASC160,INDB,Indian,0
+Black channa curry/Bengal gram curry (Kale chane ki curry),,140.7,5.67,14.11,6.61,7.99,INDB:ASC161,INDB,Indian,0
+Chickpeas curry (Safed channa curry),,163.4,6.1,19.98,6.84,4.73,INDB:ASC162,INDB,Indian,0
+Lobia curry,,149.0,6.06,17.88,5.62,4.57,INDB:ASC163,INDB,Indian,0
+Soyabean curry,,163.3,10.43,6.76,10.19,7.34,INDB:ASC164,INDB,Indian,0
+Kidney bean curry (Rajmah curry),,143.7,5.95,16.38,5.77,5.83,INDB:ASC165,INDB,Indian,0
+Sambar,,96.9,3.35,10.57,4.38,3.52,INDB:ASC167,INDB,Indian,0
+Besan kadhi with pakodies,,403.3,1.64,3.56,42.59,0.81,INDB:ASC168,INDB,Indian,0
+Khatta channa,,202.6,6.3,21.14,10.56,5.26,INDB:ASC169,INDB,Indian,0
+Sprouted moong dal chat,,32.5,1.35,6.01,0.32,1.35,INDB:ASC170,INDB,Indian,0
+Potato cauliflower (Aloo gobhi),,106.2,1.9,5.99,8.13,3.02,INDB:ASC171,INDB,Indian,0
+Potato capsicum (Shimla mirch aloo),,125.5,1.41,8.72,9.33,2.02,INDB:ASC172,INDB,Indian,0
+Cabbage and peas (Pattagobhi aur matar),,63.9,3.24,6.24,2.64,3.99,INDB:ASC173,INDB,Indian,0
+Carrot and fenugreek leaves (Gajar methi),,61.9,2.1,4.17,3.81,4.43,INDB:ASC174,INDB,Indian,0
+Potato fenugreek (Aloo methi),,135.1,2.25,8.47,10.04,2.93,INDB:ASC175,INDB,Indian,0
+Brinjal bhartha (Baingan ka bhartha),,65.1,1.38,4.4,4.48,3.27,INDB:ASC177,INDB,Indian,0
+Dry potato (Sookhe aloo),,103.1,1.62,14.38,4.18,1.88,INDB:ASC178,INDB,Indian,0
+Beans with coconut (Nariyal aur sem/phali; Beans thoran),,131.6,2.62,4.39,11.39,5.59,INDB:ASC179,INDB,Indian,0
+Cauliflower with coconut (Nariyal ke saath phoolgobhi),,132.1,2.64,3.99,11.56,5.27,INDB:ASC180,INDB,Indian,0
+Carrot and cabbage with coconut (Nariyal ke saath pattagobhi aur gajar),,106.6,1.82,4.99,8.62,4.52,INDB:ASC181,INDB,Indian,0
+Raw turnip with coconut,,132.1,1.8,5.78,11.47,2.79,INDB:ASC182,INDB,Indian,0
+Raw papaya with coconut (Papaya thoran),,132.8,1.54,5.58,11.42,4.31,INDB:ASC183,INDB,Indian,0
+Stuffed okra (Bharwa bhindi),,94.3,2.08,3.85,7.66,4.15,INDB:ASC184,INDB,Indian,0
+Stuffed round gourd (Bharwa tinde),,72.8,1.1,4.02,5.75,2.1,INDB:ASC185,INDB,Indian,0
+Stuffed capsicum (Bharwa shimla mirch),,90.9,1.34,8.26,5.7,2.01,INDB:ASC186,INDB,Indian,0
+Stuffed brinjal (Bharwa baingan),,93.0,1.53,3.96,7.73,4.09,INDB:ASC187,INDB,Indian,0
+Stuffed tomatoes (Bharwa tamatar),,93.3,3.28,6.19,6.06,2.2,INDB:ASC189,INDB,Indian,0
+Pea potato curry (Aloo matar),,100.9,3.48,9.74,5.13,3.61,INDB:ASC190,INDB,Indian,0
+Pea paneer curry (Matar paneer),,134.8,6.61,9.29,7.75,3.3,INDB:ASC191,INDB,Indian,0
+Pea mushroom curry (Matar mushroom),,93.3,3.87,7.41,5.16,3.86,INDB:ASC192,INDB,Indian,0
+Pea curry (Matar ki sabzi),,103.0,4.51,9.2,5.11,4.44,INDB:ASC193,INDB,Indian,0
+Pea vadi curry,,101.9,4.64,8.9,5.08,4.28,INDB:ASC194,INDB,Indian,0
+Paneer curry,,176.5,7.8,8.4,12.38,1.4,INDB:ASC195,INDB,Indian,0
+Lotus stem curry (Kamal kakdi curry),,110.3,1.53,9.24,7.25,3.14,INDB:ASC196,INDB,Indian,0
+Gravy for kofta,,125.6,1.75,6.31,10.35,1.96,INDB:ASC197,INDB,Indian,0
+Pea kofta curry (Matar kofta curry),,595.7,2.01,4.17,63.39,1.7,INDB:ASC198,INDB,Indian,0
+Spinach kofta curry (Palak kofta curry),,571.8,1.09,3.56,61.49,0.92,INDB:ASC199,INDB,Indian,0
+Paneer kofta curry,,670.9,2.39,3.27,72.06,0.4,INDB:ASC200,INDB,Indian,0
+Lotus stem kofta curry (Kamal kakdi kofta curry),,633.6,0.96,5.01,67.76,1.01,INDB:ASC201,INDB,Indian,0
+Raw banana kofta curry (Kela kofta curry),,627.3,0.62,3.4,67.98,0.59,INDB:ASC202,INDB,Indian,0
+Cauliflower kofta curry (Phoolgobhi kofta curry),,641.1,1.04,2.62,69.62,1.0,INDB:ASC203,INDB,Indian,0
+Cabbage kofta curry (Pattagobhi kofta curry),,639.8,0.98,2.87,69.4,0.9,INDB:ASC204,INDB,Indian,0
+Ghiya/Lauki Kofta Curry,,638.7,0.89,2.71,69.4,0.83,INDB:ASC205,INDB,Indian,0
+Spinach paneer kofta curry (Palak paneer kofta curry),,606.0,1.43,2.94,65.41,0.75,INDB:ASC206,INDB,Indian,0
+Vegetarian egg kofta curry,,627.4,1.33,4.26,67.24,0.64,INDB:ASC207,INDB,Indian,0
+Baked vegetables,,89.0,3.67,8.44,4.44,2.34,INDB:ASC208,INDB,Indian,0
+Cauliflower musallam (Phoolgobhi musallam),,58.8,1.89,4.48,3.55,3.06,INDB:ASC209,INDB,Indian,0
+Baked vegetables with spinach,,77.8,3.22,6.93,4.03,2.33,INDB:ASC210,INDB,Indian,0
+Baked potato with skin,,135.8,3.43,11.11,8.5,1.2,INDB:ASC211,INDB,Indian,0
+Shepherd's pie (vegetarian),,135.6,5.04,12.03,7.3,2.23,INDB:ASC212,INDB,Indian,0
+Baked brinjal in tomato sauce,,38.6,1.58,4.13,1.62,2.34,INDB:ASC213,INDB,Indian,0
+Dum aloo,,682.3,0.7,3.33,74.01,0.68,INDB:ASC214,INDB,Indian,0
+Spinach paneer (Palak paneer),,77.7,4.03,4.43,4.76,1.91,INDB:ASC215,INDB,Indian,0
+Methi chaman,,475.6,1.54,2.78,50.91,0.53,INDB:ASC216,INDB,Indian,0
+Sarson ka saag,,87.8,3.0,5.33,5.86,3.69,INDB:ASC217,INDB,Indian,0
+Jackfruit sabzi (Kathal ki sabzi),,625.4,0.69,3.4,67.6,1.02,INDB:ASC218,INDB,Indian,0
+Avial,,124.6,2.46,8.47,8.94,5.44,INDB:ASC219,INDB,Indian,0
+Al yakhani,,147.5,2.86,4.65,13.14,1.27,INDB:ASC220,INDB,Indian,0
+Shahi paneer,,156.5,5.06,6.64,12.34,1.4,INDB:ASC221,INDB,Indian,0
+Paneer in butter sauce,,145.6,6.99,9.7,8.81,1.5,INDB:ASC222,INDB,Indian,0
+Methi malai paneer,,195.0,7.34,8.15,14.76,1.47,INDB:ASC223,INDB,Indian,0
+Chilli paneer,,777.5,2.1,3.31,84.01,0.5,INDB:ASC224,INDB,Indian,0
+Paneer makhana korma,,775.8,3.24,4.63,82.76,0.21,INDB:ASC225,INDB,Indian,0
+Kadhai Paneer,,108.0,4.33,7.34,6.81,2.07,INDB:ASC226,INDB,Indian,0
+Roghan josh,,139.6,9.56,4.93,9.02,2.08,INDB:ASC227,INDB,Indian,0
+Spinach mutton (Palak mutton),,80.3,5.74,3.45,4.71,2.23,INDB:ASC228,INDB,Indian,0
+Pea keema curry (Matar keema ki sabzi),,133.0,8.43,6.24,8.14,2.96,INDB:ASC229,INDB,Indian,0
+Keema kofta curry,,154.5,9.77,5.64,10.39,1.51,INDB:ASC230,INDB,Indian,0
+Kashmiri mutton koftas (Gushtaba),,97.4,6.33,3.04,6.77,0.62,INDB:ASC231,INDB,Indian,0
+Mutton yakhni,,104.1,8.27,0.84,7.7,0.67,INDB:ASC232,INDB,Indian,0
+Chicken yakhni,,99.0,10.66,0.78,6.1,0.62,INDB:ASC233,INDB,Indian,0
+Mutton do piaza,,183.3,9.39,4.14,14.41,1.93,INDB:ASC234,INDB,Indian,0
+Mutton chops,,663.6,4.03,1.48,71.31,0.17,INDB:ASC236,INDB,Indian,0
+Shammi kebab,,685.7,4.52,3.54,72.61,1.05,INDB:ASC237,INDB,Indian,0
+Scotch egg,,676.9,4.05,1.91,72.62,0.36,INDB:ASC238,INDB,Indian,0
+Shepherd's pie (with minced meat),,142.8,7.45,8.06,8.88,1.05,INDB:ASC239,INDB,Indian,0
+Chicken curry,,129.2,11.79,3.38,7.57,1.41,INDB:ASC240,INDB,Indian,0
+Tandoori chicken,,145.2,16.26,2.34,7.93,0.5,INDB:ASC241,INDB,Indian,0
+Butter chicken,,137.0,10.92,3.74,8.7,1.32,INDB:ASC242,INDB,Indian,0
+Chicken kebab,,729.4,3.71,1.11,78.89,0.21,INDB:ASC243,INDB,Indian,0
+Chilli chicken,,198.8,9.57,2.86,16.56,0.99,INDB:ASC244,INDB,Indian,0
+Fried chicken with tomato sauce (Fried chicken tamatar ki chutney kay saath),,125.0,11.48,2.51,7.61,1.13,INDB:ASC245,INDB,Indian,0
+Fish curry (Machli curry),,111.1,8.76,3.77,6.69,1.89,INDB:ASC246,INDB,Indian,0
+Fried fish (Indian style) (Tali hui machli),,658.5,4.35,5.4,68.88,0.61,INDB:ASC247,INDB,Indian,0
+Fried fish and Chips (English Style) (Tali hui machli aur chips),,651.7,3.36,2.77,69.69,0.29,INDB:ASC248,INDB,Indian,0
+Tomato fish,,489.8,2.39,3.18,51.91,0.72,INDB:ASC249,INDB,Indian,0
+Baked fish with cheese sauce,,114.0,8.64,4.06,7.02,0.08,INDB:ASC250,INDB,Indian,0
+Fish tikka,,117.3,16.0,3.91,4.15,1.18,INDB:ASC251,INDB,Indian,0
+Tandoori fish,,96.0,11.19,2.37,4.64,0.58,INDB:ASC252,INDB,Indian,0
+"Paneer, apple and pineapple salad",,95.1,3.88,8.35,5.07,1.65,INDB:ASC253,INDB,Indian,0
+Russian salad,,114.8,4.26,6.5,7.84,2.57,INDB:ASC254,INDB,Indian,0
+Pasta salad,,190.4,4.15,12.7,13.92,0.96,INDB:ASC255,INDB,Indian,0
+Deviled egg,,98.6,4.97,2.23,7.72,1.15,INDB:ASC256,INDB,Indian,0
+Hawain salad,,175.2,4.27,14.35,11.37,3.93,INDB:ASC257,INDB,Indian,0
+Mixed pulse and vegetable salad,,83.1,4.74,13.96,0.84,2.96,INDB:ASC258,INDB,Indian,0
+Sprouted moong salad,,37.8,2.29,5.48,0.74,0.95,INDB:ASC259,INDB,Indian,0
+Tossed salad,,63.0,1.02,4.95,4.22,2.15,INDB:ASC260,INDB,Indian,0
+Mixed vegetable salad with curd sauce,,60.3,4.23,7.03,1.5,3.79,INDB:ASC261,INDB,Indian,0
+Potato salad (Aloo ka salaad),,89.9,1.4,11.19,4.4,1.32,INDB:ASC262,INDB,Indian,0
+Waldroff salad,,141.8,1.47,11.02,10.05,1.87,INDB:ASC263,INDB,Indian,0
+Coleslaw,,76.7,1.24,5.59,5.32,2.34,INDB:ASC264,INDB,Indian,0
+Fruit salad (Phalon ka salaad),,78.1,0.91,15.96,1.22,1.58,INDB:ASC265,INDB,Indian,0
+Tomato onion raita (Tamatar aur pyaaz ka raita),,59.0,3.74,7.08,1.84,0.97,INDB:ASC269,INDB,Indian,0
+Peanut raita (Mungfali ka raita),,150.4,8.59,9.3,8.98,1.89,INDB:ASC270,INDB,Indian,0
+Sprouted moong raita,,60.9,4.62,6.13,2.19,0.16,INDB:ASC271,INDB,Indian,0
+Bottle gourd raita (Ghiya/Lauki ka raita),,56.3,3.98,5.76,2.07,0.85,INDB:ASC272,INDB,Indian,0
+Cucumber raita (Kheere ka raita),,59.1,4.04,6.35,2.08,0.86,INDB:ASC273,INDB,Indian,0
+Carrot and spinach raita (Gajar aur palak ka raita),,56.8,4.0,5.83,1.99,1.39,INDB:ASC274,INDB,Indian,0
+Mint raita (Pudinay ka raita),,77.6,5.64,7.65,2.96,0.34,INDB:ASC275,INDB,Indian,0
+Potato raita (Aloo ka raita),,75.4,4.22,10.24,2.04,0.75,INDB:ASC276,INDB,Indian,0
+Boondi raita,,687.7,2.19,3.96,73.83,0.46,INDB:ASC277,INDB,Indian,0
+Sweet raita (Meetha raita),,99.2,3.24,17.93,1.78,1.02,INDB:ASC278,INDB,Indian,0
+Dahi vadas/Dahi bhalla,,667.7,2.96,5.49,70.4,0.97,INDB:ASC279,INDB,Indian,0
+Gunjia,,667.3,2.98,5.68,70.28,1.13,INDB:ASC280,INDB,Indian,0
+Saunth/Sonth chutney with tamarind/imli,,141.5,1.01,33.55,0.15,0.93,INDB:ASC281,INDB,Indian,0
+Rice kheer (Chawal ki kheer),,75.0,2.3,10.05,2.97,0.17,INDB:ASC282,INDB,Indian,0
+Makhana kheer,,107.8,3.31,12.88,5.0,0.11,INDB:ASC283,INDB,Indian,0
+Vermicelli kheer (Semiya/Seviyan ki kheer),,120.1,3.35,15.87,5.0,0.5,INDB:ASC285,INDB,Indian,0
+Semolina kheer (Suji/Rava kheer),,113.2,3.43,15.88,4.2,0.51,INDB:ASC286,INDB,Indian,0
+Paneer kheer,,105.3,4.53,10.03,5.37,0.07,INDB:ASC287,INDB,Indian,0
+Cabbage kheer (Pattagobhi ki kheer),,83.5,2.87,9.73,3.8,0.51,INDB:ASC288,INDB,Indian,0
+Carrot kheer (Gajar ki kheer),,85.3,2.81,10.09,3.85,0.73,INDB:ASC289,INDB,Indian,0
+Cauliflower kheer (Phoolgobhi ki kheer),,82.0,3.04,8.78,3.95,0.55,INDB:ASC290,INDB,Indian,0
+Moong dal kheer,,77.2,2.95,9.89,2.97,0.4,INDB:ASC291,INDB,Indian,0
+Phirni,,116.1,3.49,16.11,4.34,0.36,INDB:ASC292,INDB,Indian,0
+Semolina halwa (Suji ka halwa),,225.6,2.16,24.67,13.38,1.86,INDB:ASC293,INDB,Indian,0
+Shahi suji halwa,,382.3,3.48,44.44,21.73,2.96,INDB:ASC294,INDB,Indian,0
+Carrot halwa (Gajar ka halwa),,172.6,3.11,18.53,9.73,2.65,INDB:ASC295,INDB,Indian,0
+Egg halwa (Ande ka halwa),,299.7,7.85,39.59,13.41,0.49,INDB:ASC296,INDB,Indian,0
+Potato halwa (Aloo ka halwa),,151.7,1.53,29.18,3.48,1.64,INDB:ASC297,INDB,Indian,0
+Pumpkin halwa (Kaddu ka halwa),,190.3,1.33,27.6,8.81,2.97,INDB:ASC298,INDB,Indian,0
+Moong dal halwa,,349.8,8.35,40.23,17.68,2.65,INDB:ASC299,INDB,Indian,0
+Caramel custard (steamed),,121.6,4.97,15.02,4.87,0.0,INDB:ASC300,INDB,Indian,0
+Baked custard,,106.5,5.41,9.45,5.3,0.0,INDB:ASC301,INDB,Indian,0
+Soft Custard (stirred),,109.2,5.01,11.19,5.07,0.0,INDB:ASC302,INDB,Indian,0
+Chocolate ice cream,,177.7,4.47,15.41,11.25,0.0,INDB:ASC304,INDB,Indian,0
+Mango ice cream,,125.7,3.4,11.14,7.62,0.52,INDB:ASC305,INDB,Indian,0
+Fruit Ice cream (Phalon ka Ice cream),,171.5,4.37,16.05,10.38,0.33,INDB:ASC307,INDB,Indian,0
+Caramel ice cream,,173.5,4.31,14.81,11.15,0.08,INDB:ASC308,INDB,Indian,0
+Lemon souffle,,168.5,6.95,13.43,10.02,0.0,INDB:ASC309,INDB,Indian,0
+Orange souffle,,168.3,6.8,14.2,9.73,0.22,INDB:ASC310,INDB,Indian,0
+Vanilla souffle,,187.9,7.71,14.78,11.19,0.0,INDB:ASC311,INDB,Indian,0
+Chocolate souffle,,189.3,7.88,14.74,11.36,0.0,INDB:ASC312,INDB,Indian,0
+Pineapple souffle,,196.1,8.06,15.52,11.72,0.0,INDB:ASC313,INDB,Indian,0
+Apple mousse,,106.9,4.21,12.77,4.27,1.6,INDB:ASC314,INDB,Indian,0
+Rich chocolate mousse,,188.3,7.96,10.84,12.19,0.0,INDB:ASC315,INDB,Indian,0
+Mango mousse,,125.0,3.21,9.14,8.47,0.88,INDB:ASC316,INDB,Indian,0
+Orange and pineapple cream,,101.2,1.44,11.96,5.43,1.03,INDB:ASC317,INDB,Indian,0
+Charlotte rousse,,188.3,3.95,34.08,4.78,1.01,INDB:ASC318,INDB,Indian,0
+Triffle pudding,,117.0,2.93,18.24,3.93,0.12,INDB:ASC319,INDB,Indian,0
+Snow flakes pudding,,95.2,4.67,8.07,4.97,0.03,INDB:ASC320,INDB,Indian,0
+Kulfi,,98.4,3.21,11.3,4.7,0.12,INDB:ASC321,INDB,Indian,0
+Steamed orange pudding,,278.0,2.34,41.53,12.04,0.58,INDB:ASC322,INDB,Indian,0
+Meringue and rice pudding,,112.9,4.84,14.6,4.05,0.17,INDB:ASC323,INDB,Indian,0
+Cheese pudding,,285.0,11.29,19.27,18.37,0.05,INDB:ASC324,INDB,Indian,0
+Chocolate pudding,,212.0,3.55,29.59,9.48,0.53,INDB:ASC325,INDB,Indian,0
+Bread and butter pudding,,167.9,5.59,19.63,7.88,0.98,INDB:ASC326,INDB,Indian,0
+Queen of pudding,,132.9,5.51,16.35,5.38,0.27,INDB:ASC327,INDB,Indian,0
+Pineapple upside down pudding,,257.7,3.15,35.73,11.91,0.8,INDB:ASC328,INDB,Indian,0
+Date and nut pie,,322.4,3.93,46.86,13.31,4.13,INDB:ASC329,INDB,Indian,0
+Stewed apple with custard,,92.9,1.27,18.36,1.82,1.01,INDB:ASC330,INDB,Indian,0
+Apple snowballs,,101.5,0.86,24.58,0.31,1.25,INDB:ASC331,INDB,Indian,0
+Hot orange souffle,,180.0,6.87,18.77,8.95,0.29,INDB:ASC332,INDB,Indian,0
+Hot chocolate souffle,,226.1,6.7,26.21,11.1,0.12,INDB:ASC333,INDB,Indian,0
+Hot vanilla souffle,,192.9,6.87,21.77,9.07,0.13,INDB:ASC334,INDB,Indian,0
+Plain burfi (Burfi),,408.3,9.82,30.88,27.96,0.17,INDB:ASC335,INDB,Indian,0
+Coconut burfi (Nariyal ki burfi),,467.6,8.81,32.15,34.63,3.5,INDB:ASC336,INDB,Indian,0
+Bottle gourd burfi (Ghiya/Lauki burfi),,276.0,5.86,24.51,17.68,0.73,INDB:ASC337,INDB,Indian,0
+Chocolate burfi,,339.3,13.0,33.15,17.86,0.0,INDB:ASC338,INDB,Indian,0
+Cashewnut burfi (Kaju burfi/Kaju katli),,421.7,5.48,37.92,28.46,1.12,INDB:ASC339,INDB,Indian,0
+Gram flour burfi (Besan burfi),,421.8,11.19,46.59,22.41,3.41,INDB:ASC340,INDB,Indian,0
+Semolina ladoo with khoya (Suji/Rava aur khoye ke ladoo ),,428.7,6.71,52.86,21.86,4.68,INDB:ASC341,INDB,Indian,0
+Semolina ladoo with coconut (Suji/Rava aur nariyal ke ladoo ),,464.4,5.68,50.9,27.03,6.69,INDB:ASC342,INDB,Indian,0
+Gram flour ladoo (Besan ladoo),,476.9,8.93,62.61,22.76,4.43,INDB:ASC343,INDB,Indian,0
+Sesame ladoo (Til ke ladoo),,397.0,10.7,43.5,19.64,7.72,INDB:ASC344,INDB,Indian,0
+Chenna murki,,252.7,10.46,36.01,8.2,0.0,INDB:ASC345,INDB,Indian,0
+Milk cake,,127.4,3.01,9.13,8.93,0.06,INDB:ASC346,INDB,Indian,0
+Ghujia/Lavang latika,,769.0,1.86,13.0,78.93,0.52,INDB:ASC347,INDB,Indian,0
+Gulab Jamun with khoya,,586.1,2.03,26.09,53.23,0.07,INDB:ASC348,INDB,Indian,0
+Mal pua,,566.7,1.71,17.56,54.64,0.62,INDB:ASC349,INDB,Indian,0
+Shahi tukre,,189.8,2.76,41.46,2.54,0.51,INDB:ASC350,INDB,Indian,0
+Potato pakora/pakoda (Aloo pakoda),,677.2,1.9,6.04,71.84,1.03,INDB:ASC351,INDB,Indian,0
+Onion pakora/pakoda (Pyaaz ke pakode),,674.6,1.9,5.41,71.84,1.11,INDB:ASC352,INDB,Indian,0
+Cauliflower pakora/pakoda (Phoolgobhi ke pakode),,671.6,1.98,4.52,71.86,1.26,INDB:ASC353,INDB,Indian,0
+Mixed vegetable pakora/pakoda,,673.8,1.94,5.12,71.86,1.13,INDB:ASC354,INDB,Indian,0
+Spinach pakora/pakoda (Palak pakoda),,712.6,1.96,4.68,76.38,1.02,INDB:ASC355,INDB,Indian,0
+Methi pakora/pakoda (Methi ke pakode),,713.3,2.06,4.68,76.39,1.18,INDB:ASC356,INDB,Indian,0
+Egg pakora/pakoda (Ande ke pakode),,710.5,2.83,4.48,75.86,0.86,INDB:ASC357,INDB,Indian,0
+Bread pakora/pakoda,,711.0,2.57,8.87,74.2,1.11,INDB:ASC358,INDB,Indian,0
+Paneer pakora/pakoda,,718.1,3.27,5.52,76.05,0.89,INDB:ASC359,INDB,Indian,0
+Potato bonda (Aloo bonda),,632.8,1.09,4.53,67.8,0.83,INDB:ASC360,INDB,Indian,0
+Potato samosa (Aloo ka samosa),,577.4,1.71,9.21,59.19,1.19,INDB:ASC361,INDB,Indian,0
+Minced meat samosa (Keema ka samosa),,621.0,4.43,6.14,64.26,0.39,INDB:ASC362,INDB,Indian,0
+Paneer and pea samosa (Paneer matar ka samosa),,623.8,4.02,8.55,63.65,1.02,INDB:ASC363,INDB,Indian,0
+Mathri,,805.1,1.75,12.32,83.1,0.6,INDB:ASC364,INDB,Indian,0
+Khasta kachori,,712.7,2.51,12.81,72.27,0.97,INDB:ASC365,INDB,Indian,0
+Vegetable cutlet,,665.5,1.25,4.68,71.33,0.93,INDB:ASC366,INDB,Indian,0
+Flattened rice cutlet (Chirwa cutlet/Chivda cutlet/Poha cutlet),,701.7,1.76,7.39,73.89,0.86,INDB:ASC367,INDB,Indian,0
+Peanut cutlet (Mungfali ke cutlet),,698.8,2.63,5.68,74.0,1.21,INDB:ASC368,INDB,Indian,0
+Fish cutlet (Machli ka cutlet),,654.6,2.77,3.13,70.11,0.54,INDB:ASC369,INDB,Indian,0
+Paneer potato cutlet (Paneer aloo cutlet),,672.9,2.47,5.23,71.4,0.41,INDB:ASC370,INDB,Indian,0
+Spinach chickpeas cutlet (Palak channa dal cutlet),,688.0,1.44,4.93,73.6,0.93,INDB:ASC371,INDB,Indian,0
+Cheese toast,,785.4,1.98,5.49,84.11,0.31,INDB:ASC372,INDB,Indian,0
+Vegetable burger,,519.9,3.26,13.69,50.63,1.7,INDB:ASC375,INDB,Indian,0
+Cheese pizza,,249.5,5.79,30.62,12.43,1.95,INDB:ASC376,INDB,Indian,0
+Vegetable seekh kebab,,690.7,1.57,5.32,73.72,0.59,INDB:ASC377,INDB,Indian,0
+Masala vada,,826.0,1.69,4.06,89.15,1.07,INDB:ASC378,INDB,Indian,0
+Peanut sago vada (Sabudana mungfali vada),,749.9,1.01,7.14,79.82,0.62,INDB:ASC379,INDB,Indian,0
+Vegeterian scotch egg,,681.7,2.16,4.64,72.77,0.58,INDB:ASC380,INDB,Indian,0
+Paneer shaslik/tikka,,93.8,5.11,7.98,4.49,1.23,INDB:ASC381,INDB,Indian,0
+Peanut brittle (Moongfali ki chikki),,320.5,6.94,47.46,11.13,2.63,INDB:ASC382,INDB,Indian,0
+Spring roll,,623.9,1.81,8.56,64.63,0.67,INDB:ASC383,INDB,Indian,0
+Dry mango chutney (Sookhe aam ki chutney),,298.1,2.43,69.17,0.7,3.74,INDB:ASC384,INDB,Indian,0
+Peanut chutney (Mungfali ki chutney),,258.4,11.8,9.87,19.06,5.73,INDB:ASC385,INDB,Indian,0
+Coconut chutney (Nariyal ki chutney),,265.9,3.59,8.29,25.0,6.73,INDB:ASC386,INDB,Indian,0
+Mint and coriander chutney (Pudinay aur dhaniye ki chutney),,102.6,2.81,21.18,0.51,4.33,INDB:ASC387,INDB,Indian,0
+Custard tart,,225.6,3.72,28.66,10.73,0.91,INDB:ASC395,INDB,Indian,0
+Lemon tart,,303.4,6.12,30.68,17.45,0.81,INDB:ASC396,INDB,Indian,0
+Jam tart,,360.7,4.42,46.18,17.35,1.14,INDB:ASC397,INDB,Indian,0
+Orange cream tart,,197.2,2.58,27.43,8.72,0.64,INDB:ASC398,INDB,Indian,0
+Pineapple tart,,195.4,2.29,28.62,8.21,0.87,INDB:ASC399,INDB,Indian,0
+Cheese and mushroom tart,,246.1,5.51,21.43,15.28,1.18,INDB:ASC400,INDB,Indian,0
+Cottage cheese pie,,239.0,7.45,20.66,13.83,2.21,INDB:ASC401,INDB,Indian,0
+Minced meat pie,,221.6,7.38,18.11,13.04,2.33,INDB:ASC402,INDB,Indian,0
+Apple cinnamon pie,,258.7,3.35,33.68,12.21,1.77,INDB:ASC403,INDB,Indian,0
+Lemon meringue pie,,224.4,3.88,35.11,8.16,0.44,INDB:ASC404,INDB,Indian,0
+Chocolate meringue pie,,214.8,4.98,28.8,9.17,0.37,INDB:ASC405,INDB,Indian,0
+Cream puffs,,221.3,4.7,16.0,15.48,0.38,INDB:ASC407,INDB,Indian,0
+Chocolate eclairs,,239.4,4.24,26.22,13.5,0.33,INDB:ASC408,INDB,Indian,0
+Cheese balls,,681.3,2.21,4.81,72.57,0.18,INDB:ASC409,INDB,Indian,0
+Minced meat patties,,265.7,6.88,15.25,19.57,0.77,INDB:ASC411,INDB,Indian,0
+Cheese patties,,324.0,7.38,22.23,22.67,1.24,INDB:ASC412,INDB,Indian,0
+Hot cheese souffle,,177.1,9.18,5.41,13.23,0.12,INDB:ASC413,INDB,Indian,0
+Hot potato souffle,,125.6,5.51,8.56,7.64,0.66,INDB:ASC414,INDB,Indian,0
+Hot fish souffle,,142.9,11.23,3.69,9.24,0.1,INDB:ASC415,INDB,Indian,0
+Hot spinach souffle,,104.2,5.43,4.19,7.24,0.99,INDB:ASC416,INDB,Indian,0
+Plain cream cake,,353.9,6.18,47.18,16.17,0.71,INDB:ASC417,INDB,Indian,0
+Apple cake (Seb ka cake),,290.1,4.94,39.48,12.87,1.22,INDB:ASC418,INDB,Indian,0
+Marble cake,,354.1,6.3,46.88,16.27,0.71,INDB:ASC419,INDB,Indian,0
+Chocolate cake,,335.6,6.01,45.14,15.18,0.64,INDB:ASC420,INDB,Indian,0
+Orange cake,,357.6,6.1,48.28,16.21,0.83,INDB:ASC421,INDB,Indian,0
+Fruit Loaf,,324.2,5.36,46.49,13.31,0.87,INDB:ASC422,INDB,Indian,0
+Banana cake (Kele ka cake),,389.5,5.77,40.0,23.31,1.14,INDB:ASC423,INDB,Indian,0
+Chocolate chiffon cake,,311.7,5.76,37.87,15.8,0.7,INDB:ASC424,INDB,Indian,0
+Christmas cake,,372.9,5.49,48.29,16.88,1.49,INDB:ASC425,INDB,Indian,0
+Strawberry and vanilla cake with butter icing,,370.5,3.89,44.25,20.39,0.79,INDB:ASC426,INDB,Indian,0
+Eggless cake,,318.1,8.12,46.14,11.75,0.68,INDB:ASC427,INDB,Indian,0
+Swiss roll,,251.9,7.3,48.34,3.77,0.55,INDB:ASC429,INDB,Indian,0
+Pineapple pastry,,208.2,6.06,29.04,7.87,0.72,INDB:ASC430,INDB,Indian,0
+Black forest pastry,,233.5,6.09,34.48,8.46,0.54,INDB:ASC431,INDB,Indian,0
+Coconut finger,,274.9,7.09,42.56,8.86,1.87,INDB:ASC432,INDB,Indian,0
+Pineapple cake,,195.6,5.01,23.51,9.34,0.76,INDB:ASC433,INDB,Indian,0
+Chocolate walnut cookies (Chocolate aur akhrot ke cookies),,424.8,6.56,47.1,23.62,1.54,INDB:ASC439,INDB,Indian,0
+Chocolate chip cookies,,425.3,5.79,57.98,19.38,1.05,INDB:ASC440,INDB,Indian,0
+Sweet plain biscuit,,380.8,5.86,50.29,17.67,1.07,INDB:ASC441,INDB,Indian,0
+Chocolate biscuit,,379.8,5.88,51.56,17.09,1.01,INDB:ASC442,INDB,Indian,0
+Coconut biscuit (Nariyal ke biscuit),,435.0,5.78,42.9,27.16,3.64,INDB:ASC443,INDB,Indian,0
+Sweet and salty biscuit (Meethay aur namkeen biscuit),,408.0,6.15,45.09,22.39,1.68,INDB:ASC444,INDB,Indian,0
+Peanut biscuit,,401.0,8.45,46.72,20.41,2.48,INDB:ASC445,INDB,Indian,0
+Pin wheel biscuit,,404.6,5.4,54.56,18.66,1.16,INDB:ASC446,INDB,Indian,0
+Saffron biscuit (Kesar biscuit),,458.6,6.05,59.7,22.01,1.9,INDB:ASC447,INDB,Indian,0
+Masala biscuit,,393.6,6.06,45.18,20.75,2.14,INDB:ASC448,INDB,Indian,0
+Ice box cookies,,374.2,5.7,56.09,14.44,1.28,INDB:ASC449,INDB,Indian,0
+Ginger bread man,,365.0,6.61,60.26,11.01,1.6,INDB:ASC450,INDB,Indian,0
+Danish cookies,,475.3,5.33,58.0,24.92,1.37,INDB:ASC451,INDB,Indian,0
+Short bread cookies,,443.1,6.03,64.82,17.98,1.57,INDB:ASC452,INDB,Indian,0
+Coffee biscuit,,416.6,6.9,46.55,23.0,1.59,INDB:ASC453,INDB,Indian,0
+Melting moments,,437.9,5.71,55.84,21.78,1.88,INDB:ASC454,INDB,Indian,0
+Ginger biscuit (Adarak ke biscuit),,417.9,5.98,58.44,18.31,1.49,INDB:ASC455,INDB,Indian,0
+Soyabean muthias,,839.3,2.46,3.7,90.45,1.47,INDB:ASC456,INDB,Indian,0
+Soyabean tikki,,698.2,3.53,4.39,74.02,2.2,INDB:ASC457,INDB,Indian,0
+Soyabean namak paras,,838.5,2.65,4.65,89.83,1.41,INDB:ASC458,INDB,Indian,0
+Peanut burfi (Moongfali ki burfi),,551.0,9.31,48.14,36.84,4.09,INDB:ASC459,INDB,Indian,0
+Spinach peanut namak paras (Palak moongfali namak paras),,740.2,1.65,6.62,78.51,0.81,INDB:ASC460,INDB,Indian,0
+Gram flour and semolina chilla/cheela/savory pancake (Besan suji chilla/cheela),,758.9,2.08,7.63,80.04,1.39,INDB:ASC461,INDB,Indian,0
+Rice moong dal cheela (Chawal aur moong dal ka cheela),,798.3,2.74,11.13,82.44,1.18,INDB:ASC462,INDB,Indian,0
+Split bengal gram sweet rice (Channa dal sweet rice),,190.2,4.15,41.07,0.64,2.23,INDB:ASC463,INDB,Indian,0
+Sweet poori (Meethi poori),,782.7,2.12,14.26,79.63,1.54,INDB:ASC464,INDB,Indian,0
+Wheat flour and moong dal burfi (Atta aur moong dal ki burfi),,441.1,9.84,60.0,18.41,6.02,INDB:ASC465,INDB,Indian,0
+Spinach burfi (Palak burfi),,121.2,2.71,12.76,6.81,1.17,INDB:ASC466,INDB,Indian,0
+Sweet split chickpea roti (Sweet channa dal roti/Puranpoli),,366.6,9.51,62.66,7.93,8.16,INDB:ASC467,INDB,Indian,0
+Sprouted moong daliya,,111.6,2.81,14.77,4.71,3.12,INDB:ASC468,INDB,Indian,0
+Sprouted moong poha,,192.6,5.59,26.6,6.89,3.13,INDB:ASC469,INDB,Indian,0
+Pearl millet ladoo (Bajra ladoo),,319.7,9.61,50.98,8.06,6.0,INDB:ASC470,INDB,Indian,0
+Paushtik ladoo,,485.9,7.65,60.34,24.98,4.57,INDB:ASC471,INDB,Indian,0
+Paushtik roti,,149.3,7.17,26.59,1.51,5.74,INDB:ASC472,INDB,Indian,0
+Semolina carrot vada (Suji gajar vada),,699.5,1.56,6.52,74.07,1.07,INDB:ASC473,INDB,Indian,0
+Dhokla,,216.5,13.45,30.68,5.28,4.95,INDB:ASC474,INDB,Indian,0
+Kashmiri tea (Kehwa),,24.9,0.17,5.23,0.51,0.16,INDB:BFP007,INDB,Indian,0
+Steeped hot coffee,,15.9,0.39,3.01,0.33,0.0,INDB:BFP008,INDB,Indian,0
+Hot chocolate,,90.0,3.43,9.02,4.61,0.0,INDB:BFP011,INDB,Indian,0
+Cold coffee (with cream),,82.8,1.93,11.98,3.29,0.0,INDB:BFP013,INDB,Indian,0
+Banana milkshake with ice cream (Kele ka milkshake ice cream ke saath),,76.4,2.01,11.15,2.77,0.27,INDB:BFP015,INDB,Indian,0
+Flavoured milkshake,,66.8,2.06,8.65,2.83,0.0,INDB:BFP019,INDB,Indian,0
+Jal jeera,,30.2,0.44,6.7,0.26,0.95,INDB:BFP024,INDB,Indian,0
+Gingo,,48.0,0.14,12.42,0.06,0.17,INDB:BFP026,INDB,Indian,0
+Mintade,,40.3,0.03,10.59,0.02,0.03,INDB:BFP027,INDB,Indian,0
+Canjee,,6.6,0.24,0.44,0.42,0.36,INDB:BFP029,INDB,Indian,0
+Cauliflower canjee (Phoolgobhi ki canjee),,6.9,0.39,0.35,0.42,0.49,INDB:BFP030,INDB,Indian,0
+Potato canjee (Aloo canjee),,16.3,0.44,2.69,0.39,0.43,INDB:BFP031,INDB,Indian,0
+Vermicelli porridge (Semiya/Seviyan porridge),,78.4,2.5,10.56,2.98,0.48,INDB:BFP036,INDB,Indian,0
+Semolina upma (Suji/Rava upma),,147.9,3.3,16.31,7.49,3.24,INDB:BFP039,INDB,Indian,0
+Vermicelli upma (Semiya/Seviyan upma),,149.1,3.11,16.88,7.45,3.21,INDB:BFP040,INDB,Indian,0
+Rice upma,,151.3,2.63,17.96,7.46,2.12,INDB:BFP041,INDB,Indian,0
+Bread upma,,129.5,2.8,12.6,7.75,1.96,INDB:BFP042,INDB,Indian,0
+Vegetable upma,,146.5,4.73,16.46,6.63,4.19,INDB:BFP043,INDB,Indian,0
+Poha,,294.5,6.09,35.05,14.14,3.72,INDB:BFP044,INDB,Indian,0
+Vegetable poha,,180.5,4.89,21.52,8.07,3.76,INDB:BFP045,INDB,Indian,0
+Moong dal stuffed cheela/chilla (Moong dal ka cheela/chilla),,154.9,6.97,19.42,5.11,4.25,INDB:BFP046,INDB,Indian,0
+Paneer stuffed cheela/chilla,,205.2,11.44,19.16,8.89,4.03,INDB:BFP047,INDB,Indian,0
+Indian style egg bhujia (Anda bhujia (Indian style)),,102.8,6.1,3.76,7.02,1.53,INDB:BFP052,INDB,Indian,0
+French omelette/omlet,,211.0,10.03,0.41,18.86,0.38,INDB:BFP054,INDB,Indian,0
+Puffy omelette/omlet,,188.1,8.82,0.08,16.84,0.0,INDB:BFP055,INDB,Indian,0
+Orange omelette/omlet,,194.7,8.93,1.68,16.84,0.0,INDB:BFP056,INDB,Indian,0
+Cheese and mushroom omelette/omlet,,205.6,9.69,1.68,17.82,0.93,INDB:BFP057,INDB,Indian,0
+Spanish omelette/omlet,,157.4,8.25,5.1,11.44,2.54,INDB:BFP058,INDB,Indian,0
+Mixed stock,,25.2,2.06,0.33,1.71,0.15,INDB:BFP059,INDB,Indian,0
+Meat stock,,24.5,2.1,0.0,1.78,0.0,INDB:BFP060,INDB,Indian,0
+White stock,,7.0,0.07,0.4,0.56,0.17,INDB:BFP062,INDB,Indian,0
+Meat consomme (with mutton),,29.8,14.86,0.51,13.68,0.71,INDB:BFP065,INDB,Indian,0
+Consomme au julienne,,27.8,12.49,1.49,10.66,1.38,INDB:BFP066,INDB,Indian,0
+Consomme au vermicelli,,29.9,15.23,1.3,12.98,0.81,INDB:BFP067,INDB,Indian,0
+Green pea soup (Matar ka soup),,39.8,11.06,3.63,12.9,2.49,INDB:BFP072,INDB,Indian,0
+Spinach soup (Palak ka soup),,32.6,10.54,3.03,14.26,1.98,INDB:BFP073,INDB,Indian,0
+Mixed vegetable soup,,35.7,8.22,2.95,11.66,1.64,INDB:BFP074,INDB,Indian,0
+Cheese soup,,41.1,12.39,1.87,17.07,1.8,INDB:BFP075,INDB,Indian,0
+Mulligatawny soup,,54.4,11.26,8.24,13.28,2.6,INDB:BFP076,INDB,Indian,0
+Cream of carrot soup,,59.8,8.27,5.69,12.35,1.98,INDB:BFP079,INDB,Indian,0
+Cream of broccoli soup,,56.1,8.97,3.72,12.75,1.89,INDB:BFP080,INDB,Indian,0
+Cream of potato soup,,60.2,8.1,6.14,12.05,1.51,INDB:BFP082,INDB,Indian,0
+Almond soup (Badam ka soup),,78.7,10.13,3.68,13.8,0.91,INDB:BFP087,INDB,Indian,0
+Cold cucumber cream soup,,11.9,0.34,1.76,0.34,0.73,INDB:BFP088,INDB,Indian,0
+Cold tomato soup,,16.9,0.11,0.59,1.56,0.16,INDB:BFP089,INDB,Indian,0
+Chicken stew,,127.5,7.19,4.44,8.91,1.82,INDB:BFP090,INDB,Indian,0
+Veg paneer stew,,145.5,6.98,10.22,8.41,3.08,INDB:BFP091,INDB,Indian,0
+Onion-green chilli parantha/paratha (Pyaaz aur hari mirch ka parantha/paratha),,191.3,4.37,26.37,7.27,5.16,INDB:BFP108,INDB,Indian,0
+Methi parantha/paratha,,148.4,4.27,22.19,4.34,5.09,INDB:BFP110,INDB,Indian,0
+Bathua poori,,598.8,2.35,13.85,59.14,1.87,INDB:BFP114,INDB,Indian,0
+Gram flour poori (Besan poori),,697.7,2.59,10.93,71.51,1.94,INDB:BFP115,INDB,Indian,0
+Beetroot poori (Chukandar ki poori),,527.7,1.91,12.29,52.18,1.4,INDB:BFP116,INDB,Indian,0
+Peas poori (Matar ki poori),,592.8,3.04,14.92,57.69,2.25,INDB:BFP117,INDB,Indian,0
+Peas kachori (Matar kachori),,584.7,3.21,13.25,57.51,2.03,INDB:BFP118,INDB,Indian,0
+Pizza,,146.8,6.85,9.94,8.72,1.71,INDB:BFP122,INDB,Indian,0
+Bacon and mushroom pancake,,157.7,6.82,8.47,10.6,1.59,INDB:BFP124,INDB,Indian,0
+Cheese and tomato pancake,,147.4,5.15,10.66,9.28,1.06,INDB:BFP125,INDB,Indian,0
+Minced meat pancake (with chicken),,116.0,12.01,8.18,10.48,0.7,INDB:BFP127,INDB,Indian,0
+Eggplant/Brinjal rice (Vangi bhat),,184.8,5.28,31.74,3.67,4.44,INDB:BFP132,INDB,Indian,0
+Kashmiri 'tahar',,98.2,1.95,19.11,1.37,0.98,INDB:BFP133,INDB,Indian,0
+Cumin pulao (Jeera/Zeera pulao),,135.2,2.47,23.61,3.2,1.4,INDB:BFP134,INDB,Indian,0
+Peas pulao (Matar pulao),,108.9,3.89,18.42,1.9,3.21,INDB:BFP136,INDB,Indian,0
+Split bengal gram dal and vegetable pulao (Channa dal and vegetable pulao),,116.5,3.6,19.72,2.3,3.16,INDB:BFP137,INDB,Indian,0
+Black channa pulao/ Bengal gram pulao (Kale chane ka pulao),,125.5,3.44,21.55,2.58,2.69,INDB:BFP138,INDB,Indian,0
+Mutton pulao,,130.8,6.52,11.26,10.78,1.65,INDB:BFP141,INDB,Indian,0
+Chicken pulao,,108.2,6.07,11.17,8.48,1.64,INDB:BFP142,INDB,Indian,0
+Mexican rice,,120.6,4.62,14.21,4.88,1.64,INDB:BFP143,INDB,Indian,0
+Plain khitchdi (Plain khichri/khichdi),,57.0,1.72,10.04,1.01,0.85,INDB:BFP144,INDB,Indian,0
+Instant idli (with semolina),,247.3,9.16,43.4,3.61,7.13,INDB:BFP147,INDB,Indian,0
+Plain dosa,,380.9,10.34,64.08,8.43,5.23,INDB:BFP148,INDB,Indian,0
+Masala dosa mixed vegetable fillings,,144.5,4.84,23.02,3.26,4.31,INDB:BFP150,INDB,Indian,0
+Masala dosa paneer fillings,,243.1,10.31,29.76,8.84,3.11,INDB:BFP151,INDB,Indian,0
+Uttapam,,255.9,6.18,36.28,9.03,4.4,INDB:BFP152,INDB,Indian,0
+Appam,,267.7,3.12,13.28,22.63,6.19,INDB:BFP153,INDB,Indian,0
+Beans and macaroni,,136.1,4.58,14.24,7.01,2.05,INDB:BFP154,INDB,Indian,0
+Spaghetti bolognese,,97.4,9.35,10.04,9.51,1.08,INDB:BFP155,INDB,Indian,0
+Meat and macaroni casserole,,161.5,9.15,16.12,10.17,1.19,INDB:BFP157,INDB,Indian,0
+Spaghetti with meat balls and tomato sauce,,158.1,5.61,10.46,10.64,1.11,INDB:BFP158,INDB,Indian,0
+Spaghetti with paneer balls and tomato sauce,,158.5,3.95,12.72,10.44,1.25,INDB:BFP159,INDB,Indian,0
+Lasagne with meat sauce,,63.4,2.9,5.38,3.43,0.47,INDB:BFP161,INDB,Indian,0
+Lasagne with vegetables,,49.2,1.71,5.9,2.16,0.66,INDB:BFP162,INDB,Indian,0
+Home made egg noodles,,240.8,6.55,42.92,4.37,1.6,INDB:BFP165,INDB,Indian,0
+Sour lentils (Khatti dal),,34.8,2.22,6.04,0.12,1.22,INDB:BFP170,INDB,Indian,0
+Urad special dehusked,,69.4,3.14,8.86,2.17,2.5,INDB:BFP171,INDB,Indian,0
+Arhar with spinach (Arhar dal aur palak),,52.8,2.05,4.77,2.76,1.3,INDB:BFP172,INDB,Indian,0
+Moong dal with vadi,,24.1,0.4,1.0,2.05,0.39,INDB:BFP174,INDB,Indian,0
+Rasam with tamarind (Puli rasam/ Chintapandu rasam/ Charu/Saaru),,26.7,1.13,3.37,0.88,1.6,INDB:BFP176,INDB,Indian,0
+Rasam with lemon (Nimmakaya rasam/Nimmakaya charu/Elumichai rasam/Nimbe hannina saaru),,24.4,1.11,2.85,0.87,1.54,INDB:BFP177,INDB,Indian,0
+Green gram whole with baghar (Sabut moong dal with tadka),,63.4,3.23,6.8,2.48,3.02,INDB:BFP178,INDB,Indian,0
+Urad sabut special,,79.4,2.33,5.03,5.46,2.15,INDB:BFP179,INDB,Indian,0
+Kabuli channa curry,,68.6,2.92,7.63,3.06,1.12,INDB:BFP185,INDB,Indian,0
+Besan gatte curry,,189.4,7.75,16.26,10.72,3.25,INDB:BFP187,INDB,Indian,0
+Dry masala chops,,135.1,9.08,3.3,9.54,0.86,INDB:BFP190,INDB,Indian,0
+Mutton korma,,115.6,7.09,2.53,8.54,0.78,INDB:BFP194,INDB,Indian,0
+Shahi keema kofta curry,,418.1,4.14,1.73,43.83,0.91,INDB:BFP196,INDB,Indian,0
+Minced meat ball curry,,109.8,6.82,2.86,7.85,1.49,INDB:BFP197,INDB,Indian,0
+Boti kebab,,132.9,9.22,3.06,9.27,0.76,INDB:BFP198,INDB,Indian,0
+Mutton seekh kebab,,133.9,11.25,3.11,8.43,1.88,INDB:BFP199,INDB,Indian,0
+Indian lamb and egg curry (Nargisi kofta),,335.8,3.84,2.07,34.7,0.6,INDB:BFP201,INDB,Indian,0
+Soya chunks sweet and sour (Nutrinugget sweet and sour),,500.9,2.85,3.27,55.99,0.86,INDB:BFP203,INDB,Indian,0
+Soya chunks korma (Nutrinugget korma),,131.4,3.86,7.67,9.5,2.57,INDB:BFP204,INDB,Indian,0
+Mushroom matar,,70.8,2.79,5.33,4.11,3.13,INDB:BFP205,INDB,Indian,0
+Soya chunks and peas (Nutrinugget matar),,82.6,3.03,5.82,5.11,2.86,INDB:BFP206,INDB,Indian,0
+Vegetable yakhni,,406.1,1.18,1.94,43.8,0.61,INDB:BFP207,INDB,Indian,0
+Spinach mushroom (Palak mushroom),,47.6,1.94,2.95,2.96,2.27,INDB:BFP208,INDB,Indian,0
+Vegetarian nargisi kofta curry,,332.2,2.29,6.58,32.94,0.86,INDB:BFP210,INDB,Indian,0
+Roast chicken,,199.9,20.49,0.1,13.06,0.03,INDB:BFP212,INDB,Indian,0
+Shahi chicken masala,,163.7,9.82,4.07,12.02,0.96,INDB:BFP214,INDB,Indian,0
+Tomato chicken,,111.7,10.57,2.13,6.71,1.42,INDB:BFP216,INDB,Indian,0
+Creamy chicken,,152.9,13.52,3.13,9.57,0.69,INDB:BFP217,INDB,Indian,0
+Broccoli chicken ala king,,119.6,7.97,5.34,7.57,1.92,INDB:BFP218,INDB,Indian,0
+Ginger chicken,,129.2,8.24,5.6,8.24,1.21,INDB:BFP220,INDB,Indian,0
+Chicken sweet and sour,,445.1,6.92,2.67,47.59,0.58,INDB:BFP221,INDB,Indian,0
+Chicken korma,,148.0,9.83,5.43,9.67,1.82,INDB:BFP222,INDB,Indian,0
+Bengal fish curry (Bengali machli curry),,109.4,7.26,4.42,7.03,1.93,INDB:BFP223,INDB,Indian,0
+Fish finger,,542.9,5.66,4.47,55.82,0.34,INDB:BFP226,INDB,Indian,0
+Fish in coconut milk (Nariyal ke doodh ke saath machli),,86.2,8.66,2.73,4.43,1.52,INDB:BFP229,INDB,Indian,0
+Prawn curry (with coconut) (Jhinga curry),,109.5,8.54,3.1,6.93,1.56,INDB:BFP230,INDB,Indian,0
+Baked stuffed fish,,122.0,16.14,2.12,5.43,0.38,INDB:BFP231,INDB,Indian,0
+Fish pie,,120.9,9.25,7.74,5.77,0.76,INDB:BFP232,INDB,Indian,0
+Crispy baked fish,,138.4,10.95,9.59,6.41,1.21,INDB:BFP233,INDB,Indian,0
+Fish souffle,,139.7,10.51,5.14,8.55,0.19,INDB:BFP234,INDB,Indian,0
+Potato curry (Aloo ki sabzi),,89.6,1.52,10.42,4.47,2.42,INDB:BFP239,INDB,Indian,0
+Egg curry (Anda curry),,117.5,5.38,4.03,8.81,2.09,INDB:BFP240,INDB,Indian,0
+Vegetable curry with coconut,,83.1,2.77,7.19,4.66,3.35,INDB:BFP241,INDB,Indian,0
+Curd with potatoes (Dahi aloo),,59.9,1.56,7.15,2.72,1.19,INDB:BFP242,INDB,Indian,0
+Potato kofta curry (Aloo kofta curry),,455.4,0.56,2.78,49.08,0.56,INDB:BFP246,INDB,Indian,0
+Yam kofta curry (Zimikand/Suran kofta curry),,322.9,0.71,3.75,33.84,1.04,INDB:BFP249,INDB,Indian,0
+Jackfruit kofta curry (Kathal ka kofta curry),,321.1,0.8,3.17,33.83,0.96,INDB:BFP250,INDB,Indian,0
+Spinach and potato (Palak aloo),,57.2,1.63,5.91,2.82,2.04,INDB:BFP257,INDB,Indian,0
+Mooli bhujia,,91.2,1.69,4.74,7.25,2.36,INDB:BFP258,INDB,Indian,0
+Bathua bhujia,,90.9,2.26,3.63,7.29,3.8,INDB:BFP259,INDB,Indian,0
+Cabbage rolls (dry) ((Pattagobhi rolls) (dry)),,142.5,8.21,6.09,9.36,1.84,INDB:BFP261,INDB,Indian,0
+Cabbage rolls (curry) ((Pattagobhi rolls)(curry)),,124.6,5.76,7.03,8.17,2.35,INDB:BFP262,INDB,Indian,0
+Dry arbi (Sookhi arbi),,134.9,2.12,11.11,8.97,2.47,INDB:BFP263,INDB,Indian,0
+Masala arbi,,185.4,3.01,16.16,11.9,3.1,INDB:BFP264,INDB,Indian,0
+Peas brinjal bhartha (Matar baingan bhartha),,84.5,2.05,5.02,6.05,3.63,INDB:BFP266,INDB,Indian,0
+Okra/Lady's fingers fry (Bhindi sabzi/sabji/subji),,110.8,1.83,4.5,9.27,3.57,INDB:BFP269,INDB,Indian,0
+Crispy okra/Crispy lady's fingers (Karare bhindi),,657.8,1.91,4.35,70.4,1.75,INDB:BFP270,INDB,Indian,0
+Beans foogath,,105.1,2.03,3.26,9.22,4.15,INDB:BFP272,INDB,Indian,0
+Stuffed bittergourd (wet) (Bharwa karele),,162.4,1.36,4.68,15.24,2.86,INDB:BFP273,INDB,Indian,0
+Jackfruit/Kathal (dry),,489.0,0.93,4.56,51.78,1.33,INDB:BFP274,INDB,Indian,0
+Yam fried (Zimikand/Suran fried),,491.8,0.79,5.47,51.79,1.44,INDB:BFP275,INDB,Indian,0
+"Cauliflower, pea and potato bhujia (Phoolgobhi, matar aur aloo bhujia)",,95.7,2.75,8.23,5.54,3.26,INDB:BFP276,INDB,Indian,0
+Vegetable jalfrezi,,68.5,1.4,5.43,4.38,2.97,INDB:BFP277,INDB,Indian,0
+Vegetables stir fry,,30.8,1.04,3.19,1.47,1.37,INDB:BFP278,INDB,Indian,0
+Broccoli delight,,40.7,2.49,2.34,2.48,2.83,INDB:BFP279,INDB,Indian,0
+Dhansak (vegetarian),,82.8,3.32,7.28,4.18,4.17,INDB:BFP280,INDB,Indian,0
+Cauliflower basket,,90.9,5.21,3.97,5.88,2.4,INDB:BFP282,INDB,Indian,0
+Stuffed bottle gourd (Stuffed ghiya/lauki),,93.2,5.84,4.36,5.8,1.18,INDB:BFP284,INDB,Indian,0
+Ducheese potato,,140.5,3.6,10.94,9.01,1.29,INDB:BFP286,INDB,Indian,0
+Roast potatoes,,87.3,1.53,14.52,2.35,1.71,INDB:BFP287,INDB,Indian,0
+Stuffed baked potatoes,,100.2,3.82,11.03,4.39,1.31,INDB:BFP288,INDB,Indian,0
+Potato nests,,111.6,5.71,11.05,4.77,2.49,INDB:BFP289,INDB,Indian,0
+Parsley potato,,119.5,1.49,13.81,6.28,1.59,INDB:BFP290,INDB,Indian,0
+Creamed spinach and mushroom,,419.6,2.28,3.17,44.14,1.02,INDB:BFP291,INDB,Indian,0
+Fricassee of Mushroom,,106.7,3.65,8.13,6.63,1.23,INDB:BFP292,INDB,Indian,0
+Cauliflower au gratin,,145.9,4.45,9.13,10.2,1.44,INDB:BFP293,INDB,Indian,0
+Vegetable and cheese pie,,126.9,4.03,8.76,8.28,1.91,INDB:BFP294,INDB,Indian,0
+Spinach souffle,,150.2,7.36,6.27,10.52,1.44,INDB:BFP296,INDB,Indian,0
+Beetroot and egg salad (Chukandar aur ande ka salad),,84.9,3.36,3.4,6.45,0.55,INDB:BFP299,INDB,Indian,0
+Sour cream potato salad,,121.9,2.89,9.05,8.13,1.21,INDB:BFP300,INDB,Indian,0
+Tossed green salad,,49.9,1.33,3.82,3.24,1.33,INDB:BFP301,INDB,Indian,0
+Spring basket salad,,160.5,3.36,11.61,11.3,3.09,INDB:BFP302,INDB,Indian,0
+Cucumber and yogurt salad (Kheere aur dahi ka salad),,36.1,2.09,4.72,0.93,1.66,INDB:BFP303,INDB,Indian,0
+Chicken and tomato towers,,100.6,6.9,2.36,6.99,1.14,INDB:BFP305,INDB,Indian,0
+Jellied sunshine fruit salad,,48.9,5.85,4.21,0.85,1.8,INDB:BFP306,INDB,Indian,0
+Tomato aspic,,50.4,6.87,5.02,0.26,1.58,INDB:BFP307,INDB,Indian,0
+Frozen frosty fruit salad (Phalon ka salaad),,103.5,1.68,15.61,4.17,0.26,INDB:BFP308,INDB,Indian,0
+French dressing,,733.8,0.32,3.68,79.65,0.22,INDB:BFP310,INDB,Indian,0
+Mayonnaise without eggs,,329.1,2.13,3.98,33.84,0.04,INDB:BFP312,INDB,Indian,0
+Curd dressing,,78.8,5.59,8.03,2.9,0.22,INDB:BFP313,INDB,Indian,0
+Carrot raita (Gajar ka raita),,64.8,4.14,7.19,2.19,1.69,INDB:BFP316,INDB,Indian,0
+Pumpkin raita (Kaddu ka raita),,55.6,3.74,6.02,1.88,1.04,INDB:BFP318,INDB,Indian,0
+Mint and peanut raita (Pudinay aur moongfali ka raita),,112.0,7.05,7.31,6.19,1.79,INDB:BFP320,INDB,Indian,0
+Spinach raita (Palak ka raita),,52.8,3.95,5.06,1.86,1.39,INDB:BFP321,INDB,Indian,0
+Bathua raita,,54.4,4.13,5.31,1.76,2.19,INDB:BFP322,INDB,Indian,0
+Pineapple raita (Ananas ka raita),,67.7,3.9,8.62,2.02,1.39,INDB:BFP325,INDB,Indian,0
+Banana raita (Kele ka raita),,89.0,4.13,13.51,2.07,1.0,INDB:BFP326,INDB,Indian,0
+Mango raita (Aam ka raita),,67.4,3.9,8.23,2.14,0.89,INDB:BFP327,INDB,Indian,0
+Guava raita (Amarood ka raita),,64.4,4.19,7.27,2.07,3.0,INDB:BFP328,INDB,Indian,0
+Grapes raita (Angoor ka raita),,72.6,3.98,9.66,2.07,0.71,INDB:BFP329,INDB,Indian,0
+Bottle gourd kheer (Ghiya/Lauki kheer),,84.1,2.7,10.0,3.86,0.55,INDB:BFP334,INDB,Indian,0
+Pumpkin kheer (Kaddu ki kheer),,86.4,2.76,10.44,3.86,0.63,INDB:BFP336,INDB,Indian,0
+Apple kheer (Seb ki kheer),,81.3,2.14,11.34,3.18,0.51,INDB:BFP338,INDB,Indian,0
+Caramel custard (baked),,122.7,5.11,14.95,5.01,0.0,INDB:BFP345,INDB,Indian,0
+Vanilla ice cream without egg,,228.7,2.69,14.21,18.15,0.0,INDB:BFP346,INDB,Indian,0
+Vanilla ice cream with egg,,214.9,4.16,11.71,17.02,0.0,INDB:BFP347,INDB,Indian,0
+Strawberry ice cream,,215.6,4.15,12.26,16.96,0.0,INDB:BFP348,INDB,Indian,0
+Chocochip ice cream,,241.4,4.23,16.75,17.93,0.0,INDB:BFP350,INDB,Indian,0
+Choconut ice cream,,274.0,5.04,23.13,18.49,0.51,INDB:BFP351,INDB,Indian,0
+Pear chocholate sunday,,183.5,2.08,15.02,13.11,0.07,INDB:BFP352,INDB,Indian,0
+Chocolate sauce,,263.2,1.91,43.21,10.39,0.0,INDB:BFP353,INDB,Indian,0
+Coffee ice cream,,150.6,3.15,14.09,9.43,0.0,INDB:BFP354,INDB,Indian,0
+Coffee pear alaska,,204.0,2.88,19.36,13.22,0.15,INDB:BFP355,INDB,Indian,0
+Crunchy butterscotch,,277.3,3.11,19.92,20.99,0.47,INDB:BFP356,INDB,Indian,0
+Peach melba ice cream,,200.8,2.06,16.31,14.51,0.06,INDB:BFP358,INDB,Indian,0
+Vanilla ice cream with apples in hot cherry sauce,,196.3,1.73,22.75,11.45,0.26,INDB:BFP359,INDB,Indian,0
+Grape and orange whip,,57.4,1.41,6.72,2.62,0.97,INDB:BFP361,INDB,Indian,0
+Honey banana cream,,125.5,2.78,13.64,6.68,0.7,INDB:BFP362,INDB,Indian,0
+Raspberry bavarian cream,,150.1,3.34,17.82,7.88,2.19,INDB:BFP363,INDB,Indian,0
+Fruit delight,,107.1,2.09,9.11,7.09,0.09,INDB:BFP364,INDB,Indian,0
+Creamy chocolate mousse,,230.5,6.85,9.53,18.16,0.0,INDB:BFP365,INDB,Indian,0
+Cold lemon souffle,,169.9,5.89,15.62,9.78,0.0,INDB:BFP366,INDB,Indian,0
+Cold orange souffle,,173.2,5.94,16.27,9.82,0.11,INDB:BFP367,INDB,Indian,0
+Cold pineapple souffle,,181.2,6.23,16.85,10.39,0.0,INDB:BFP368,INDB,Indian,0
+Cold vanilla souffle,,179.5,6.22,16.29,10.32,0.0,INDB:BFP369,INDB,Indian,0
+Cold chocolate souffle,,187.5,6.37,17.22,10.86,0.0,INDB:BFP370,INDB,Indian,0
+Stewed fruit (with pear),,74.3,0.25,18.22,0.32,2.84,INDB:BFP371,INDB,Indian,0
+Apricot fool,,240.8,1.54,33.64,11.35,1.0,INDB:BFP372,INDB,Indian,0
+Pavlova,,200.6,1.84,21.84,12.29,0.06,INDB:BFP373,INDB,Indian,0
+Apple crumb pudding,,220.9,1.54,35.17,8.87,1.33,INDB:BFP379,INDB,Indian,0
+Steamed cake with chocolate sauce,,301.9,4.49,29.06,19.01,0.29,INDB:BFP380,INDB,Indian,0
+Hot lemon souffle,,155.3,5.29,16.31,7.93,0.14,INDB:BFP382,INDB,Indian,0
+Gulab jamun with milk powder,,471.2,0.85,28.24,40.15,0.05,INDB:BFP386,INDB,Indian,0
+Chum chum,,130.1,1.52,28.27,1.92,0.02,INDB:BFP388,INDB,Indian,0
+Dil bahar,,130.1,1.52,28.27,1.92,0.02,INDB:BFP389,INDB,Indian,0
+Rasbhari,,130.1,1.52,28.27,1.92,0.02,INDB:BFP390,INDB,Indian,0
+Rajbogh,,133.7,1.71,28.16,2.28,0.11,INDB:BFP391,INDB,Indian,0
+Rasgulla,,118.6,1.38,25.79,1.75,0.01,INDB:BFP392,INDB,Indian,0
+Rasmalai,,135.5,1.61,29.17,2.11,0.07,INDB:BFP393,INDB,Indian,0
+Khoa coconut burfi,,411.5,9.98,36.55,26.01,4.07,INDB:BFP396,INDB,Indian,0
+Danedar burfi,,102.7,3.24,12.33,4.72,0.09,INDB:BFP397,INDB,Indian,0
+Semolina burfi (Suji/Rava burfi),,348.7,3.47,47.1,16.86,2.8,INDB:BFP401,INDB,Indian,0
+Pumpkin coconut burfi (Kaddu aur nariyal ki burfi),,186.2,1.75,17.02,12.66,4.29,INDB:BFP403,INDB,Indian,0
+Khoa ladoo,,396.0,12.21,34.43,24.09,3.08,INDB:BFP404,INDB,Indian,0
+Wheat and gram flour ladoo (Atta besan ladoo),,501.7,9.38,50.5,29.86,6.01,INDB:BFP406,INDB,Indian,0
+Semolina ladoo with nuts (Suji/Rava ladoo with nuts),,441.8,5.44,48.02,25.45,4.27,INDB:BFP407,INDB,Indian,0
+Sesame chickpeas brittle (Til aur channe ki chikki),,282.7,8.5,50.49,4.66,5.54,INDB:BFP412,INDB,Indian,0
+Murmura chikki,,253.8,2.12,59.59,0.32,0.37,INDB:BFP413,INDB,Indian,0
+Masala onion pakora/pakoda (Pyaaz ke pakode),,551.6,2.05,6.48,57.61,1.44,INDB:BFP415,INDB,Indian,0
+Masala green chilli pakora/pakoda (Hari mirch kay pakode),,668.8,2.22,5.55,71.01,1.34,INDB:BFP416,INDB,Indian,0
+Chicken pakora/pakoda,,590.1,6.03,4.55,60.98,0.96,INDB:BFP420,INDB,Indian,0
+Fish pakora/pakoda,,577.0,5.97,4.55,59.52,0.96,INDB:BFP421,INDB,Indian,0
+Paneer cutlet,,672.2,4.59,7.62,69.38,0.39,INDB:BFP424,INDB,Indian,0
+Sago cutlet/vadas (Sabudana cutlet/vadas),,558.8,0.56,11.23,56.97,0.54,INDB:BFP425,INDB,Indian,0
+Poshtik cutlet,,496.4,2.0,7.39,50.94,1.35,INDB:BFP427,INDB,Indian,0
+Egg cutlet (Anda cutlet),,575.0,2.45,5.77,60.25,0.58,INDB:BFP428,INDB,Indian,0
+Minced meat cutlet,,531.9,5.1,5.61,54.47,0.4,INDB:BFP430,INDB,Indian,0
+Vegetable samosa,,443.1,2.21,13.22,42.22,1.52,INDB:BFP431,INDB,Indian,0
+Plain urad dal vada (Uzunne vada/Minapa garelu/Ulundu vadai/Medu vada),,745.5,4.39,9.7,76.32,2.27,INDB:BFP436,INDB,Indian,0
+Masala urad dal vada,,703.8,4.32,9.93,71.62,2.71,INDB:BFP437,INDB,Indian,0
+Khaman (dhokla),,54.7,1.92,5.36,2.8,1.49,INDB:BFP439,INDB,Indian,0
+Instant dhokla,,207.1,7.66,24.11,9.37,3.57,INDB:BFP440,INDB,Indian,0
+Tomato ginger chutney (Tamatar adarak ki chutney),,44.7,1.05,9.11,0.32,2.14,INDB:BFP442,INDB,Indian,0
+Mint tomato chutney (Pudinay aur tamatar ki chutney),,43.7,1.53,8.22,0.36,2.63,INDB:BFP443,INDB,Indian,0
+Coriander chutney (Hare dhaniye ki chutney),,42.9,1.38,8.16,0.37,2.47,INDB:BFP444,INDB,Indian,0
+Gooseberry chutney (Amla chutney),,43.0,1.44,8.83,0.62,4.58,INDB:BFP445,INDB,Indian,0
+Walnut chutney (Akhrot ki chutney),,370.4,9.44,8.91,33.46,3.04,INDB:BFP446,INDB,Indian,0
+Saunth/Sonth chutney with ginger,,84.2,0.28,20.62,0.11,0.31,INDB:BFP447,INDB,Indian,0
+Gun powder chutney,,312.3,21.55,47.65,2.67,13.95,INDB:BFP448,INDB,Indian,0
+Dessicated coconut chutney (Sookhe kase nariyal ki chutney),,346.4,12.88,36.72,15.88,13.16,INDB:BFP450,INDB,Indian,0
+Curd mint dip,,76.1,4.82,9.11,2.44,0.77,INDB:BFP451,INDB,Indian,0
+Curd vegetable dip,,56.2,3.88,6.04,1.94,0.63,INDB:BFP452,INDB,Indian,0
+Mayonnaise vegetable dip,,241.3,3.01,4.8,23.44,0.41,INDB:BFP453,INDB,Indian,0
+Tomato and cucumber sandwich (Tamatar aur kheere ka sandwich),,150.7,4.03,20.51,6.31,2.1,INDB:BFP455,INDB,Indian,0
+Tomato sandwich (grilled),,189.9,6.26,21.29,9.39,1.91,INDB:BFP456,INDB,Indian,0
+French sandwich (toasted),,186.7,6.82,14.82,11.51,1.37,INDB:BFP457,INDB,Indian,0
+Peanut butter cucumber sandwich,,243.3,9.04,29.76,10.56,3.35,INDB:BFP458,INDB,Indian,0
+Mint and peanut sandwich,,273.6,7.18,31.83,13.88,3.67,INDB:BFP459,INDB,Indian,0
+Spicy chutney sandwich,,249.6,8.74,34.03,9.58,3.73,INDB:BFP460,INDB,Indian,0
+Chicken walnut sandwich (Chicken aur akhrot ke sandwich),,285.8,12.58,22.62,16.77,1.53,INDB:BFP461,INDB,Indian,0
+Rolled sandwich,,293.1,6.45,34.69,15.29,2.07,INDB:BFP463,INDB,Indian,0
+Ribbon sandwich,,239.3,6.26,24.76,13.37,2.92,INDB:BFP466,INDB,Indian,0
+Checker board sandwich,,348.4,7.37,25.94,24.65,2.22,INDB:BFP467,INDB,Indian,0
+Submarine sandwich,,216.9,6.09,13.6,15.32,1.24,INDB:BFP468,INDB,Indian,0
+Cheese open sandwich,,274.1,9.84,28.42,14.24,1.74,INDB:BFP470,INDB,Indian,0
+Sunset and sunrise open sandwich,,241.3,8.58,18.89,15.14,1.39,INDB:BFP471,INDB,Indian,0
+Danish luncheon sandwich,,193.8,9.03,17.77,10.1,1.52,INDB:BFP472,INDB,Indian,0
+Chicken and corn open sandwich,,188.2,8.63,19.21,8.83,1.67,INDB:BFP473,INDB,Indian,0
+Chocolate sponge cake,,239.9,9.13,39.54,5.51,0.52,INDB:BFP476,INDB,Indian,0
+Chocolate swiss roll,,306.1,6.01,26.97,19.76,0.29,INDB:BFP478,INDB,Indian,0
+Lemon curd filling,,225.6,3.43,26.41,12.58,0.0,INDB:BFP479,INDB,Indian,0
+Jam filling,,184.6,0.0,46.15,0.0,0.0,INDB:BFP480,INDB,Indian,0
+Chocolate pastry,,243.4,7.05,32.24,10.12,0.32,INDB:BFP482,INDB,Indian,0
+Assorted pastry,,230.7,6.78,31.99,8.91,0.43,INDB:BFP483,INDB,Indian,0
+Orange gateau,,178.0,4.78,27.01,6.02,0.68,INDB:BFP484,INDB,Indian,0
+Black forest gateau,,217.8,5.94,30.57,8.58,0.28,INDB:BFP485,INDB,Indian,0
+Lemon cake,,373.9,5.29,43.1,20.63,0.62,INDB:BFP489,INDB,Indian,0
+Dundee cake,,396.6,7.78,41.4,22.7,1.81,INDB:BFP491,INDB,Indian,0
+Victorian sandwich cake,,373.1,5.18,44.74,19.83,0.59,INDB:BFP492,INDB,Indian,0
+Chocolate eggless cake,,312.0,6.66,43.45,13.19,0.32,INDB:BFP495,INDB,Indian,0
+Orange eggless cake,,355.6,7.16,52.65,13.82,0.56,INDB:BFP496,INDB,Indian,0
+Chocolate glace icing,,436.3,3.22,62.43,20.8,0.0,INDB:BFP498,INDB,Indian,0
+Butter icing,,500.7,0.19,71.64,25.37,0.0,INDB:BFP499,INDB,Indian,0
+Chocolate butter icing,,469.6,3.21,61.72,24.77,0.0,INDB:BFP500,INDB,Indian,0
+Almond biscuit (Badam ke biscuit),,407.7,6.25,52.14,19.7,1.5,INDB:BFP502,INDB,Indian,0
+Orange biscuit,,354.8,3.63,62.11,11.01,0.75,INDB:BFP505,INDB,Indian,0
+Gingerman biscuit,,357.4,6.26,55.24,12.73,2.0,INDB:BFP506,INDB,Indian,0
+Coffee drops,,443.1,7.57,43.06,27.16,1.88,INDB:BFP507,INDB,Indian,0
+Christmas biscuit,,406.1,5.67,60.97,15.88,2.17,INDB:BFP508,INDB,Indian,0
+Christmas wreath biscuit,,386.0,5.43,58.07,15.01,2.28,INDB:BFP509,INDB,Indian,0
+Christmas bell biscuit,,404.8,5.66,60.79,15.84,2.33,INDB:BFP510,INDB,Indian,0
+Christmas star biscuit,,392.0,3.54,74.54,10.04,1.47,INDB:BFP511,INDB,Indian,0
+Christmas tree biscuit,,385.6,5.43,58.41,15.0,2.65,INDB:BFP512,INDB,Indian,0
+Chocolate cream shells,,427.2,5.1,59.26,19.34,0.9,INDB:BFP513,INDB,Indian,0
+Jelly biscuit,,404.6,4.23,55.24,19.33,2.02,INDB:BFP516,INDB,Indian,0
+Cherry and walnut cookies,,422.6,5.63,59.35,18.75,1.3,INDB:BFP517,INDB,Indian,0
+Cheese straws,,382.0,9.83,30.61,24.28,1.29,INDB:BFP518,INDB,Indian,0
+Butterfly biscuit,,341.4,9.98,25.33,22.11,1.02,INDB:BFP519,INDB,Indian,0
+Flan pastry,,445.8,6.72,47.84,25.04,1.58,INDB:BFP521,INDB,Indian,0
+Fruit flan,,261.4,3.3,34.71,12.48,0.71,INDB:BFP522,INDB,Indian,0
+Orange cream flan,,280.3,4.73,36.16,13.59,0.63,INDB:BFP523,INDB,Indian,0
+Fruit puree tart,,286.5,3.35,30.42,16.83,1.31,INDB:BFP527,INDB,Indian,0
+Apple banana pie,,244.0,3.13,32.12,11.39,1.89,INDB:BFP529,INDB,Indian,0
+Lemon chiffon pie,,259.3,4.88,27.63,14.52,0.66,INDB:BFP531,INDB,Indian,0
+Orange chiffon pie,,207.6,3.89,23.14,11.16,0.7,INDB:BFP532,INDB,Indian,0
+Cream buns,,215.7,4.45,14.16,15.81,0.31,INDB:BFP534,INDB,Indian,0
+Savoury puffs,,190.8,9.51,10.8,15.24,0.33,INDB:BFP535,INDB,Indian,0
+Choux swans,,216.3,4.35,14.92,15.6,0.35,INDB:BFP536,INDB,Indian,0
+Potato aigrettes,,530.0,2.35,8.01,54.24,0.45,INDB:BFP539,INDB,Indian,0
+Cream horns,,408.2,3.42,23.12,33.55,0.6,INDB:BFP541,INDB,Indian,0
+Savoury cheese horns,,295.1,5.66,21.38,20.71,0.73,INDB:BFP542,INDB,Indian,0
+Paneer patties,,338.6,7.6,22.79,23.96,1.18,INDB:BFP544,INDB,Indian,0
+Vegetable patties,,261.9,4.01,20.98,17.74,2.62,INDB:BFP545,INDB,Indian,0
+Pearl millet infant food (Bajra shishu aahaar),,362.4,11.98,62.1,6.62,7.84,INDB:BFP546,INDB,Indian,0
+Sajina,,345.3,10.81,66.87,3.03,7.62,INDB:BFP547,INDB,Indian,0
+Cereal mix,,120.8,3.32,21.84,2.02,2.03,INDB:BFP548,INDB,Indian,0
+Pulse mix,,83.3,3.16,16.0,0.54,2.25,INDB:BFP549,INDB,Indian,0
+Shishu ahar,,93.4,2.61,17.42,1.43,1.02,INDB:BFP550,INDB,Indian,0
+Cereal pulse mix with amylase rice flour,,151.6,4.27,27.8,2.74,3.47,INDB:BFP552,INDB,Indian,0
+Banana groundnut paste/puree,,213.2,4.27,36.15,5.45,1.7,INDB:BFP553,INDB,Indian,0
+Rice dal porridge (Chawal dal ki khichdi/khichri),,383.3,10.8,65.04,8.33,4.51,INDB:BFP554,INDB,Indian,0
+Lentils and semolina porridge (Dal suji porridge/daliya),,117.3,3.26,23.19,1.06,1.44,INDB:BFP555,INDB,Indian,0
+Spinach khichri (Palak khichri/khichdi),,102.2,3.43,17.35,1.91,1.56,INDB:BFP556,INDB,Indian,0
+Vegetable mix,,174.2,4.7,36.02,0.94,1.93,INDB:BFP557,INDB,Indian,0
+Lentils and wheat porridge (Dal wheat porridge/daliya ),,52.5,2.71,8.36,0.94,1.28,INDB:BFP558,INDB,Indian,0
+Maize porridge,,89.6,2.14,15.64,1.89,1.68,INDB:BFP559,INDB,Indian,0
+Spinach peanut burfi (Palak aur mungfali ki burfi),,105.4,3.36,13.59,4.39,2.07,INDB:BFP560,INDB,Indian,0
+Split bengal gram burfi/fudge (Channa dal burfi),,287.4,4.65,54.63,7.09,2.06,INDB:BFP561,INDB,Indian,0
+Chickpea flour cookies (Sweet besan rounds/cookies),,207.0,4.29,39.64,3.42,2.56,INDB:BFP563,INDB,Indian,0
+Pearl millet mathri (Bajra mathri),,785.1,1.82,7.42,83.12,1.36,INDB:BFP564,INDB,Indian,0
+Sesame biscuit (Til ke biscuit),,424.0,8.27,53.65,19.34,6.83,INDB:BFP565,INDB,Indian,0
+Fermented bengal gram vada (Khameerikrit/Ufna hua channa dal ka vada),,657.6,4.05,8.68,67.19,2.65,INDB:BFP566,INDB,Indian,0
+Poshtik namak paras,,613.4,6.49,19.52,56.58,4.55,INDB:BFP568,INDB,Indian,0
+Soya chikki,,423.7,7.18,62.89,15.51,3.55,INDB:BFP569,INDB,Indian,0
+Besan bathua chilla/cheela,,373.8,11.48,40.65,18.57,7.79,INDB:BFP570,INDB,Indian,0
+Wheat flour and nuts ladoos (Atta nuts ladoos),,391.9,9.46,44.31,19.19,7.3,INDB:BFP571,INDB,Indian,0
+Gram flour and semolina dhokla (Besan suji dhokla),,198.9,8.52,25.92,7.1,4.59,INDB:BFP573,INDB,Indian,0
+Atta dal burfi,,298.8,6.66,40.64,12.47,4.08,INDB:BFP574,INDB,Indian,0
+Soya roti,,284.0,9.18,40.03,9.23,8.71,INDB:BFP575,INDB,Indian,0
+Poshtik khichdi/khichri,,93.4,3.04,15.64,1.88,2.0,INDB:BFP576,INDB,Indian,0
+Namkeen daliya,,295.1,8.29,49.32,7.99,8.57,INDB:BFP577,INDB,Indian,0
+Sprouts upma,,316.2,9.5,44.96,10.44,7.16,INDB:BFP578,INDB,Indian,0
+Semolina idli (Suji/Rava idli),,206.4,9.34,33.67,3.47,5.85,INDB:BFP579,INDB,Indian,0
+Poshtik chilla/cheela,,159.5,4.85,27.47,3.04,4.91,INDB:BFP580,INDB,Indian,0
+Stuffed bittergourd (dry) (Bharwa karela),,217.6,1.29,2.49,22.38,3.0,INDB:BFP604,INDB,Indian,0
+Cauliflower potato canjee,,16.8,0.57,2.63,0.39,0.69,INDB:BFP605,INDB,Indian,0
+Creamed spinach,,96.9,5.18,4.44,6.39,1.33,INDB:BFP606,INDB,Indian,0
+Mango milkshake with ice cream (Aam milkshake ice cream ke saath),,68.4,1.93,9.18,2.8,0.23,INDB:BFP607,INDB,Indian,0
+Pineapple milkshake with ice cream (Ananas milkshake ice cream ke saath),,68.5,1.93,9.33,2.75,0.42,INDB:BFP608,INDB,Indian,0
+Orange milkshake with ice cream (Narangi milkshake ice cream ke saath),,67.8,1.95,9.15,2.75,0.16,INDB:BFP609,INDB,Indian,0
+Woodapple juice (Bel ka sharbat),,34.2,0.63,6.51,0.7,1.03,INDB:OSR001,INDB,Indian,0
+Sattu drink,,23.4,0.56,5.16,0.14,0.4,INDB:OSR002,INDB,Indian,0
+Apple and honey sorbet (Seb aur shehad ka sharbat),,121.3,0.15,30.74,0.29,1.13,INDB:OSR004,INDB,Indian,0
+Thandai,,101.2,3.59,9.13,5.89,0.8,INDB:OSR005,INDB,Indian,0
+Cucumber sharbat (Kheere ka sharbat),,27.3,0.26,6.64,0.06,0.78,INDB:OSR006,INDB,Indian,0
+Apple oats chia seed smoothie,,85.6,3.49,13.07,2.48,1.44,INDB:OSR007,INDB,Indian,0
+Nannari sharbat,,88.8,0.01,23.62,0.01,0.0,INDB:OSR008,INDB,Indian,0
+Semolina milk drink (Thari kanji),,44.2,0.98,6.93,1.36,0.72,INDB:OSR009,INDB,Indian,0
+Saffron milk (Kesariya doodh),,102.2,3.17,12.64,4.57,0.14,INDB:OSR010,INDB,Indian,0
+Black rice kheer (Chak-hao kheer),,147.9,4.37,22.93,4.91,0.76,INDB:OSR011,INDB,Indian,0
+Coconut kheer (Nariyal ki kheer),,162.6,3.4,14.42,10.55,1.53,INDB:OSR012,INDB,Indian,0
+Apple sago payasam (Seb aur sabudana ki kheer),,136.5,3.13,14.4,7.66,0.38,INDB:OSR013,INDB,Indian,0
+Kesari bath,,244.6,2.4,31.38,12.59,1.65,INDB:OSR014,INDB,Indian,0
+Putharekulu,,318.3,3.66,59.61,7.55,1.75,INDB:OSR015,INDB,Indian,0
+Mango malpua,,334.6,1.65,12.84,30.67,2.08,INDB:OSR016,INDB,Indian,0
+Mango vanilla custard,,147.6,3.43,18.41,7.04,0.99,INDB:OSR017,INDB,Indian,0
+Kiwi granola pudding,,281.0,5.6,32.33,15.36,3.71,INDB:OSR018,INDB,Indian,0
+Oats burfi,,425.2,8.89,62.47,17.27,4.96,INDB:OSR019,INDB,Indian,0
+Lotus seed halwa (Kamal gattay ka halwa),,370.5,7.79,39.56,20.69,0.42,INDB:OSR020,INDB,Indian,0
+Amaranth ladoo (Rajgira ladoo),,454.1,10.12,51.33,22.7,5.11,INDB:OSR021,INDB,Indian,0
+Chhena poda,,344.6,13.68,33.64,17.94,1.4,INDB:OSR022,INDB,Indian,0
+Sweet couscous dessert,,196.2,3.81,29.69,7.69,2.18,INDB:OSR023,INDB,Indian,0
+Sweetened yogurt (Shrikhand),,107.2,5.27,16.02,2.89,0.08,INDB:OSR024,INDB,Indian,0
+Thickened sweetened milk (Rabri),,102.8,3.52,10.55,5.35,0.19,INDB:OSR025,INDB,Indian,0
+Gram flour halwa (Besan halwa),,276.8,5.88,25.78,17.3,1.82,INDB:OSR026,INDB,Indian,0
+Prawn sandwich,,169.6,10.36,11.89,9.27,1.55,INDB:OSR027,INDB,Indian,0
+Watercress sandwich,,229.4,5.17,28.03,11.47,2.26,INDB:OSR028,INDB,Indian,0
+Fish sandwich,,150.2,4.72,10.09,10.37,1.23,INDB:OSR029,INDB,Indian,0
+Kidney bean sandwich with cottage cheese,,176.6,9.85,18.86,6.84,3.66,INDB:OSR030,INDB,Indian,0
+Finger millet biscuit (Ragi biscuit),,458.6,4.03,52.69,25.79,5.97,INDB:OSR031,INDB,Indian,0
+Buttermilk biscuit,,322.5,5.76,34.93,17.5,1.18,INDB:OSR032,INDB,Indian,0
+Lemon cookies,,394.5,5.63,42.19,23.02,0.78,INDB:OSR033,INDB,Indian,0
+Sweet potato biscuit (Shakarkand ke biscuit),,296.4,5.14,38.13,13.31,2.27,INDB:OSR034,INDB,Indian,0
+Raspberry shortbread cookies,,441.1,3.0,61.25,21.25,0.75,INDB:OSR035,INDB,Indian,0
+Pumpkin cookies,,218.4,2.51,44.69,3.93,1.06,INDB:OSR036,INDB,Indian,0
+Greenpea cookies,,159.4,6.53,23.07,4.24,5.32,INDB:OSR037,INDB,Indian,0
+Sunflower cookies,,520.6,9.49,40.06,36.28,3.95,INDB:OSR038,INDB,Indian,0
+Cardamom cookies (Elaichi cookies),,400.5,5.1,53.99,19.12,2.79,INDB:OSR039,INDB,Indian,0
+Hazelnut cookies,,493.3,6.25,39.44,34.97,2.45,INDB:OSR040,INDB,Indian,0
+Milk cookies,,459.4,10.49,48.43,24.96,0.99,INDB:OSR041,INDB,Indian,0
+Cranberry cookies,,272.5,3.92,36.39,12.66,1.13,INDB:OSR042,INDB,Indian,0
+Olive biscuit,,438.3,3.2,55.01,23.75,0.82,INDB:OSR043,INDB,Indian,0
+Tutti fruitti biscuit,,420.8,5.21,53.12,17.9,5.43,INDB:OSR045,INDB,Indian,0
+Peach blueberry preserves,,177.4,0.53,45.76,0.2,1.14,INDB:OSR046,INDB,Indian,0
+Pear preserves (Naashpati ka murabba),,101.2,0.25,25.67,0.19,3.06,INDB:OSR047,INDB,Indian,0
+Starfruit preserves,,128.9,0.24,33.62,0.12,0.78,INDB:OSR048,INDB,Indian,0
+Gooseberry pickle (Amla ka achaar),,278.6,1.55,7.61,27.61,3.7,INDB:OSR049,INDB,Indian,0
+Lotus stem pickle (Kamal kakdi ka achar),,102.7,1.44,20.07,1.6,8.58,INDB:OSR050,INDB,Indian,0
+Date pickle (Khajoor ka achaar),,182.3,1.68,34.66,4.21,5.2,INDB:OSR051,INDB,Indian,0
+Garlic pickle (Lahasun ka achar),,413.6,3.72,9.75,39.88,5.13,INDB:OSR052,INDB,Indian,0
+Fermented bamboo shoot pickle (Mesu pickle),,59.8,1.58,1.73,5.59,2.24,INDB:OSR053,INDB,Indian,0
+Sweet peach pickle (Aadoo ka achaar),,144.6,0.46,37.01,0.2,1.32,INDB:OSR054,INDB,Indian,0
+Pickled mustard greens,,13.1,1.51,1.05,0.22,1.7,INDB:OSR055,INDB,Indian,0
+Small onion pickle,,16.9,1.65,2.76,0.64,1.09,INDB:OSR056,INDB,Indian,0
+Green tomato pickle (Haray tamatar ka achaar),,193.3,1.23,2.87,19.67,1.74,INDB:OSR057,INDB,Indian,0
+Pickled cabbage,,13.7,0.39,2.56,0.14,0.61,INDB:OSR058,INDB,Indian,0
+Coconut pickle (Nariyal ka aachar),,517.3,3.02,11.53,51.71,6.35,INDB:OSR059,INDB,Indian,0
+Potato pickle (Aloo ka achaar),,369.1,2.07,7.87,36.46,2.21,INDB:OSR060,INDB,Indian,0
+Mango murabba candy,,293.3,0.27,77.32,0.05,0.95,INDB:OSR061,INDB,Indian,0
+Afghani chicken,,151.5,15.66,1.95,9.07,0.31,INDB:OSR062,INDB,Indian,0
+Fish orly,,563.7,5.87,4.27,58.18,0.33,INDB:OSR063,INDB,Indian,0
+Hariyali Fish Tikka,,150.2,14.01,2.21,9.41,0.99,INDB:OSR064,INDB,Indian,0
+Chicken manchurian,,142.3,9.53,6.06,11.96,0.41,INDB:OSR065,INDB,Indian,0
+Handi chicken,,166.0,12.32,1.49,12.46,0.67,INDB:OSR066,INDB,Indian,0
+Lemon chicken,,169.8,20.2,0.55,9.66,0.16,INDB:OSR067,INDB,Indian,0
+Lemon butter fish,,160.2,16.38,0.75,10.26,0.36,INDB:OSR068,INDB,Indian,0
+Baked eggs in tomato sauce,,80.0,4.92,3.78,5.22,0.01,INDB:OSR069,INDB,Indian,0
+Egg in a pepper,,128.8,12.64,0.17,8.68,0.17,INDB:OSR070,INDB,Indian,0
+Spinach mushroom scrambled egg (Palak mushroom bhurji),,158.8,13.28,0.59,11.51,0.39,INDB:OSR071,INDB,Indian,0
+Corn omelette/omlet,,166.9,11.37,1.57,12.89,0.02,INDB:OSR072,INDB,Indian,0
+Cajun chicken,,184.9,12.69,1.94,13.99,0.89,INDB:OSR073,INDB,Indian,0
+Paaner do pyaza,,127.7,4.22,3.41,10.87,0.84,INDB:OSR074,INDB,Indian,0
+Cabbage manchurian (Pattagobhi manchurian),,224.3,0.64,4.85,22.48,0.37,INDB:OSR075,INDB,Indian,0
+Gobi 65,,278.3,0.56,3.59,29.11,0.57,INDB:OSR076,INDB,Indian,0
+Paneer lababdar,,105.5,3.98,3.37,8.46,1.16,INDB:OSR077,INDB,Indian,0
+Roasted cauliflower steak,,78.7,2.05,2.02,6.7,3.53,INDB:OSR078,INDB,Indian,0
+Sauteed radishes with green beans,,94.3,2.41,6.04,6.61,3.52,INDB:OSR079,INDB,Indian,0
+Garlic chutney/Poondu chutney (Lahasun ki chutney),,255.5,3.34,20.44,17.55,5.15,INDB:OSR080,INDB,Indian,0
+Schezwan chutney,,205.2,3.33,10.79,17.72,5.72,INDB:OSR081,INDB,Indian,0
+Onion chutney (Pyaaz ki chutney/Vengaya chutney),,143.9,2.97,13.52,8.38,4.6,INDB:OSR083,INDB,Indian,0
+Dates chutney (Khajoor ki chutney),,103.6,1.07,21.69,1.12,3.41,INDB:OSR085,INDB,Indian,0
+Chicken salad,,338.2,15.33,1.3,30.26,2.0,INDB:OSR086,INDB,Indian,0
+Macaroni salad,,262.2,5.02,21.63,17.78,0.56,INDB:OSR087,INDB,Indian,0
+Cabbage raita (Pattagobhi raita),,84.8,3.24,5.25,5.76,0.93,INDB:OSR088,INDB,Indian,0
+Pomegranate raita (Anaar ka raita),,72.6,4.05,7.15,3.24,0.6,INDB:OSR089,INDB,Indian,0
+Onion raita (Pyaaz ka raita),,71.6,4.86,7.86,2.43,0.65,INDB:OSR090,INDB,Indian,0
+Green chilli raita (Hari mirch ka raita),,77.1,5.58,7.66,2.92,0.26,INDB:OSR091,INDB,Indian,0
+Kale salad,,177.7,4.86,5.01,15.33,1.36,INDB:OSR092,INDB,Indian,0
+Spinach and paneer souffle,,186.2,7.56,9.64,13.49,1.07,INDB:OSR093,INDB,Indian,0
+Masala souffle,,123.5,6.38,8.02,7.37,1.24,INDB:OSR094,INDB,Indian,0
+Chicken and cheese souffle,,182.4,9.07,3.47,14.74,0.26,INDB:OSR095,INDB,Indian,0
+Tamarind chutney (Chintapandu pachadi/Puli chutney),,109.1,0.88,25.07,0.48,1.65,INDB:OSR096,INDB,Indian,0
+Pav bhaji masala,,230.5,9.13,29.15,10.96,24.3,INDB:OSR097,INDB,Indian,0
+Green chutney,,79.4,5.42,10.01,1.6,5.84,INDB:OSR098,INDB,Indian,0
+Sago khitchdi/khichri (Sabudana khitchdi/khichri),,187.2,2.72,22.41,10.1,1.82,INDB:OSR099,INDB,Indian,0
+Gram flour chilla/cheela (Besan chilla/cheela),,135.9,7.8,21.03,2.85,4.25,INDB:OSR100,INDB,Indian,0
+Vegetable namkeen jave,,112.2,2.93,18.98,2.51,2.86,INDB:OSR101,INDB,Indian,0
+Khakhra,,178.5,4.78,27.66,5.32,5.43,INDB:OSR102,INDB,Indian,0
+Moong bean dosa (Pesarattu),,286.0,12.32,31.91,11.67,6.04,INDB:OSR103,INDB,Indian,0
+Methi thepla,,346.2,8.98,41.34,15.95,7.56,INDB:OSR104,INDB,Indian,0
+Rice puttu (Ari puttu),,82.0,1.26,11.82,3.13,0.76,INDB:OSR105,INDB,Indian,0
+Buckwheat pancake (Khura),,263.3,2.91,27.28,16.43,0.56,INDB:OSR106,INDB,Indian,0
+Quinoa khichdi/khichri,,64.0,3.18,8.83,1.59,2.58,INDB:OSR107,INDB,Indian,0
+Khakhra chaat,,358.7,4.52,16.64,30.65,3.04,INDB:OSR108,INDB,Indian,0
+Banana appam,,469.8,1.17,20.06,42.53,0.67,INDB:OSR110,INDB,Indian,0
+Veg manchurian,,585.6,0.89,6.82,61.65,1.16,INDB:OSR111,INDB,Indian,0
+Pav bhaji,,96.5,2.66,11.99,4.32,1.98,INDB:OSR112,INDB,Indian,0
+Rice murukku,,594.0,5.41,33.29,48.22,2.18,INDB:OSR113,INDB,Indian,0
+Bhel puri,,509.9,3.52,16.47,47.91,2.24,INDB:OSR114,INDB,Indian,0
+Semolina dhokla (Suji/Rava dhokla),,194.9,5.44,30.86,5.2,5.12,INDB:OSR115,INDB,Indian,0
+Spicy corn chaat,,479.8,4.61,11.45,46.55,2.17,INDB:OSR116,INDB,Indian,0
+Jackfruit fritters (Ponsa mulik/Kathal ka pakora),,597.8,2.34,24.0,54.41,1.5,INDB:OSR118,INDB,Indian,0
+Banana chips (Kele ke chips),,665.7,0.37,7.32,70.46,0.65,INDB:OSR119,INDB,Indian,0
+Wheat cake,,314.6,4.79,41.13,14.95,2.76,INDB:OSR120,INDB,Indian,0
+Mango cheesecake,,152.5,2.39,20.06,7.3,1.14,INDB:OSR121,INDB,Indian,0
+Carrot cake (Gajar ka cake),,255.6,5.6,35.98,10.27,2.93,INDB:OSR122,INDB,Indian,0
+Semolina cake (Suji/Rava cake),,374.1,6.58,31.32,25.18,5.37,INDB:OSR123,INDB,Indian,0
+Finger millet cake (Ragi cake),,279.5,3.96,38.93,12.27,2.35,INDB:OSR124,INDB,Indian,0
+Honey cake,,333.6,3.08,49.04,14.7,0.51,INDB:OSR125,INDB,Indian,0
+Almond cardamom cake (Badam elaichi cake),,356.3,7.18,34.53,21.36,2.35,INDB:OSR126,INDB,Indian,0
+Tutti frutti cake,,347.7,4.49,52.94,12.68,0.85,INDB:OSR127,INDB,Indian,0
+Ham and Bean soup,,96.0,10.61,4.18,4.15,0.54,INDB:OSR128,INDB,Indian,0
+Whey soup,,68.9,3.45,6.26,3.34,0.84,INDB:OSR129,INDB,Indian,0
+Bottle gourd soup (Ghiya/Lauki soup),,23.0,0.45,1.16,1.79,0.96,INDB:OSR130,INDB,Indian,0
+Baked potato soup,,147.1,5.73,5.85,11.21,0.3,INDB:OSR131,INDB,Indian,0
+Pumpkin soup,,40.0,0.47,2.08,3.2,1.19,INDB:OSR132,INDB,Indian,0
+Sweet corn soup,,32.2,0.99,3.56,1.63,0.31,INDB:OSR133,INDB,Indian,0
+Paneer soup,,47.9,3.22,2.42,2.8,0.28,INDB:OSR134,INDB,Indian,0
+Curried Cauliflower soup,,37.3,6.72,3.12,9.77,2.34,INDB:OSR135,INDB,Indian,0
+Millet soup,,56.0,11.26,8.22,12.57,2.82,INDB:OSR136,INDB,Indian,0
+Lemon coriander soup,,108.1,2.27,10.32,6.26,6.77,INDB:OSR137,INDB,Indian,0
+Garlic soup,,194.9,2.38,6.99,17.62,1.66,INDB:OSR138,INDB,Indian,0
+Dal makhani,,74.0,3.32,7.96,3.06,2.27,INDB:OSR139,INDB,Indian,0
+Dalma,,118.9,4.91,15.04,4.58,2.16,INDB:OSR141,INDB,Indian,0
+Split bengal gram dal (Channa dal),,99.7,4.15,9.99,4.62,3.72,INDB:OSR142,INDB,Indian,0
+Horsegram dal (Kulthi dal),,55.6,2.91,8.21,1.13,1.52,INDB:OSR143,INDB,Indian,0
+Panchmel dal,,111.2,4.63,10.71,5.36,3.2,INDB:OSR144,INDB,Indian,0
+Dal dhokli,,68.7,2.96,8.55,2.47,1.86,INDB:OSR145,INDB,Indian,0
+Gujarati handvo,,207.1,8.24,31.86,4.8,4.95,INDB:OSR146,INDB,Indian,0
+Sev (Omapodi/Karapusa),,609.1,5.12,12.87,60.08,2.35,INDB:OSR147,INDB,Indian,0
+Papdi,,709.0,1.83,12.89,72.11,0.56,INDB:OSR148,INDB,Indian,0
+Jowar dosa,,294.3,8.5,40.53,10.28,5.56,INDB:OSR151,INDB,Indian,0
+Bread roll,,435.5,2.85,16.12,40.25,1.45,INDB:OSR152,INDB,Indian,0
+Soya seekh kebab,,115.0,5.4,10.0,5.88,2.24,INDB:OSR153,INDB,Indian,0
+Classic seasoned black beans,,28.8,8.01,7.66,8.28,3.51,INDB:OSR154,INDB,Indian,0
+Maa chaane ki dal,,344.7,19.8,43.11,9.5,13.45,INDB:OSR155,INDB,Indian,0
+Garlic chickpea soup (Lahasun aur chane ka shoraba),,89.5,4.45,13.92,2.01,2.84,INDB:OSR156,INDB,Indian,0
+White sauce (thin),,115.2,3.31,6.58,8.41,0.07,INDB:ASC071,INDB,Indian,0
+White sauce (medium),,151.3,3.36,7.98,11.76,0.14,INDB:ASC072,INDB,Indian,0
+White sauce (thick),,209.7,3.43,10.24,17.19,0.24,INDB:ASC073,INDB,Indian,0
+Cheese sauce,,194.8,7.68,7.08,15.12,0.12,INDB:ASC074,INDB,Indian,0
+Egg sauce,,146.9,5.97,5.88,11.08,0.12,INDB:ASC075,INDB,Indian,0
+Mushroom sauce,,137.6,3.39,7.31,10.51,0.47,INDB:ASC076,INDB,Indian,0
+Mustard sauce,,158.6,3.98,8.29,12.17,0.13,INDB:ASC077,INDB,Indian,0
+Brown sauce,,109.2,11.92,5.38,23.67,1.69,INDB:ASC078,INDB,Indian,0
+Classic italian pasta,,42.1,0.57,4.4,2.45,1.36,INDB:ASC130,INDB,Indian,0
+Pasta spinach sauce,,85.5,1.76,1.76,7.9,0.86,INDB:ASC131,INDB,Indian,0
+Pasta cheese sauce,,149.3,4.33,9.0,10.84,0.14,INDB:ASC132,INDB,Indian,0
+Mayonnaise,,774.9,1.86,1.65,84.52,0.11,INDB:ASC266,INDB,Indian,0
+Low calorie quick mayonnaise,,242.9,1.41,4.71,24.35,0.06,INDB:ASC267,INDB,Indian,0
+Thousand island dressing,,407.9,1.37,4.49,42.87,0.46,INDB:ASC268,INDB,Indian,0
+Curd dip,,80.0,5.04,7.95,3.36,0.1,INDB:ASC388,INDB,Indian,0
+Short crust pastry,,422.1,6.11,44.72,23.98,1.58,INDB:ASC394,INDB,Indian,0
+Choux pastry,,222.4,5.55,16.2,14.96,0.56,INDB:ASC406,INDB,Indian,0
+Flaky pastry,,443.9,4.69,33.61,31.99,1.25,INDB:ASC410,INDB,Indian,0
+Sponge cake,,253.8,9.18,44.63,4.74,0.69,INDB:ASC428,INDB,Indian,0
+Glace icing,,323.5,0.01,86.31,0.01,0.0,INDB:ASC434,INDB,Indian,0
+Royal icing,,332.6,1.74,86.53,0.02,0.0,INDB:ASC436,INDB,Indian,0
+American frosting,,257.6,1.05,67.48,0.01,0.0,INDB:ASC437,INDB,Indian,0
+Gum icing,,223.1,5.94,53.19,0.0,0.0,INDB:ASC438,INDB,Indian,0
+Channa murmura premix,,339.1,10.59,72.59,3.28,8.21,INDB:ASC475,INDB,Indian,0
+Cracked wheat and green gram dal premix (Dalia moong dal premix),,362.2,15.89,64.75,5.11,11.66,INDB:ASC476,INDB,Indian,0
+Rice flakes and roasted channa,,333.4,10.57,71.94,2.94,8.84,INDB:ASC477,INDB,Indian,0
+Spinach soup in milk,,56.7,2.89,3.98,3.2,0.79,INDB:ASC479,INDB,Indian,0
+Vegetable soup,,55.2,2.22,7.6,1.55,3.01,INDB:ASC480,INDB,Indian,0
+Mashed banana with milk,,95.4,2.51,14.62,2.99,0.71,INDB:ASC481,INDB,Indian,0
+Poha with curd (Poha aur dahi),,173.3,6.01,26.72,4.65,1.09,INDB:ASC484,INDB,Indian,0
+Potato with curd,,73.2,3.19,12.01,1.33,1.02,INDB:ASC485,INDB,Indian,0
+Sweet wheat porridge (Sweet dalia),,140.7,5.11,23.77,2.79,2.37,INDB:ASC486,INDB,Indian,0
+Vegetable khichdi/khichri,,143.2,5.61,19.57,4.53,2.45,INDB:ASC487,INDB,Indian,0
+Moong dal mixture,,158.8,4.62,33.93,1.0,1.9,INDB:ASC489,INDB,Indian,0
+Cracked wheat khichri/khichdi (Dalia khichri/khichdi),,167.5,7.56,22.35,5.52,3.74,INDB:ASC490,INDB,Indian,0
+Stewed apple,,91.9,0.17,22.49,0.37,1.48,INDB:ASC492,INDB,Indian,0
+Lemon squash (Nimbu ka squash),,184.6,0.15,48.88,0.06,0.0,INDB:ASC493,INDB,Indian,0
+Orange squash (Santre ka squash),,193.3,0.22,50.88,0.04,0.4,INDB:ASC494,INDB,Indian,0
+Lichi squash,,198.3,0.3,51.96,0.08,0.41,INDB:ASC495,INDB,Indian,0
+Mango squash (Aam ka squash),,194.7,0.17,50.96,0.17,0.58,INDB:ASC496,INDB,Indian,0
+Pineapple squash (Ananas ka squash),,195.0,0.16,51.34,0.05,1.06,INDB:ASC497,INDB,Indian,0
+Lemon and ginger squash (Nimbu aur adrak ka squash),,170.3,0.54,44.06,0.21,1.07,INDB:ASC498,INDB,Indian,0
+Apple jam (Seb ka murabba),,188.8,0.14,48.56,0.32,1.29,INDB:ASC499,INDB,Indian,0
+Plum jam (Aloo bukhara jam),,178.9,0.31,46.2,0.19,1.0,INDB:ASC500,INDB,Indian,0
+Pineapple jam,,149.2,0.32,38.27,0.15,2.2,INDB:ASC501,INDB,Indian,0
+Guava jelly (Amrood ki jelly),,115.7,1.11,28.18,0.25,6.61,INDB:ASC502,INDB,Indian,0
+Orange marmalade (Santray ka murabba),,104.2,0.66,25.94,0.13,1.97,INDB:ASC503,INDB,Indian,0
+Carrot murabba (Gajar ka murabba),,175.2,0.32,45.6,0.16,1.39,INDB:ASC504,INDB,Indian,0
+Gooseberry marmalade (Amla murabba),,123.2,0.14,32.34,0.03,0.0,INDB:ASC505,INDB,Indian,0
+Ginger candy (Adrak ki candy),,195.7,0.69,50.38,0.27,1.67,INDB:ASC506,INDB,Indian,0
+Mango pickle (Aam ka achaar),,192.1,1.6,8.11,17.89,3.68,INDB:ASC507,INDB,Indian,0
+Mixed vegetable pickle (Sabziyoon ka achaar),,211.2,1.9,7.48,19.68,2.76,INDB:ASC509,INDB,Indian,0
+Sweet lemon pickle (Neembu ka meetha achaar),,69.5,1.22,16.87,0.21,2.13,INDB:ASC511,INDB,Indian,0
+Plum chutney (Aloo bukhara ki chutney),,177.1,0.47,44.95,0.29,1.37,INDB:ASC512,INDB,Indian,0
+Raw mango chutney (Kachhe aam/Kairi ki chutney),,193.1,0.51,49.94,0.16,2.17,INDB:ASC513,INDB,Indian,0
+Tomato sauce,,34.3,0.81,7.23,0.27,1.79,INDB:ASC514,INDB,Indian,0
+Tomato puree,,20.6,0.75,3.68,0.25,1.56,INDB:ASC515,INDB,Indian,0
+Garam masala,,254.2,9.89,26.2,10.97,35.56,INDB:BFP001,INDB,Indian,0
+Chat masala,,222.6,8.19,23.87,9.91,18.62,INDB:BFP002,INDB,Indian,0
+Kashmiri masala,,389.0,8.26,23.16,31.03,12.12,INDB:BFP003,INDB,Indian,0
+Rasam powder (Rasam masala),,268.0,12.04,25.19,11.8,35.71,INDB:BFP004,INDB,Indian,0
+Sambar powder (Sambar masala),,297.5,12.5,23.38,15.58,34.56,INDB:BFP005,INDB,Indian,0
+Tartare sauce,,610.9,1.44,2.96,66.12,0.42,INDB:BFP095,INDB,Indian,0
+Barbeque sauce,,121.9,0.96,20.46,4.51,0.69,INDB:BFP096,INDB,Indian,0
+Bread sauce,,111.0,3.46,8.69,7.05,0.56,INDB:BFP097,INDB,Indian,0
+Green chilli sauce,,46.1,1.25,7.36,0.27,1.77,INDB:BFP163,INDB,Indian,0
+Home made plain noodles,,238.8,6.21,44.5,3.56,1.65,INDB:BFP164,INDB,Indian,0
+Dal moong,,43.7,2.2,4.92,1.62,1.08,INDB:BFP166,INDB,Indian,0
+Cumin seeds baghar (Jeera baghar/tadka),,736.8,3.34,5.22,78.77,6.01,INDB:BFP167,INDB,Indian,0
+Onion tomato baghar (Pyaaz tamatar ka tadka),,137.5,1.26,6.17,11.98,2.12,INDB:BFP168,INDB,Indian,0
+Mustard seeds baghar (Mustard seed tadka),,552.6,4.73,10.45,54.3,9.74,INDB:BFP169,INDB,Indian,0
+Hot cherry sauce,,252.7,0.13,67.95,0.07,0.0,INDB:BFP360,INDB,Indian,0
+Apple jelly (Seb ki jelly),,152.1,0.1,39.37,0.21,0.86,INDB:BFP583,INDB,Indian,0
+Marmalade (Murabba),,143.8,0.23,37.64,0.04,0.43,INDB:BFP585,INDB,Indian,0
+Plum squash (Aloo bukhara squash),,211.2,0.16,55.51,0.1,0.52,INDB:BFP589,INDB,Indian,0
+Lemon green chilli pickle (Nimboo aur hari mirch ka achaar),,14.1,0.85,2.14,0.24,1.07,INDB:BFP595,INDB,Indian,0
+Brinjal pickle (Baingan ka achaar),,139.0,2.24,4.23,12.98,4.62,INDB:BFP597,INDB,Indian,0
+Sweet and sour tomato pickle (Khatta meetha tamatar ka achaar),,60.9,1.26,6.55,3.24,2.2,INDB:BFP598,INDB,Indian,0
+Jhatpat achar with carrot (Jhatpat achaar gajar ke saath),,91.2,1.98,6.32,6.55,5.08,INDB:BFP599,INDB,Indian,0
+Tomato chutney (Tamatar ki chutney),,176.1,0.97,31.85,6.01,1.49,INDB:BFP601,INDB,Indian,0
+Tomato ketchup,,33.1,0.91,6.48,0.3,1.9,INDB:BFP602,INDB,Indian,0
+Bengal 5 Spice Blend (Panch Phoran),,289.8,18.26,20.0,22.16,18.4,INDB:OSR082,INDB,Indian,0

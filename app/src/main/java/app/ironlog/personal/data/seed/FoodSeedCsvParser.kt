@@ -8,6 +8,10 @@ internal data class FoodSeedRecord(
     val carbs: Double,
     val fat: Double,
     val fiber: Double?,
+    val brand: String? = null,
+    val source: String? = null,
+    val cuisine: String? = null,
+    val popularity: Int = 0,
 )
 
 internal data class FoodServingRecord(
@@ -35,7 +39,20 @@ internal object FoodSeedCsvParser {
             return null
         }
         val fiber = columns[6].toDoubleOrNull()?.takeIf { it.isFinite() && it >= 0 }
-        return FoodSeedRecord(name, sourceRef, kcal, protein, carbs, fat, fiber)
+        // Optional columns in the extra bundles: source, cuisine, popularity.
+        return FoodSeedRecord(
+            name,
+            sourceRef,
+            kcal,
+            protein,
+            carbs,
+            fat,
+            fiber,
+            brand = columns[1].trim().takeIf(String::isNotEmpty),
+            source = columns.getOrNull(8)?.trim()?.takeIf(String::isNotEmpty),
+            cuisine = columns.getOrNull(9)?.trim()?.takeIf(String::isNotEmpty),
+            popularity = columns.getOrNull(10)?.trim()?.toIntOrNull() ?: 0,
+        )
     }
 
     private fun parseServingRow(columns: List<String>): FoodServingRecord? {
