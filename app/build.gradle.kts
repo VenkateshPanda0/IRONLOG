@@ -52,6 +52,9 @@ dependencies {
     implementation(libs.code.scanner)
     // The scanner brings an old Fragment; 1.3+ is required for registerForActivityResult.
     implementation(libs.fragment)
+    // On-device pose and person segmentation for the physique check; models are bundled, no network.
+    implementation(libs.mlkit.pose)
+    implementation(libs.mlkit.segmentation)
     ksp(libs.room.compiler)
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)

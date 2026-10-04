@@ -353,6 +353,17 @@ interface IronlogDao {
 
     @Query("DELETE FROM body_measurement") suspend fun deleteAllMeasurements()
 
+    // Physique checks
+    @Insert suspend fun addPhysiqueScan(value: PhysiqueScanEntity): Long
+
+    @Query("SELECT * FROM physique_scan ORDER BY date DESC, createdAt DESC") fun physiqueScans(): Flow<List<PhysiqueScanEntity>>
+
+    @Query("DELETE FROM physique_scan WHERE id=:id") suspend fun deletePhysiqueScan(id: Long)
+
+    @Query("DELETE FROM physique_scan") suspend fun deleteAllPhysiqueScans()
+
+    @Query("UPDATE user_profile SET physiqueGoal=:goal WHERE id=1") suspend fun setPhysiqueGoal(goal: String)
+
     @Query("SELECT * FROM program ORDER BY isBuiltIn DESC,name")
     fun programs(): Flow<List<ProgramEntity>>
 
@@ -614,8 +625,9 @@ interface IronlogDao {
             HabitEntity::class,
             HabitCheckEntity::class,
             BodyMeasurementEntity::class,
+            PhysiqueScanEntity::class,
         ],
-    version = 4,
+    version = 5,
     exportSchema = true,
 )
 abstract class IronlogDatabase : RoomDatabase() {
@@ -634,6 +646,22 @@ abstract class IronlogDatabase : RoomDatabase() {
                             "fileName TEXT NOT NULL, note TEXT NOT NULL, createdAt INTEGER NOT NULL)"
                     )
                     db.execSQL("CREATE INDEX IF NOT EXISTS index_progress_photo_date ON progress_photo (date)")
+                }
+            }
+
+        /** v5: physique goal on the profile and the physique photo check history. */
+        val MIGRATION_4_5 =
+            object : androidx.room.migration.Migration(4, 5) {
+                override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                    db.execSQL("ALTER TABLE user_profile ADD COLUMN physiqueGoal TEXT NOT NULL DEFAULT ''")
+                    db.execSQL(
+                        "CREATE TABLE IF NOT EXISTS physique_scan (" +
+                            "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, date TEXT NOT NULL, fileName TEXT NOT NULL, " +
+                            "goal TEXT NOT NULL, shoulder REAL NOT NULL, waist REAL NOT NULL, hip REAL NOT NULL, " +
+                            "leftThigh REAL NOT NULL, rightThigh REAL NOT NULL, height REAL NOT NULL, " +
+                            "legToTorso REAL NOT NULL, matchScore INTEGER NOT NULL, createdAt INTEGER NOT NULL)"
+                    )
+                    db.execSQL("CREATE INDEX IF NOT EXISTS index_physique_scan_date ON physique_scan (date)")
                 }
             }
 

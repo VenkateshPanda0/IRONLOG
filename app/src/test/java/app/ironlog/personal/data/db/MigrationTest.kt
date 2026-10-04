@@ -16,6 +16,7 @@ import org.robolectric.RuntimeEnvironment
 @RunWith(RobolectricTestRunner::class)
 class MigrationTest {
     private val name = "migration-test.db"
+    private val all = arrayOf(IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3, IronlogDatabase.MIGRATION_3_4, IronlogDatabase.MIGRATION_4_5)
 
     @get:Rule
     val helper = MigrationTestHelper(InstrumentationRegistry.getInstrumentation(), IronlogDatabase::class.java)
@@ -28,12 +29,12 @@ class MigrationTest {
             execSQL("INSERT INTO set_log (id, sessionExerciseId, setIndex, type, weightKg, reps, isCompleted) VALUES (1, 1, 1, 'WORKING', 100.0, 5, 1)")
             close()
         }
-        helper.runMigrationsAndValidate(name, 4, true, IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3, IronlogDatabase.MIGRATION_3_4).close()
+        helper.runMigrationsAndValidate(name, 5, true, *all).close()
 
         // Open with Room itself to prove the migrated schema matches the entities.
         val db =
             Room.databaseBuilder(RuntimeEnvironment.getApplication(), IronlogDatabase::class.java, name)
-                .addMigrations(IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3, IronlogDatabase.MIGRATION_3_4)
+                .addMigrations(*all)
                 .allowMainThreadQueries()
                 .build()
         try {
@@ -56,10 +57,10 @@ class MigrationTest {
             execSQL("INSERT INTO goal (id, goalWeightKg, targetDate, kcalTarget, proteinG, carbsG, fatG) VALUES (1, 75.0, NULL, 2400, 160.0, 250.0, 70.0)")
             close()
         }
-        helper.runMigrationsAndValidate(v2, 4, true, IronlogDatabase.MIGRATION_2_3, IronlogDatabase.MIGRATION_3_4).close()
+        helper.runMigrationsAndValidate(v2, 5, true, *all).close()
         val db =
             Room.databaseBuilder(RuntimeEnvironment.getApplication(), IronlogDatabase::class.java, v2)
-                .addMigrations(IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3, IronlogDatabase.MIGRATION_3_4)
+                .addMigrations(*all)
                 .allowMainThreadQueries()
                 .build()
         try {
@@ -74,6 +75,34 @@ class MigrationTest {
                 db.dao().checkHabit(HabitCheckEntity(habit, "2026-10-04"))
                 db.dao().checkHabit(HabitCheckEntity(habit, "2026-10-04"))
                 assertEquals(1, db.dao().habitChecks().first().size)
+            }
+        } finally {
+            db.close()
+        }
+    }
+
+    @Test
+    fun v4ProfileKeepsDataAndGainsPhysiqueGoalAndScans() {
+        val v4 = "migration-v4.db"
+        helper.createDatabase(v4, 4).apply {
+            execSQL("INSERT INTO user_profile (id, name, sex, age, heightCm, weightKg, activity, goal, daysPerWeek, equipment, experience, sessionMinutes, avoidList, trainingWeekdays) VALUES (1, 'Ravi', 'MALE', 28, 175.0, 72.0, 1.5, 'GAIN', 4, 'GYM', 'INTERMEDIATE', 60, '', 'MON,TUE,THU,FRI')")
+            close()
+        }
+        helper.runMigrationsAndValidate(v4, 5, true, IronlogDatabase.MIGRATION_4_5).close()
+        val db =
+            Room.databaseBuilder(RuntimeEnvironment.getApplication(), IronlogDatabase::class.java, v4)
+                .addMigrations(*all)
+                .allowMainThreadQueries()
+                .build()
+        try {
+            runBlocking {
+                val profile = db.dao().profile().first()!!
+                assertEquals("Ravi", profile.name)
+                assertEquals("", profile.physiqueGoal)
+                db.dao().setPhysiqueGoal("CLASSIC")
+                assertEquals("CLASSIC", db.dao().profile().first()!!.physiqueGoal)
+                db.dao().addPhysiqueScan(PhysiqueScanEntity(date = "2026-10-04", fileName = "a.jpg", goal = "CLASSIC", shoulder = 180.0, waist = 110.0, hip = 130.0, leftThigh = 60.0, rightThigh = 61.0, height = 690.0, legToTorso = 1.4, matchScore = 72))
+                assertEquals(72, db.dao().physiqueScans().first().single().matchScore)
             }
         } finally {
             db.close()

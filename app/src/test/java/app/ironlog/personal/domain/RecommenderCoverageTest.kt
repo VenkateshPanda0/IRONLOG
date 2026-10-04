@@ -76,4 +76,21 @@ class RecommenderCoverageTest {
         val byId = library.associateBy { it.id }
         assertTrue(pull.exercises.any { "middle back" in byId.getValue(it.exerciseId).primaryMuscles })
     }
+
+    @Test
+    fun physiquePriorityAddsVolumeForWeakMuscles() {
+        val base = TrainingProfile(daysPerWeek = 4, goal = "BUILD_MUSCLE", equipment = gym, sessionMinutes = 60)
+        val plain = Recommender.suggest(base, library)
+        val focused = Recommender.suggest(base.copy(priorityMuscles = listOf("shoulders", "lats", "quadriceps")), library)
+        val byId = library.associateBy { it.id }
+        fun sets(rec: Recommendation, muscle: String) =
+            rec.days.flatMap { it.exercises }.filter { muscle in byId.getValue(it.exerciseId).primaryMuscles }.sumOf { it.sets }
+        assertTrue(sets(focused, "shoulders") >= sets(plain, "shoulders") + 4)
+        assertTrue(sets(focused, "lats") > sets(plain, "lats"))
+        assertTrue(sets(focused, "quadriceps") > sets(plain, "quadriceps"))
+        assertEquals(sets(plain, "biceps"), sets(focused, "biceps"))
+        assertTrue(focused.why.contains("Extra volume for shoulders"))
+        // Still every muscle each week.
+        assertEquals(musclesTrained(plain), musclesTrained(focused))
+    }
 }

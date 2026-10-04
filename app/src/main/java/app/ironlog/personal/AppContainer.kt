@@ -23,7 +23,7 @@ private val Context.preferences by preferencesDataStore(name = "ironlog_settings
 class AppContainer(context: Context) {
     private val appContext = context.applicationContext
     val db = Room.databaseBuilder(context, IronlogDatabase::class.java, "ironlog.db")
-            .addMigrations(IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3, IronlogDatabase.MIGRATION_3_4)
+            .addMigrations(IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3, IronlogDatabase.MIGRATION_3_4, IronlogDatabase.MIGRATION_4_5)
             .build()
     val workouts = WorkoutRepository(db)
     val nutrition = NutritionRepository(db.dao())
@@ -31,6 +31,7 @@ class AppContainer(context: Context) {
     val goals = GoalRepository(db.dao())
     val engagement = EngagementRepository(db.dao())
     val wellness = WellnessRepository(db)
+    val physique = PhysiqueRepository(db.dao(), java.io.File(context.filesDir, "physique"))
     val backup = BackupRepository(db)
     val programs = ProgramRepository(db)
     val seed = SeedLoader(context, db)
@@ -77,6 +78,7 @@ class AppContainer(context: Context) {
             dao.deleteAllHabits()
             dao.deleteAllMeasurements()
         }
+        physique.deleteAll()
         body.deleteAllPhotos()
         // The wipe also removes bundled library rows; restore them so the app stays usable.
         setSeedVersion(0)

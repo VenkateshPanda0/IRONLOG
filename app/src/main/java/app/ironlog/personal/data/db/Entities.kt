@@ -135,6 +135,8 @@ data class UserProfileEntity(
     val sessionMinutes: Int = 45,
     val avoidList: String = "",
     val trainingWeekdays: String = "MON,WED,FRI",
+    /** [app.ironlog.personal.domain.PhysiqueType] name chosen as the goal look; empty until picked. */
+    val physiqueGoal: String = "",
 )
 
 @Serializable
@@ -413,5 +415,24 @@ data class BodyMeasurementEntity(
     val hipsCm: Double? = null,
     val neckCm: Double? = null,
     val bodyFatPct: Double? = null,
+    val createdAt: Long = System.currentTimeMillis(),
+)
+
+/** One physique photo check: the measured frontal widths (pixels) and the match to the goal then. */
+@Serializable
+@Entity(tableName = "physique_scan", indices = [Index("date")])
+data class PhysiqueScanEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val date: String,
+    val fileName: String,
+    val goal: String,
+    val shoulder: Double,
+    val waist: Double,
+    val hip: Double,
+    val leftThigh: Double,
+    val rightThigh: Double,
+    val height: Double,
+    val legToTorso: Double,
+    val matchScore: Int,
     val createdAt: Long = System.currentTimeMillis(),
 )

@@ -13,6 +13,8 @@ data class TrainingProfile(
     val experience: ExperienceLevel = ExperienceLevel.BEGINNER,
     val sessionMinutes: Int = 45,
     val avoidList: Set<String> = emptySet(),
+    /** Muscles to bring up (e.g. from a physique check); they get extra sets and an extra exercise. */
+    val priorityMuscles: List<String> = emptyList(),
 )
 
 data class ExerciseOption(
@@ -56,6 +58,8 @@ object Recommender {
                 selectExercises(available, focus, exerciseLimit, usage).toMutableList()
             }
         val coverage = ensureCoverage(available, split.focus, selected, usage)
+        val priority = expandPriority(profile.priorityMuscles)
+        val extras = emphasize(available, split.focus, selected, usage, priority)
         val days =
             selected.mapIndexed { index, picks ->
                 RecommendedDay(
@@ -65,12 +69,16 @@ object Recommender {
                             val strengthCompound =
                                 profile.goal.equals("GET_STRONGER", ignoreCase = true) &&
                                     isCompound(exercise)
+                            val prioritised = exercise.id in extras || exercise.primaryMuscles.any { normalize(it) in priority }
                             ExercisePrescription(
                                 exerciseId = exercise.id,
-                                // Coverage accessories are lower priority, so they get less volume.
+                                // Coverage accessories get less volume; muscles being brought up get more.
                                 sets =
-                                    if (exercise.id in coverage) (setCount - 1).coerceAtLeast(2)
-                                    else setCount,
+                                    when {
+                                        prioritised -> (setCount + 1).coerceAtMost(5)
+                                        exercise.id in coverage -> (setCount - 1).coerceAtLeast(2)
+                                        else -> setCount
+                                    },
                                 repMin = if (strengthCompound) 3 else repRange.first,
                                 repMax = if (strengthCompound) 6 else repRange.second,
                                 restSeconds = if (isCompound(exercise)) 150 else 90,
@@ -95,8 +103,9 @@ object Recommender {
                 else -> "balanced strength training"
             }
         val duration = profile.sessionMinutes.coerceIn(20, 120)
+        val focusText = if (priority.isEmpty()) "" else " Extra volume for ${priority.take(3).joinToString()}."
         val why =
-            "${split.title} fits $daysPerWeek training days and $duration-minute sessions, uses $equipmentText, and supports $goalText."
+            "${split.title} fits $daysPerWeek training days and $duration-minute sessions, uses $equipmentText, and supports $goalText.$focusText"
         return Recommendation(split.title, why, days)
     }
 
@@ -257,6 +266,48 @@ object Recommender {
                         option !in selected[dayIndex] &&
                             option.primaryMuscles.any { normalize(it) == muscle }
                     }
+                    .minWithOrNull(
+                        compareBy<ExerciseOption> { usage[it.id] ?: 0 }
+                            .thenBy { Staples.rank(it.id) }
+                            .thenByDescending { isCompound(it) }
+                            .thenBy { it.id }
+                    ) ?: return@forEach
+            selected[dayIndex] += exercise
+            usage[exercise.id] = (usage[exercise.id] ?: 0) + 1
+            added += exercise.id
+        }
+        return added
+    }
+
+    /** "arms" covers both biceps and triceps; unknown names are dropped. */
+    private fun expandPriority(muscles: List<String>): List<String> =
+        muscles.map(::normalize).flatMap { if (it == "arms") listOf("biceps", "triceps") else listOf(it) }.filter { it in ALL_MUSCLES }.distinct()
+
+    /**
+     * For the two most important [priority] muscles, adds a second exercise on the day whose
+     * template suits it best, so the muscle is trained from another angle each week.
+     */
+    private fun emphasize(
+        options: List<ExerciseOption>,
+        focus: List<List<String>>,
+        selected: List<MutableList<ExerciseOption>>,
+        usage: MutableMap<String, Int>,
+        priority: List<String>,
+    ): Set<String> {
+        if (selected.isEmpty()) return emptySet()
+        val added = mutableSetOf<String>()
+        priority.take(2).forEach { muscle ->
+            val related = companions[muscle].orEmpty()
+            val dayIndex =
+                selected.indices.minWithOrNull(
+                    compareByDescending<Int> { i -> focus[i].count { it == muscle } }
+                        .thenByDescending { i -> focus[i].count { it in related } }
+                        .thenBy { i -> selected[i].size }
+                        .thenBy { it }
+                ) ?: return@forEach
+            val exercise =
+                options
+                    .filter { option -> option !in selected[dayIndex] && option.primaryMuscles.any { normalize(it) == muscle } }
                     .minWithOrNull(
                         compareBy<ExerciseOption> { usage[it.id] ?: 0 }
                             .thenBy { Staples.rank(it.id) }
