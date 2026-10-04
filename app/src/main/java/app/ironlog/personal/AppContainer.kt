@@ -43,6 +43,7 @@ class AppContainer(context: Context) {
     }
 
     val profile = db.dao().profile()
+
     suspend fun saveProfile(value: app.ironlog.personal.data.db.UserProfileEntity) =
         db.dao().saveProfile(value)
 

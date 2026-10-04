@@ -136,8 +136,7 @@ interface IronlogDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun saveProfile(value: UserProfileEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun saveGoal(value: GoalEntity)
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun saveGoal(value: GoalEntity)
 
     @Query(
         "SELECT * FROM workout_session WHERE status IN ('IN_PROGRESS','PAUSED') ORDER BY startedAt DESC LIMIT 1"

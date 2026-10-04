@@ -198,7 +198,9 @@ fun OnboardingScreen(c: AppContainer) {
                         val proteinTarget = w * 2
                         val fatTarget = calorieTarget * .25 / 9
                         val carbsTarget =
-                            ((calorieTarget - proteinTarget * 4 - fatTarget * 9) / 4).coerceAtLeast(0.0)
+                            ((calorieTarget - proteinTarget * 4 - fatTarget * 9) / 4).coerceAtLeast(
+                                0.0
+                            )
                         c.goals.save(
                             GoalEntity(
                                 kcalTarget = calorieTarget,
