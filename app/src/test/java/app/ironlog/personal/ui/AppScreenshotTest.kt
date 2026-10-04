@@ -101,6 +101,10 @@ class AppScreenshotTest {
         }
         tap("Start workout")
         compose.waitUntilAtLeastOneExists(hasText("Last time", substring = true), 10_000)
+        compose.onAllNodesWithContentDescription("Show demo")[0].performClick()
+        compose.waitUntilAtLeastOneExists(hasText("START"), 5_000)
+        shot("09_workout_demo")
+        compose.onAllNodesWithContentDescription("Show demo")[0].performClick()
         compose.onAllNodes(hasSetTextAction())[0].performTextInput("70")
         compose.mainClock.advanceTimeBy(1_000)
         compose.waitForIdle()
@@ -140,7 +144,11 @@ class AppScreenshotTest {
         shot("07_library_search")
         tap("Barbell Full Squat")
         compose.waitUntilAtLeastOneExists(hasText("How to", ignoreCase = true), 10_000)
+        compose.waitUntilAtLeastOneExists(hasText("START"), 10_000)
         shot("08_exercise_detail")
+        compose.mainClock.advanceTimeBy(1_500)
+        compose.waitUntilAtLeastOneExists(hasText("END"), 10_000)
+        shot("08_exercise_detail_end")
         compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
 
         tap("Nutrition")

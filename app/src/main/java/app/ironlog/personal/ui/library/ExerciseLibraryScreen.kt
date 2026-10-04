@@ -125,7 +125,7 @@ fun ExerciseBrowser(
                     title = row.exercise.name,
                     subtitle = row.subtitle,
                     onClick = { onSelect(row.exercise) },
-                    leading = { Monogram(row.muscles.firstOrNull() ?: row.exercise.name) },
+                    leading = { ExerciseThumb(row.exercise.id, row.muscles.firstOrNull() ?: row.exercise.name, size = 52.dp) },
                     trailing = trailing?.let { { it(row.exercise) } },
                 )
             }

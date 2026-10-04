@@ -2,6 +2,7 @@ package app.ironlog.personal.ui.train
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,6 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -253,22 +256,27 @@ private fun ExerciseCard(
     val previous: List<LoggedSet> = history.groupBy { it.sessionId }.values.firstOrNull().orEmpty()
     var menu by remember { mutableStateOf(false) }
     var editingNotes by remember { mutableStateOf(false) }
+    var showDemo by remember { mutableStateOf(false) }
     var notes by remember(row.id) { mutableStateOf(row.notes) }
     val skipped = row.status == "SKIPPED"
 
     IronCard(padding = 14.dp) {
         Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                Modifier.clip(MaterialTheme.shapes.small)
+                    .clickable(onClickLabel = if (showDemo) "Hide demo" else "Show demo") { showDemo = !showDemo }
+                    .semantics { contentDescription = if (showDemo) "Hide demo" else "Show demo" }
+            ) {
+                ExerciseThumb(row.exerciseId, row.exerciseNameSnapshot, size = 52.dp)
+            }
+            Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                TextButton(
-                    onClick = { nav.open(Routes.exercise(row.exerciseId)) },
-                    contentPadding = PaddingValues(0.dp),
-                ) {
-                    Text(
-                        row.exerciseNameSnapshot.uppercase(),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = if (skipped) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
-                    )
-                }
+                Text(
+                    row.exerciseNameSnapshot.uppercase(),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = if (skipped) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.clickable(onClickLabel = "Open exercise") { nav.open(Routes.exercise(row.exerciseId)) },
+                )
                 Text(
                     "Target ${row.targetSets} × ${row.repMin}–${row.repMax} · rest ${row.restSeconds}s" +
                         (row.originalNameSnapshot?.let { " · swapped from $it" } ?: "") +
@@ -301,6 +309,7 @@ private fun ExerciseCard(
                 }
             }
         }
+        if (showDemo) ExerciseDemo(row.exerciseId, row.exerciseNameSnapshot)
         if (previous.isNotEmpty()) {
             Text(
                 "Last time · " + previous.filter { it.type != "WARMUP" }.joinToString("  ") { "${formatKg(it.weightKg ?: 0.0)}×${it.reps ?: 0}" },

@@ -6,7 +6,8 @@
 - Asset: `app/src/main/assets/seed/exercises.json`.
 - Downloaded and validated on 2026-10-03: 876 records, 1,005,327 bytes.
 - Exercise names, stable IDs, category, force, level, mechanic, equipment, primary/secondary muscles, instructions, and source image paths are retained.
-- Images are not bundled. The source repository documents image paths, but their redistribution terms are not established here. There are no exercise image network requests in the app.
+- Demo images are bundled: `app/src/main/assets/exercises/<id>/0.webp` (start position) and `1.webp` (end position) for 873 of 876 exercises (the three Kettlebell Halo / overhead extension entries have no upstream images). Both free-exercise-db and its source, wrkout/exercises.json, are released into the public domain under the Unlicense, and free-exercise-db's README invites using the images. Frames are scaled to 480 px wide WebP (quality 62), 1,746 files, about 19.8 MB. The app alternates the two frames as a looping movement demo; it makes no image network requests.
+- Rebuild or refresh the frames with `python3 tools/build_exercise_media.py` (needs Pillow); it skips files that already exist.
 - About attribution: “Exercise data: free-exercise-db by yuhonas, released under the Unlicense.”
 
 To refresh from the upstream source, run `tools/fetch_exercise_seed.ps1`, inspect the source changes, and update the count in this document.
