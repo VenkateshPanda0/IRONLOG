@@ -323,6 +323,35 @@ interface IronlogDao {
 
     @Query("SELECT * FROM exercise ORDER BY name") fun exercises(): Flow<List<ExerciseEntity>>
 
+    @Query("SELECT * FROM exercise WHERE id=:id") fun observeExercise(id: String): Flow<ExerciseEntity?>
+
+    @Query("UPDATE exercise SET isFavorite=:favorite WHERE id=:id")
+    suspend fun setExerciseFavorite(id: String, favorite: Boolean)
+
+    @Query("DELETE FROM exercise WHERE id=:id AND isCustom=1")
+    suspend fun deleteCustomExerciseRow(id: String)
+
+    @Query("DELETE FROM program_day_exercise WHERE exerciseId=:id")
+    suspend fun deletePrescriptionsFor(id: String)
+
+    /** Programs drop the exercise; logged workouts keep their name snapshot and sets. */
+    @Transaction
+    suspend fun deleteCustomExercise(id: String) {
+        if (exercise(id)?.isCustom != true) return
+        deletePrescriptionsFor(id)
+        deleteCustomExerciseRow(id)
+    }
+
+    @Query(
+        "SELECT s.id AS sessionId, s.startedAt AS startedAt, s.name AS sessionName, l.setIndex AS setIndex, " +
+            "l.type AS type, l.weightKg AS weightKg, l.reps AS reps FROM set_log l " +
+            "JOIN session_exercise e ON l.sessionExerciseId = e.id " +
+            "JOIN workout_session s ON e.sessionId = s.id " +
+            "WHERE e.exerciseId = :exerciseId AND s.status = 'COMPLETED' AND l.isCompleted = 1 " +
+            "ORDER BY s.startedAt DESC, e.orderIndex, l.setIndex"
+    )
+    fun exerciseHistory(exerciseId: String): Flow<List<LoggedSet>>
+
     @Query("DELETE FROM workout_session") suspend fun clearSessions()
 
     @Query("DELETE FROM meal_entry") suspend fun clearMeals()

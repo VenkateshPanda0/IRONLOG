@@ -311,3 +311,14 @@ data class GoalEntity(
     val carbsG: Double = 220.0,
     val fatG: Double = 65.0,
 )
+
+/** A completed set joined with its session, used for exercise history and records. */
+data class LoggedSet(
+    val sessionId: Long,
+    val startedAt: Long,
+    val sessionName: String,
+    val setIndex: Int,
+    val type: String,
+    val weightKg: Double?,
+    val reps: Int?,
+)

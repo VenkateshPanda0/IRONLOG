@@ -88,6 +88,17 @@ class AppScreenshotTest {
         compose.waitUntilAtLeastOneExists(hasText("All programs", ignoreCase = true), 10_000)
         shot("02_train")
 
+        tap("Library")
+        compose.waitUntilAtLeastOneExists(hasText("results", substring = true), 10_000)
+        shot("07_library")
+        compose.onNode(hasSetTextAction()).performTextInput("full squat")
+        compose.waitUntilAtLeastOneExists(hasText("Barbell Full Squat"), 10_000)
+        shot("07_library_search")
+        tap("Barbell Full Squat")
+        compose.waitUntilAtLeastOneExists(hasText("How to", ignoreCase = true), 10_000)
+        shot("08_exercise_detail")
+        compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
+
         tap("Nutrition")
         shot("03_nutrition")
 

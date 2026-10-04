@@ -2,7 +2,9 @@ package app.ironlog.personal.ui.nav
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.automirrored.filled.ShowChart
+import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.automirrored.outlined.ShowChart
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Home
@@ -27,6 +29,8 @@ import androidx.navigation.navArgument
 import app.ironlog.personal.AppContainer
 import app.ironlog.personal.SeedState
 import app.ironlog.personal.ui.home.HomeScreen
+import app.ironlog.personal.ui.library.ExerciseDetailScreen
+import app.ironlog.personal.ui.library.ExerciseLibraryScreen
 import app.ironlog.personal.ui.nutrition.NutritionScreen
 import app.ironlog.personal.ui.onboarding.OnboardingScreen
 import app.ironlog.personal.ui.progress.ProgressScreen
@@ -42,6 +46,8 @@ object Routes {
     const val TRAIN = "train"
     const val NUTRITION = "nutrition"
     const val PROGRESS = "progress"
+    const val LIBRARY = "library"
+    const val EXERCISE = "exercise/{id}"
     const val SETTINGS = "settings"
     const val HISTORY = "history"
     const val BUILDER = "builder"
@@ -51,6 +57,8 @@ object Routes {
     fun program(id: Long) = "program/$id"
 
     fun workout(id: Long) = "workout/$id"
+
+    fun exercise(id: String) = "exercise/${android.net.Uri.encode(id)}"
 }
 
 private data class Tab(
@@ -64,6 +72,7 @@ private val tabs =
     listOf(
         Tab(Routes.HOME, "Home", Icons.Filled.Home, Icons.Outlined.Home),
         Tab(Routes.TRAIN, "Train", Icons.Filled.FitnessCenter, Icons.Outlined.FitnessCenter),
+        Tab(Routes.LIBRARY, "Library", Icons.AutoMirrored.Filled.MenuBook, Icons.AutoMirrored.Outlined.MenuBook),
         Tab(Routes.NUTRITION, "Nutrition", Icons.Filled.Restaurant, Icons.Outlined.Restaurant),
         Tab(
             Routes.PROGRESS,
@@ -131,7 +140,12 @@ fun IronlogRoot(
                                 )
                             },
                             label = {
-                                Text(tab.label.uppercase(), style = MaterialTheme.typography.labelSmall)
+                                Text(
+                                    tab.label.uppercase(),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    maxLines = 1,
+                                    softWrap = false,
+                                )
                             },
                             colors =
                                 NavigationBarItemDefaults.colors(
@@ -192,6 +206,10 @@ private fun IronlogNavHost(
     NavHost(controller, startDestination = Routes.HOME) {
         composable(Routes.HOME) { HomeScreen(container, nav) }
         composable(Routes.TRAIN) { TrainScreen(container, nav) }
+        composable(Routes.LIBRARY) { ExerciseLibraryScreen(container, nav) }
+        composable(Routes.EXERCISE, listOf(navArgument("id") { type = NavType.StringType })) {
+            ExerciseDetailScreen(container, nav, it.arguments?.getString("id").orEmpty())
+        }
         composable(Routes.NUTRITION) { NutritionScreen(container) }
         composable(Routes.PROGRESS) { ProgressScreen(container) }
         composable(Routes.SETTINGS) {

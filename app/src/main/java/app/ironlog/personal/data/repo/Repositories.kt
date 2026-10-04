@@ -23,6 +23,29 @@ class WorkoutRepository(private val db: IronlogDatabase) {
     suspend fun addCustomExercise(name: String, id: String) =
         dao.putExercise(ExerciseEntity(id = id, name = name, isCustom = true))
 
+    suspend fun addCustomExercise(name: String, muscle: String, equipment: String?): String {
+        val id = "custom_${java.util.UUID.randomUUID()}"
+        dao.putExercise(
+            ExerciseEntity(
+                id = id,
+                name = name,
+                category = "strength",
+                equipment = equipment,
+                primaryMuscles = kotlinx.serialization.json.JsonArray(listOf(kotlinx.serialization.json.JsonPrimitive(muscle))).toString(),
+                isCustom = true,
+            )
+        )
+        return id
+    }
+
+    fun exercise(id: String) = dao.observeExercise(id)
+
+    fun exerciseHistory(id: String) = dao.exerciseHistory(id)
+
+    suspend fun setFavorite(id: String, favorite: Boolean) = dao.setExerciseFavorite(id, favorite)
+
+    suspend fun deleteCustomExercise(id: String) = dao.deleteCustomExercise(id)
+
     suspend fun start(
         name: String,
         rows: List<Triple<String, String, Int>>,
