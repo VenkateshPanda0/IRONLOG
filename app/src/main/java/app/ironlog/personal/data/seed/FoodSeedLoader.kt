@@ -19,12 +19,15 @@ class FoodSeedLoader(
         val dao = database.dao()
         var insertedFoods = 0
         var insertedServings = 0
+        // One query instead of a lookup per food; sourceRef is not indexed.
+        val existing = dao.usdaIds().associate { it.sourceRef to it.id }
+        // Bundled portions are replaced wholesale so label fixes reach existing installs.
+        dao.deleteUsdaServings()
 
         foods.forEach { record ->
-            val existing = dao.foodBySourceRef(record.sourceRef)
-            val foodId = existing?.id ?: dao.insertFoodSeed(record.toEntity())
+            val foodId = existing[record.sourceRef] ?: dao.insertFoodSeed(record.toEntity())
             if (foodId == -1L) return@forEach
-            if (existing == null) insertedFoods += 1
+            if (record.sourceRef !in existing) insertedFoods += 1
 
             portions[record.sourceRef].orEmpty().forEach { portion ->
                 val insertedId =

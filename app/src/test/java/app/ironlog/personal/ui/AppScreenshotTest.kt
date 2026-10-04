@@ -49,6 +49,17 @@ class AppScreenshotTest {
         compose.waitForIdle()
     }
 
+    private fun inDialog(block: () -> Unit) {
+        compose.mainClock.autoAdvance = false
+        try {
+            compose.mainClock.advanceTimeBy(1_000)
+            block()
+            compose.mainClock.advanceTimeBy(1_000)
+        } finally {
+            compose.mainClock.autoAdvance = true
+        }
+    }
+
     private fun type(label: String, value: String) {
         compose.onNode(hasText(label) and hasSetTextAction()).performTextInput(value)
         compose.waitForIdle()
@@ -56,8 +67,15 @@ class AppScreenshotTest {
 
     @Test
     fun walkMainScreens() {
-        compose.waitUntil(120_000) { container.seedState.value is SeedState.Ready }
-        compose.waitUntilAtLeastOneExists(hasText("IRONLOG"), 20_000)
+        // Seeding runs on a background thread at app start; pump the main looper until the UI
+        // has observed the Ready state and shows onboarding.
+        val deadline = System.currentTimeMillis() + 120_000
+        while (compose.onAllNodes(hasText("IRONLOG")).fetchSemanticsNodes().isEmpty()) {
+            check(System.currentTimeMillis() < deadline) { "Onboarding never appeared; seed state ${container.seedState.value}" }
+            org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
+            compose.mainClock.advanceTimeBy(250)
+            Thread.sleep(50)
+        }
         type("What should we call you?", "Alex Doe")
         shot("00_onboarding_welcome")
         tap("Continue")
@@ -152,7 +170,27 @@ class AppScreenshotTest {
         compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
 
         tap("Nutrition")
+        compose.waitUntilAtLeastOneExists(hasText("Breakfast", ignoreCase = true), 10_000)
+        shot("03_nutrition_empty")
+        compose.onNodeWithContentDescription("Add food to Breakfast").performClick()
+        compose.waitUntilAtLeastOneExists(hasText("Add to Breakfast", ignoreCase = true), 10_000)
+        compose.onNode(hasSetTextAction()).performTextInput("oats dry")
+        compose.waitUntilAtLeastOneExists(hasText("Cereals, oats", substring = true), 10_000)
+        shot("03_food_search")
+        compose.onAllNodes(hasText("Cereals, oats", substring = true))[0].performClick()
+        // Dialog windows keep requesting frames under Robolectric (verified: no recomposition
+        // loop), so dialog steps advance the clock by hand instead of waiting for idle.
+        inDialog {
+            com.github.takahirom.roborazzi.captureScreenRoboImage("build/screens/03_portion.png")
+            compose.onNode(hasText("ADD")).performClick()
+        }
+        compose.waitUntilAtLeastOneExists(hasText("remaining", substring = true), 10_000)
         shot("03_nutrition")
+        compose.onNodeWithContentDescription("Edit targets").performClick()
+        inDialog {
+            com.github.takahirom.roborazzi.captureScreenRoboImage("build/screens/03_targets.png")
+            compose.onNode(hasText("CANCEL")).performClick()
+        }
 
         // Test-only sample weigh-ins: a gentle downward trend over six weeks.
         runBlocking {

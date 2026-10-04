@@ -17,8 +17,8 @@ To refresh from the upstream source, run `tools/fetch_exercise_seed.ps1`, inspec
 - Source: [USDA FoodData Central downloadable datasets](https://fdc.nal.usda.gov/download-datasets/), SR Legacy April 2018, public-domain data (CC0 attribution per project brief).
 - Downloaded archive: `FoodData_Central_sr_legacy_food_json_2018-04.zip`; it was unpacked outside the repository and was not committed.
 - Assets: `app/src/main/assets/seed/foods.csv` and `food_servings.csv`.
-- Generated on 2026-10-03: 1,200 foods with all four required macro fields, and 2,271 portion rows. Missing required nutrients are excluded; missing fiber is left empty.
-- `tools/build_food_subset.py` selects records by common-food terms and cooked-preparation terms, ranks deterministically, and refuses to output fewer than 600 records. Values are copied from SR Legacy; none are estimated.
+- Regenerated on 2026-10-04: all 7,793 SR Legacy foods that have kcal, protein, carbohydrate and fat, with 14,449 portion rows labelled with their amount ("1 large", "0.33 cup"). The earlier 1,200-food keyword subset missed staples such as oats, eggs, white rice, bananas and milk. Missing required nutrients are excluded; missing fiber is left empty.
+- `tools/build_food_subset.py` copies values from SR Legacy without estimation (`--limit` optionally caps the count). Seed version 4 replaces bundled portions on existing installs; user-created foods are untouched.
 - About attribution: “Nutrition data: FoodData Central, U.S. Department of Agriculture.”
 
 ## Seeding

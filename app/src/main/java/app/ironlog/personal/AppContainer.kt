@@ -120,7 +120,8 @@ class AppContainer(context: Context) {
 }
 
 private const val EXERCISE_SEED_VERSION = 2
-private const val FOOD_SEED_VERSION = 2
+// 4: full SR Legacy table (7,793 foods) with amount-bearing portion labels.
+private const val FOOD_SEED_VERSION = 4
 private const val PROGRAM_SEED_VERSION = 3
 
 sealed interface SeedState {

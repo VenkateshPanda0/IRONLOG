@@ -324,6 +324,25 @@ fun <T> ChipRow(
     }
 }
 
+/**
+ * Wrapping single-choice chips for dialogs and other places where a lazy horizontal list is not
+ * appropriate (lazy lists inside dialog windows keep scheduling work).
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun <T> ChipFlow(options: List<T>, selected: T?, label: (T) -> String, onSelect: (T) -> Unit) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        options.forEach { option ->
+            FilterChip(
+                selected = option == selected,
+                onClick = { onSelect(option) },
+                label = { Text(label(option)) },
+                shape = CircleShape,
+            )
+        }
+    }
+}
+
 /** Segmented tab strip used for in-screen sections. */
 @Composable
 fun Segments(options: List<String>, selected: String, onSelect: (String) -> Unit) {

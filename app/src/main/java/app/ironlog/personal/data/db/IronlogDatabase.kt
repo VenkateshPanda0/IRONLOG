@@ -215,8 +215,47 @@ interface IronlogDao {
 
     @Query("DELETE FROM rest_timer WHERE id=1") suspend fun clearRestTimer()
 
-    @Query("SELECT * FROM food WHERE name LIKE '%' || :q || '%' ORDER BY name LIMIT 100")
+    /** Candidate rows for one search word; the repository applies the remaining words. */
+    @Query(
+        "SELECT * FROM food WHERE name LIKE '%' || :q || '%' OR brand LIKE '%' || :q || '%' " +
+            "ORDER BY isFavorite DESC, length(name) LIMIT 2000"
+    )
     fun searchFoods(q: String): Flow<List<FoodEntity>>
+
+    @Query("SELECT id, sourceRef FROM food WHERE source = 'USDA' AND sourceRef IS NOT NULL")
+    suspend fun usdaIds(): List<FoodRef>
+
+    @Query("DELETE FROM food_serving WHERE foodId IN (SELECT id FROM food WHERE source = 'USDA')")
+    suspend fun deleteUsdaServings()
+
+    @Query("SELECT * FROM food WHERE id=:id") fun observeFood(id: Long): Flow<FoodEntity?>
+
+    @Query("SELECT * FROM food WHERE id=:id") suspend fun food(id: Long): FoodEntity?
+
+    @Query("SELECT * FROM food_serving WHERE foodId=:foodId ORDER BY grams")
+    fun servings(foodId: Long): Flow<List<FoodServingEntity>>
+
+    @Query("UPDATE food SET isFavorite=:favorite WHERE id=:id") suspend fun setFoodFavorite(id: Long, favorite: Boolean)
+
+    @Query("SELECT * FROM food WHERE isFavorite=1 ORDER BY name") fun favoriteFoods(): Flow<List<FoodEntity>>
+
+    @Query("SELECT * FROM food WHERE source IN ('CUSTOM','RECIPE') ORDER BY createdAt DESC") fun myFoods(): Flow<List<FoodEntity>>
+
+    @Query(
+        "SELECT f.* FROM food f JOIN meal_entry m ON m.foodId = f.id GROUP BY f.id ORDER BY MAX(m.createdAt) DESC LIMIT 30"
+    )
+    fun recentFoods(): Flow<List<FoodEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE) suspend fun addServing(value: FoodServingEntity): Long
+
+    @Update suspend fun updateMeal(value: MealEntryEntity)
+
+    @Query("DELETE FROM meal_entry WHERE id=:id") suspend fun deleteMeal(id: Long)
+
+    @Query("SELECT * FROM meal_entry WHERE id=:id") suspend fun meal(id: Long): MealEntryEntity?
+
+    @Query("SELECT date, SUM(kcal) AS kcal, SUM(protein) AS protein, SUM(carbs) AS carbs, SUM(fat) AS fat FROM meal_entry WHERE date BETWEEN :start AND :end GROUP BY date")
+    fun dailyTotals(start: String, end: String): Flow<List<DailyTotal>>
 
     @Insert suspend fun addFood(value: FoodEntity): Long
 

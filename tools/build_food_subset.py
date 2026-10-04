@@ -1,4 +1,9 @@
-"""Create a sourced USDA SR Legacy food subset and portion table from JSON."""
+"""Create the bundled USDA SR Legacy food table and portion table from the JSON export.
+
+Every SR Legacy food with all four macro values is included (no keyword subset), so staples
+such as oats, eggs, rice and milk are always present. Portion labels keep their amount, e.g.
+"1 large" or "0.33 cup". Values are copied as published; nothing is estimated.
+"""
 
 import argparse
 import csv
@@ -12,6 +17,7 @@ MACROS = {
     "Total lipid (fat)": "fat",
     "Fiber, total dietary": "fiber",
 }
+# Kept for reference: the earlier keyword subset missed staples such as oats and eggs.
 COMMON = re.compile(
     r"\b(apple|applesauce|apricot|avocado|banana|barley|bean|beef|berry|bread|"
     r"broccoli|cabbage|carrot|cashew|cauliflower|celery|cheese|chicken|chickpea|"
@@ -45,22 +51,25 @@ def nutrient_values(food: dict) -> dict[str, float] | None:
 def food_rows(source: Path, limit: int):
     data = json.loads(source.read_text(encoding="utf-8"))
     foods = data.get("SRLegacyFoods", data if isinstance(data, list) else [])
-    candidates = []
+    selected = []
     for food in foods:
         values = nutrient_values(food)
-        if values is None:
-            continue
         name = food.get("description", "").strip()
-        if not name:
+        if values is None or not name:
             continue
-        score = len(COMMON.findall(name))
-        score += 1 if re.search(r"\b(cooked|boiled|baked|roasted|steamed)\b", name, re.I) else 0
-        candidates.append((score, name.casefold(), food, values))
-    candidates.sort(key=lambda row: (-row[0], row[1], row[2].get("fdcId", 0)))
-    selected = [row for row in candidates if row[0] > 0][:limit]
-    if len(selected) < min(600, limit):
-        selected = candidates[: min(limit, len(candidates))]
-    return selected
+        selected.append((0, name.casefold(), food, values))
+    selected.sort(key=lambda row: (row[1], row[2].get("fdcId", 0)))
+    return selected[:limit] if limit > 0 else selected
+
+
+def portion_label(portion: dict) -> str:
+    """'1 large', '0.33 cup', or the description when there is no modifier."""
+    modifier = (portion.get("modifier") or "").strip()
+    description = (portion.get("portionDescription") or "").strip()
+    amount = portion.get("amount")
+    if modifier:
+        return f"{amount:g} {modifier}" if isinstance(amount, (int, float)) and amount > 0 else modifier
+    return description
 
 
 def write_subset(source: Path, food_path: Path, serving_path: Path, limit: int) -> tuple[int, int]:
@@ -84,7 +93,7 @@ def write_subset(source: Path, food_path: Path, serving_path: Path, limit: int) 
             ref = str(food.get("fdcId", ""))
             for portion in food.get("foodPortions", []):
                 grams = portion.get("gramWeight")
-                label = portion.get("modifier") or portion.get("portionDescription") or ""
+                label = portion_label(portion)
                 if ref in selected_ids and label and isinstance(grams, (int, float)) and grams > 0:
                     writer.writerow([ref, label, grams])
                     servings += 1
@@ -96,7 +105,7 @@ def main() -> None:
     parser.add_argument("source", type=Path, help="USDA SR Legacy JSON file")
     parser.add_argument("foods", type=Path, help="Output foods.csv")
     parser.add_argument("servings", type=Path, help="Output food_servings.csv")
-    parser.add_argument("--limit", type=int, default=1200)
+    parser.add_argument("--limit", type=int, default=0, help="Optional cap; 0 keeps every complete food")
     args = parser.parse_args()
     count, serving_count = write_subset(args.source, args.foods, args.servings, args.limit)
     print(f"Wrote {count} USDA foods and {serving_count} portions")

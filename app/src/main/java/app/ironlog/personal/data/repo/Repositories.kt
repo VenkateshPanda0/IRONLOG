@@ -8,6 +8,8 @@ import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 
 class WorkoutRepository(private val db: IronlogDatabase) {
     private val dao = db.dao()
@@ -195,11 +197,52 @@ class WorkoutRepository(private val db: IronlogDatabase) {
 }
 
 class NutritionRepository(private val dao: IronlogDao) {
-    fun foods(q: String) = dao.searchFoods(q)
+    /**
+     * Every word must appear in the name or brand, in any order ("chicken breast" finds
+     * "Chicken, broilers or fryers, breast"). Ranking: favourites, then whole-word matches, then
+     * matches at the start of a word, then shorter (more generic) names. Filtering and scoring run
+     * off the main thread.
+     */
+    fun foods(q: String): Flow<List<FoodEntity>> {
+        val words = searchWords(q)
+        if (words.isEmpty()) return flowOf(emptyList())
+        val anchor = words.maxBy { it.length }
+        return dao.searchFoods(anchor)
+            .map { rows ->
+                rows
+                    .mapNotNull { food ->
+                        val text = (food.name + " " + food.brand.orEmpty()).lowercase()
+                        if (words.all { it in text }) food to matchScore(searchWords(food.name), words) else null
+                    }
+                    .sortedWith(
+                        compareByDescending<Pair<FoodEntity, Int>> { it.first.isFavorite }
+                            .thenByDescending { it.second }
+                            .thenBy { it.first.name.length }
+                    )
+                    .take(100)
+                    .map { it.first }
+            }
+            .flowOn(kotlinx.coroutines.Dispatchers.Default)
+    }
+
+    private fun searchWords(text: String) =
+        text.lowercase().split(Regex("[^\\p{L}\\p{N}]+")).filter { it.isNotEmpty() }
+
+    /**
+     * 2 points per query word that is a whole word of the name, 1 per word it starts, and 3 more
+     * when it is the name's first word (USDA names lead with the food: "Egg, whole, raw").
+     */
+    private fun matchScore(nameWords: List<String>, query: List<String>): Int =
+        query.count { q -> nameWords.firstOrNull().let { it == q || it == q + "s" } } * 3 +
+            query.sumOf { q ->
+            when {
+                nameWords.any { it == q || it == q + "s" } -> 2
+                nameWords.any { it.startsWith(q) } -> 1
+                else -> 0
+            }.toInt()
+        }
 
     fun meals(date: LocalDate) = dao.meals(date.toString())
-
-    fun searchFoods(query: String) = dao.searchFoods(query)
 
     suspend fun addCustom(name: String, kcal: Double, protein: Double, carbs: Double, fat: Double) =
         dao.addFood(
@@ -227,6 +270,63 @@ class NutritionRepository(private val dao: IronlogDao) {
                 fiber = food.fiberPer100g?.let { Calculations.foodMacro(it, grams) },
             )
         )
+
+    val favorites = dao.favoriteFoods()
+    val recent = dao.recentFoods()
+    val myFoods = dao.myFoods()
+
+    fun food(id: Long) = dao.observeFood(id)
+
+    fun servings(foodId: Long) = dao.servings(foodId)
+
+    fun dailyTotals(start: LocalDate, end: LocalDate) = dao.dailyTotals(start.toString(), end.toString())
+
+    suspend fun setFavorite(id: Long, favorite: Boolean) = dao.setFoodFavorite(id, favorite)
+
+    /** Rescales a logged entry to a new weight; values stay proportional to what was logged. */
+    suspend fun updateGrams(entryId: Long, grams: Double, mealType: String) {
+        val entry = dao.meal(entryId) ?: return
+        if (grams <= 0 || entry.grams <= 0) return
+        val factor = grams / entry.grams
+        dao.updateMeal(
+            entry.copy(
+                grams = grams,
+                mealType = mealType,
+                kcal = entry.kcal * factor,
+                protein = entry.protein * factor,
+                carbs = entry.carbs * factor,
+                fat = entry.fat * factor,
+                fiber = entry.fiber?.times(factor),
+            )
+        )
+    }
+
+    suspend fun deleteEntry(entryId: Long) = dao.deleteMeal(entryId)
+
+    /** Saves a recipe as a food with per-100 g values and a "1 serving" portion. */
+    suspend fun addRecipe(name: String, ingredients: List<Pair<FoodEntity, Double>>, servings: Int): Long? {
+        val totals =
+            app.ironlog.personal.domain.Nutrition.recipe(
+                ingredients.map { (food, grams) ->
+                    app.ironlog.personal.domain.Ingredient(grams, food.kcalPer100g, food.proteinPer100g, food.carbsPer100g, food.fatPer100g)
+                },
+                servings,
+            ) ?: return null
+        val id =
+            dao.addFood(
+                FoodEntity(
+                    name = name,
+                    source = "RECIPE",
+                    kcalPer100g = totals.kcalPer100g,
+                    proteinPer100g = totals.proteinPer100g,
+                    carbsPer100g = totals.carbsPer100g,
+                    fatPer100g = totals.fatPer100g,
+                    confidence = "USER",
+                )
+            )
+        dao.addServing(FoodServingEntity(foodId = id, label = "1 serving", grams = totals.gramsPerServing))
+        return id
+    }
 
     suspend fun copyDay(from: LocalDate, to: LocalDate) =
         dao.mealsOnce(from.toString()).forEach {

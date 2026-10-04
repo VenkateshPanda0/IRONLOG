@@ -31,7 +31,9 @@ import app.ironlog.personal.SeedState
 import app.ironlog.personal.ui.home.HomeScreen
 import app.ironlog.personal.ui.library.ExerciseDetailScreen
 import app.ironlog.personal.ui.library.ExerciseLibraryScreen
+import app.ironlog.personal.ui.nutrition.FoodSearchScreen
 import app.ironlog.personal.ui.nutrition.NutritionScreen
+import app.ironlog.personal.ui.nutrition.RecipeScreen
 import app.ironlog.personal.ui.onboarding.OnboardingScreen
 import app.ironlog.personal.ui.progress.ProgressScreen
 import app.ironlog.personal.ui.settings.SettingsScreen
@@ -55,12 +57,16 @@ object Routes {
     const val PROGRAM = "program/{id}"
     const val WORKOUT = "workout/{id}"
     const val SUMMARY = "summary/{id}"
+    const val FOOD = "food/{meal}/{date}"
+    const val RECIPE = "recipe"
 
     fun program(id: Long) = "program/$id"
 
     fun workout(id: Long) = "workout/$id"
 
     fun summary(id: Long) = "summary/$id"
+
+    fun food(meal: String, date: java.time.LocalDate) = "food/$meal/$date"
 
     fun exercise(id: String) = "exercise/${android.net.Uri.encode(id)}"
 }
@@ -225,7 +231,16 @@ private fun IronlogNavHost(
         composable(Routes.EXERCISE, listOf(navArgument("id") { type = NavType.StringType })) {
             ExerciseDetailScreen(container, nav, it.arguments?.getString("id").orEmpty())
         }
-        composable(Routes.NUTRITION) { NutritionScreen(container) }
+        composable(Routes.NUTRITION) { NutritionScreen(container, nav) }
+        composable(Routes.FOOD, listOf(navArgument("meal") { type = NavType.StringType }, navArgument("date") { type = NavType.StringType })) {
+            FoodSearchScreen(
+                container,
+                nav,
+                it.arguments?.getString("meal") ?: "SNACK",
+                runCatching { java.time.LocalDate.parse(it.arguments?.getString("date")) }.getOrDefault(java.time.LocalDate.now()),
+            )
+        }
+        composable(Routes.RECIPE) { RecipeScreen(container, nav) }
         composable(Routes.PROGRESS) { ProgressScreen(container) }
         composable(Routes.SETTINGS) {
             SettingsScreen(container, onTheme, onExport, onImport, onBack = { nav.back() })

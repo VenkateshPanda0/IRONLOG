@@ -188,9 +188,9 @@ fun CustomExerciseDialog(onDismiss: () -> Unit, onCreate: (String, String, Strin
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Field("Name", name, { name = it })
                 Eyebrow("Primary muscle")
-                ChipRow(Recommender.ALL_MUSCLES, muscle, { it.titleCase() }, { muscle = it })
+                ChipFlow(Recommender.ALL_MUSCLES, muscle, { it.titleCase() }, { muscle = it })
                 Eyebrow("Equipment")
-                ChipRow(EQUIPMENT, equipment, { it.titleCase() }, { equipment = it })
+                ChipFlow(EQUIPMENT, equipment, { it.titleCase() }, { equipment = it })
             }
         },
         confirmButton = {

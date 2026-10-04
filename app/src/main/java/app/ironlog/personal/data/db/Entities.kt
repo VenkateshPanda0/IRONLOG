@@ -338,3 +338,8 @@ data class LoggedSet(
     val weightKg: Double?,
     val reps: Int?,
 )
+
+/** Per-day nutrition sums for charts and the weekly balance. */
+data class DailyTotal(val date: String, val kcal: Double, val protein: Double, val carbs: Double, val fat: Double)
+
+data class FoodRef(val id: Long, val sourceRef: String)
