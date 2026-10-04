@@ -1,5 +1,16 @@
 # Ironlog build state
 
+## Current (2026-10-04, main @ step 7)
+
+- PASS: `assembleDebug`, `testDebugUnitTest` (89 tests), `lintDebug` (0 errors) in the Linux cloud session (JDK 21, Android SDK 35 at /opt/android-sdk).
+- Room schema v3 with tested migrations 1->2->3.
+- Done since the first build: STNDRD-style redesign and navigation, five-step onboarding, program recommender with staple lifts and weekly coverage of all 17 muscle groups, exercise library with movement demos, full workout logger with drop/rest-pause sets and swap, summary and share cards, progress analytics and photos, nutrition diary with full USDA table, barcode scanning and recipes, wellness (readiness, water, steps, sleep, habits, cardio, measurements), 160 tiered achievements and a 50-level two-year progression.
+- NOT RUN: device or emulator install (no KVM), live Open Food Facts calls from the app, code scanner UI, notifications.
+- Known test-harness limitation: Compose test idling never settles while a dialog window is open under Robolectric. Measured layout stabilises after a few frames, so the walkthrough steps the clock by hand around dialogs.
+- Next ideas: Health Connect import for steps/sleep/weight, reminders, units (lb), backup of v3 wellness tables and photos, on-device verification.
+
+## History (earlier sessions)
+
 - **2026-10-04 update:** `assembleDebug` and `testDebugUnitTest` (33/33) now PASS in a Linux cloud session with the Android SDK at `/opt/android-sdk`. Lint and device install remain NOT RUN. Work now proceeds on `main` only, toward STNDRD-style feature parity (local-first): exercise library screen, advanced set types, exercise swap, workout summary/share, camera barcode scan, recipes, weekly balance, progress photos, strength/volume charts, XP/medals screen, dark redesign.
 
 - Last passed check: `gradlew.bat --version` reported Gradle 8.9 / JDK 17.0.18. No app milestone gate has passed; assemble, tests, lint, sync, and device gates remain NOT RUN.
