@@ -5,6 +5,7 @@ import app.ironlog.personal.data.db.primaryMuscleList
 import app.ironlog.personal.domain.Achievement
 import app.ironlog.personal.domain.AchievementInput
 import app.ironlog.personal.domain.Achievements
+import app.ironlog.personal.domain.PhysiqueRecord
 import app.ironlog.personal.domain.EngagementInputs
 import app.ironlog.personal.domain.EngagementReplay
 import app.ironlog.personal.domain.EngagementSummary
@@ -52,7 +53,7 @@ data class Engagement(
 class EngagementRepository(private val dao: IronlogDao, private val zone: ZoneId = ZoneId.systemDefault()) {
     private val training = combine(dao.allLoggedSets(), dao.history(), dao.exercises()) { sets, sessions, exercises -> Triple(sets, sessions, exercises) }
     private val body = combine(dao.foodDays(), dao.photos(), dao.weights()) { food, photos, weights -> Triple(food, photos, weights) }
-    private val settings = combine(dao.profile(), dao.goal()) { profile, goal -> profile to goal }
+    private val settings = combine(dao.profile(), dao.goal(), dao.physiqueScans()) { profile, goal, scans -> Triple(profile, goal, scans) }
     private val wellnessRows =
         combine(dao.cardio(), dao.dailyLogs(), dao.habitChecks(), dao.measurements()) { cardio, days, checks, measurements ->
             WellnessRows(cardio, days, checks, measurements)
@@ -66,7 +67,7 @@ class EngagementRepository(private val dao: IronlogDao, private val zone: ZoneId
     )
 
     val engagement: Flow<Engagement> =
-        combine(training, body, settings, wellnessRows) { (sets, sessions, exercises), (foodDays, photos, weights), (profile, goal), rows ->
+        combine(training, body, settings, wellnessRows) { (sets, sessions, exercises), (foodDays, photos, weights), (profile, goal, scans), rows ->
                 val dateOf = { ms: Long -> Instant.ofEpochMilli(ms).atZone(zone).toLocalDate() }
                 val history = sets.map { ExerciseSet(it.sessionId, it.startedAt, it.exerciseId, it.exerciseName, it.type, it.weightKg, it.reps) }
                 val workouts = EngagementInputs.workouts(history, dateOf)
@@ -111,6 +112,7 @@ class EngagementRepository(private val dao: IronlogDao, private val zone: ZoneId
                             goalReachedOn = goalReached,
                             plannedPerWeek = perWeek,
                             wellness = wellness,
+                            physique = scans.map { PhysiqueRecord(LocalDate.parse(it.date), it.matchScore, it.shoulder / it.waist) },
                         )
                     )
                 Engagement(

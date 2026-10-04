@@ -103,3 +103,8 @@ Each step was built, tested and pushed to `main` separately: redesign and naviga
 - APK grew to about 70 MB (ML Kit native library); 32-bit x86 dropped and native libraries compressed (was 130 MB before that).
 - Gate: 96 tests pass, lint 0 errors. Not verified: ML Kit on a real device and accuracy on real photos.
 
+
+## 2026-10-04 · Physique and collection medals
+
+- 23 new achievements (183 total): physique checks in different months (up to 48 months, Legend), best goal match, V-taper ladder up to 1.9 (Legend), match improvement over the first check, "Stage Ready" (100% match held for a year, Legend), and collection medals up to "Completionist" (every other medal, Legend).
+- Grind simulation unchanged: dedicated cap at week 105, regular week 152. Gate: 98 tests pass, lint 0 errors.

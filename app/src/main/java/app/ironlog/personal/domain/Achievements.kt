@@ -26,7 +26,12 @@ enum class AchievementGroup(val label: String) {
     CARDIO("Cardio"),
     RECOVERY("Recovery"),
     HABITS("Habits"),
+    PHYSIQUE("Physique"),
+    MEDALS("Collection"),
 }
+
+/** One saved physique photo check. */
+data class PhysiqueRecord(val date: LocalDate, val match: Int, val vTaper: Double)
 
 data class AchievementDef(
     val id: String,
@@ -61,6 +66,7 @@ data class AchievementInput(
     val goalReachedOn: LocalDate?,
     val plannedPerWeek: Int,
     val wellness: WellnessInput? = null,
+    val physique: List<PhysiqueRecord> = emptyList(),
 )
 
 object Achievements {
@@ -289,6 +295,45 @@ object Achievements {
             add(d("measurements_12", "Measured Progress", "Log measurements on 12 different days", Tier.SILVER, AchievementGroup.BODY, 12.0, "days"))
             add(d("waist_5", "Belt Notch", "Lose 5 cm from your first waist measurement", Tier.GOLD, AchievementGroup.BODY, 5.0, "cm"))
             add(d("waist_10", "New Wardrobe", "Lose 10 cm from your first waist measurement", Tier.PLATINUM, AchievementGroup.BODY, 10.0, "cm"))
+            // Physique checks
+            addAll(
+                ladder(
+                    "physique_checks", AchievementGroup.PHYSIQUE, "months",
+                    Triple(1.0, "Mirror Check", Tier.BRONZE), Triple(6.0, "Shape Tracker", Tier.SILVER), Triple(12.0, "Year in the Mirror", Tier.GOLD),
+                    Triple(24.0, "Two-Year Study", Tier.PLATINUM), Triple(48.0, "Four-Year Sculpture", Tier.LEGEND),
+                ) { if (it == 1.0) "Save your first physique check" else "Save physique checks in ${fmt(it)} different months" }
+            )
+            addAll(
+                ladder(
+                    "physique_match", AchievementGroup.PHYSIQUE, "% match",
+                    Triple(60.0, "Taking Shape", Tier.BRONZE), Triple(75.0, "Getting Close", Tier.SILVER),
+                    Triple(90.0, "Nearly There", Tier.GOLD), Triple(100.0, "On Target", Tier.PLATINUM),
+                ) { "Reach a ${fmt(it)}% match with your goal physique" }
+            )
+            add(d("stage_ready", "Stage Ready", "Hold a 100% match on checks at least a year apart", Tier.LEGEND, AchievementGroup.PHYSIQUE, 365.0, "days"))
+            listOf(
+                Triple(1.4, "Tapered", Tier.BRONZE), Triple(1.5, "Broad Shoulders", Tier.SILVER), Triple(1.62, "Golden Ratio", Tier.GOLD),
+                Triple(1.75, "Cobra Lats", Tier.PLATINUM), Triple(1.9, "Living Statue", Tier.LEGEND),
+            ).forEach { (ratio, title, tier) ->
+                add(d("vtaper_${(ratio * 100).toInt()}", title, "Measure a V-taper (shoulders ÷ waist) of ${fmt(ratio)}", tier, AchievementGroup.PHYSIQUE, ratio, "ratio"))
+            }
+            addAll(
+                ladder(
+                    "physique_gain", AchievementGroup.PHYSIQUE, "points",
+                    Triple(10.0, "Visible Change", Tier.SILVER), Triple(25.0, "Transformation", Tier.GOLD), Triple(40.0, "Different Person", Tier.PLATINUM),
+                ) { "Improve your goal match by ${fmt(it)} points over your first check" }
+            )
+            // Collection: medals for medals. Completionist needs every other medal, Legends included.
+            addAll(
+                ladder(
+                    "medals", AchievementGroup.MEDALS, "medals",
+                    Triple(10.0, "Collector", Tier.BRONZE), Triple(25.0, "Decorated", Tier.SILVER), Triple(50.0, "Medal Cabinet", Tier.GOLD),
+                    Triple(100.0, "Hall of Fame", Tier.PLATINUM),
+                ) { "Earn ${fmt(it)} other medals" }
+            )
+        }.let { defs ->
+            val others = defs.count { !it.id.startsWith("medals_") }
+            defs + AchievementDef("completionist", "Completionist", "Earn every other medal in Ironlog", Tier.LEGEND, AchievementGroup.MEDALS, others.toDouble(), "medals")
         }
 
     fun evaluate(input: AchievementInput): List<Achievement> {
@@ -470,11 +515,43 @@ object Achievements {
         }
 
         input.wellness?.let { w -> evaluateWellness(w, results) }
+        evaluatePhysique(input.physique, results)
+
+        // Collection medals count everything else, in the order it was earned.
+        val earnedDates = results.filterKeys { !it.startsWith("medals_") && it != "completionist" }.values.mapNotNull { it.first }.sorted()
+        ALL.filter { it.group == AchievementGroup.MEDALS }.forEach { def ->
+            results[def.id] = earnedDates.getOrNull(def.target.toInt() - 1) to earnedDates.size.toDouble()
+        }
 
         return ALL.map { def ->
             val (date, progress) = results[def.id] ?: (null to 0.0)
             Achievement(def, date, progress)
         }
+    }
+
+    private fun evaluatePhysique(scans: List<PhysiqueRecord>, results: MutableMap<String, Pair<LocalDate?, Double>>) {
+        val sorted = scans.sortedBy { it.date }
+        fun defs(prefix: String) = ALL.filter { it.id.startsWith(prefix + "_") }
+        fun peak(ids: List<AchievementDef>, series: List<Pair<LocalDate, Double>>) {
+            var best = 0.0
+            val reached = mutableMapOf<String, LocalDate>()
+            series.forEach { (date, v) ->
+                best = maxOf(best, v)
+                ids.forEach { if (best >= it.target && it.id !in reached) reached[it.id] = date }
+            }
+            ids.forEach { results[it.id] = reached[it.id] to best }
+        }
+        // One check per calendar month counts, so the ladder rewards years of tracking.
+        val months = sorted.distinctBy { java.time.YearMonth.from(it.date) }.map { it.date }
+        defs("physique_checks").forEach { results[it.id] = months.getOrNull(it.target.toInt() - 1) to months.size.toDouble() }
+        peak(defs("physique_match"), sorted.map { it.date to it.match.toDouble() })
+        peak(defs("vtaper"), sorted.map { it.date to it.vTaper })
+        sorted.firstOrNull()?.let { first -> peak(defs("physique_gain"), sorted.map { it.date to (it.match - first.match).toDouble() }) }
+        val perfect = sorted.filter { it.match >= 100 }
+        val firstPerfect = perfect.firstOrNull()
+        val held = firstPerfect?.let { f -> perfect.firstOrNull { java.time.temporal.ChronoUnit.DAYS.between(f.date, it.date) >= 365 } }
+        results["stage_ready"] =
+            held?.date to (firstPerfect?.let { java.time.temporal.ChronoUnit.DAYS.between(it.date, perfect.last().date).toDouble() } ?: 0.0)
     }
 
     private fun evaluateWellness(w: WellnessInput, results: MutableMap<String, Pair<LocalDate?, Double>>) {

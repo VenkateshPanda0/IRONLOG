@@ -128,4 +128,43 @@ class AchievementsTest {
         val xp = WellnessXp.events(wellness).sumOf { it.second }
         assertEquals((50 + 24) + (50 + 60) + (50 + 20) + 30 * 5 + 7 * 35, xp)
     }
+
+    @Test
+    fun physiqueMedalsRewardYearsOfChecksAndRealChange() {
+        val d = LocalDate.parse("2026-01-10")
+        val scans =
+            listOf(
+                PhysiqueRecord(d, 55, 1.38),
+                PhysiqueRecord(d.plusDays(3), 58, 1.39), // same month: still one month
+                PhysiqueRecord(d.plusMonths(4), 72, 1.47),
+                PhysiqueRecord(d.plusMonths(10), 100, 1.63),
+                PhysiqueRecord(d.plusMonths(16), 96, 1.60),
+                PhysiqueRecord(d.plusMonths(23), 100, 1.66),
+            )
+        val r = Achievements.evaluate(input(emptyList()).copy(physique = scans))
+        assertEquals(d, r.of("physique_checks_1").earnedOn)
+        assertEquals(5.0, r.of("physique_checks_6").progress, 0.0)
+        assertNull(r.of("physique_checks_6").earnedOn)
+        assertEquals(d.plusMonths(4), r.of("physique_match_60").earnedOn)
+        assertEquals(d.plusMonths(10), r.of("physique_match_100").earnedOn)
+        assertEquals(d.plusMonths(10), r.of("vtaper_162").earnedOn)
+        assertNull(r.of("vtaper_175").earnedOn)
+        assertEquals(d.plusMonths(10), r.of("physique_gain_40").earnedOn)
+        // 100% held for over a year: the legend.
+        assertEquals(d.plusMonths(23), r.of("stage_ready").earnedOn)
+        assertNull(Achievements.evaluate(input(emptyList()).copy(physique = scans.take(4))).of("stage_ready").earnedOn)
+    }
+
+    @Test
+    fun collectionMedalsCountOtherMedalsAndCompletionistNeedsEverything() {
+        val sets = (1L..12L).map { set(it, "Pullups", null, 1) }
+        val r = Achievements.evaluate(input(sets))
+        val others = r.count { it.earned && it.def.group != AchievementGroup.MEDALS }
+        assertTrue(others >= 3)
+        assertEquals(others.toDouble(), r.of("medals_10").progress, 0.0)
+        assertEquals(others >= 10, r.of("medals_10").earned)
+        val completionist = r.of("completionist")
+        assertFalse(completionist.earned)
+        assertEquals(Achievements.ALL.count { it.group != AchievementGroup.MEDALS }.toDouble(), completionist.def.target, 0.0)
+    }
 }

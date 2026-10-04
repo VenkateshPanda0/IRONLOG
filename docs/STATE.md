@@ -2,10 +2,10 @@
 
 ## Current (2026-10-04, main @ physique check)
 
-- PASS: `assembleDebug`, `testDebugUnitTest` (96 tests), `lintDebug` (0 errors) in the Linux cloud session (JDK 21, Android SDK 35 at /opt/android-sdk).
+- PASS: `assembleDebug`, `testDebugUnitTest` (98 tests), `lintDebug` (0 errors) in the Linux cloud session (JDK 21, Android SDK 35 at /opt/android-sdk).
 - Room schema v5 with tested migrations 1->2->3->4->5 (v4: food cuisine/popularity; v5: profile physique goal and physique_scan table).
 - Physique check: ML Kit pose + selfie segmentation on device feed `domain/Physique.kt` (rule-based widths, ratios, ten goal types). The analyzer is unit-tested on synthetic bodies; the ML Kit path itself is NOT RUN (no device) and its accuracy on real photos is unverified.
-- Done since the first build: STNDRD-style redesign and navigation, five-step onboarding, program recommender with staple lifts and weekly coverage of all 17 muscle groups, exercise library with movement demos, full workout logger with drop/rest-pause sets and swap, summary and share cards, progress analytics and photos, nutrition diary with full USDA table, barcode scanning and recipes, wellness (readiness, water, steps, sleep, habits, cardio, measurements), 160 tiered achievements and a 50-level two-year progression.
+- Done since the first build: STNDRD-style redesign and navigation, five-step onboarding, program recommender with staple lifts and weekly coverage of all 17 muscle groups, exercise library with movement demos, full workout logger with drop/rest-pause sets and swap, summary and share cards, progress analytics and photos, nutrition diary with full USDA table, barcode scanning and recipes, wellness (readiness, water, steps, sleep, habits, cardio, measurements), 183 tiered achievements (physique and collection medals added) and a 50-level two-year progression.
 - NOT RUN: device or emulator install (no KVM), live Open Food Facts calls from the app, code scanner UI, notifications.
 - Known test-harness limitation: Compose test idling never settles while a dialog window is open under Robolectric. Measured layout stabilises after a few frames, so the walkthrough steps the clock by hand around dialogs.
 - Next ideas: Health Connect import for steps/sleep/weight, reminders, units (lb), backup of wellness tables, physique checks and photos, on-device verification.
