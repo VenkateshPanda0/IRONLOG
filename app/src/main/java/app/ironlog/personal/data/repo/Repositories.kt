@@ -236,11 +236,47 @@ class NutritionRepository(private val dao: IronlogDao) {
         }
 }
 
-class BodyRepository(private val dao: IronlogDao) {
+class BodyRepository(private val dao: IronlogDao, private val photoDir: java.io.File) {
     val weights: Flow<List<BodyWeightEntity>> = dao.weights()
+    val photos: Flow<List<ProgressPhotoEntity>> = dao.photos()
 
     suspend fun log(date: LocalDate, kg: Double, note: String? = null) =
         dao.addWeight(BodyWeightEntity(date = date.toString(), weightKg = kg, note = note))
+
+    suspend fun deleteWeight(id: Long) = dao.deleteWeight(id)
+
+    fun photoFile(photo: ProgressPhotoEntity) = java.io.File(photoDir, photo.fileName)
+
+    /**
+     * Copies the picked image into app-private storage, scaled so the long edge is at most 1600 px.
+     * The original in the user's gallery is not touched.
+     */
+    suspend fun addPhoto(resolver: android.content.ContentResolver, uri: android.net.Uri, date: LocalDate) =
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            resolver.openInputStream(uri)?.use { android.graphics.BitmapFactory.decodeStream(it, null, bounds) }
+            var sample = 1
+            while (maxOf(bounds.outWidth, bounds.outHeight) / (sample * 2) >= 1600) sample *= 2
+            val bitmap =
+                resolver.openInputStream(uri)?.use {
+                    android.graphics.BitmapFactory.decodeStream(it, null, android.graphics.BitmapFactory.Options().apply { inSampleSize = sample })
+                } ?: error("Could not read the selected image")
+            photoDir.mkdirs()
+            val name = "photo_${java.util.UUID.randomUUID()}.jpg"
+            java.io.File(photoDir, name).outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 88, it) }
+            bitmap.recycle()
+            dao.addPhoto(ProgressPhotoEntity(date = date.toString(), fileName = name))
+        }
+
+    suspend fun deletePhoto(photo: ProgressPhotoEntity) {
+        dao.deletePhoto(photo.id)
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { photoFile(photo).delete() }
+    }
+
+    suspend fun deleteAllPhotos() {
+        dao.deleteAllPhotos()
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { photoDir.deleteRecursively() }
+    }
 }
 
 class GoalRepository(private val dao: IronlogDao) {

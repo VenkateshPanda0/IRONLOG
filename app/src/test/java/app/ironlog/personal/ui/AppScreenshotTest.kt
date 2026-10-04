@@ -154,7 +154,28 @@ class AppScreenshotTest {
         tap("Nutrition")
         shot("03_nutrition")
 
+        // Test-only sample weigh-ins: a gentle downward trend over six weeks.
+        runBlocking {
+            val today = java.time.LocalDate.now()
+            for (day in 42 downTo 1 step 2) container.body.log(today.minusDays(day.toLong()), 84.0 - (42 - day) * 0.05 + (day % 3) * 0.2)
+            listOf(android.graphics.Color.DKGRAY, android.graphics.Color.GRAY).forEachIndexed { i, color ->
+                val file = java.io.File(compose.activity.cacheDir, "sample$i.png")
+                val bitmap = android.graphics.Bitmap.createBitmap(300, 400, android.graphics.Bitmap.Config.ARGB_8888).apply { eraseColor(color) }
+                file.outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+                container.body.addPhoto(compose.activity.contentResolver, android.net.Uri.fromFile(file), today.minusDays(30L * (1 - i)))
+            }
+        }
         tap("Progress")
-        shot("04_progress")
+        compose.waitUntilAtLeastOneExists(hasText("7-day avg", ignoreCase = true), 10_000)
+        shot("04_progress_weight")
+        tap("Strength")
+        compose.waitUntilAtLeastOneExists(hasText("Top lifts", ignoreCase = true), 10_000)
+        shot("04_progress_strength")
+        tap("Volume")
+        compose.waitUntilAtLeastOneExists(hasText("Sets per muscle", substring = true, ignoreCase = true), 10_000)
+        shot("04_progress_volume")
+        tap("Photos")
+        compose.waitUntilAtLeastOneExists(hasText("First vs latest", ignoreCase = true), 10_000)
+        shot("04_progress_photos")
     }
 }

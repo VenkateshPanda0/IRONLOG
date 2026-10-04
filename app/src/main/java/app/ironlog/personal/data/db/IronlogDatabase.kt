@@ -245,6 +245,19 @@ interface IronlogDao {
 
     @Insert suspend fun addWeight(value: BodyWeightEntity): Long
 
+    @Query("DELETE FROM body_weight WHERE id=:id") suspend fun deleteWeight(id: Long)
+
+    @Query("SELECT * FROM progress_photo ORDER BY date DESC, createdAt DESC")
+    fun photos(): Flow<List<ProgressPhotoEntity>>
+
+    @Query("SELECT * FROM progress_photo") suspend fun allPhotos(): List<ProgressPhotoEntity>
+
+    @Insert suspend fun addPhoto(value: ProgressPhotoEntity): Long
+
+    @Query("DELETE FROM progress_photo WHERE id=:id") suspend fun deletePhoto(id: Long)
+
+    @Query("DELETE FROM progress_photo") suspend fun deleteAllPhotos()
+
     @Query("SELECT * FROM program ORDER BY isBuiltIn DESC,name")
     fun programs(): Flow<List<ProgramEntity>>
 

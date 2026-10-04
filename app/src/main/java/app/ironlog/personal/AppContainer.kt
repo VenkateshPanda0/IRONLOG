@@ -27,7 +27,7 @@ class AppContainer(context: Context) {
             .build()
     val workouts = WorkoutRepository(db)
     val nutrition = NutritionRepository(db.dao())
-    val body = BodyRepository(db.dao())
+    val body = BodyRepository(db.dao(), java.io.File(context.filesDir, "photos"))
     val goals = GoalRepository(db.dao())
     val backup = BackupRepository(db)
     val programs = ProgramRepository(db)
@@ -71,6 +71,7 @@ class AppContainer(context: Context) {
             dao.deleteAllGoals()
             dao.clearRestTimer()
         }
+        body.deleteAllPhotos()
         // The wipe also removes bundled library rows; restore them so the app stays usable.
         setSeedVersion(0)
         runSeeds()

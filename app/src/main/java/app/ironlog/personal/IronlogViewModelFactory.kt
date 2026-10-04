@@ -3,7 +3,6 @@ package app.ironlog.personal
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import app.ironlog.personal.ui.nutrition.NutritionViewModel
-import app.ironlog.personal.ui.progress.BodyViewModel
 import java.time.LocalDate
 
 class IronlogViewModelFactory(
@@ -15,8 +14,6 @@ class IronlogViewModelFactory(
             when {
                 modelClass.isAssignableFrom(NutritionViewModel::class.java) ->
                     NutritionViewModel(container.nutrition, date)
-                modelClass.isAssignableFrom(BodyViewModel::class.java) ->
-                    BodyViewModel(container.body)
                 else -> error("Unknown ViewModel: ${modelClass.name}")
             }
         return modelClass.cast(viewModel)
