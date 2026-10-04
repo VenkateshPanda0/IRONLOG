@@ -35,6 +35,7 @@ import app.ironlog.personal.ui.nutrition.FoodSearchScreen
 import app.ironlog.personal.ui.nutrition.NutritionScreen
 import app.ironlog.personal.ui.nutrition.RecipeScreen
 import app.ironlog.personal.ui.onboarding.OnboardingScreen
+import app.ironlog.personal.ui.profile.ProfileScreen
 import app.ironlog.personal.ui.progress.ProgressScreen
 import app.ironlog.personal.ui.settings.SettingsScreen
 import app.ironlog.personal.ui.train.ActiveWorkoutRoute
@@ -52,6 +53,7 @@ object Routes {
     const val LIBRARY = "library"
     const val EXERCISE = "exercise/{id}"
     const val SETTINGS = "settings"
+    const val PROFILE = "profile"
     const val HISTORY = "history"
     const val BUILDER = "builder"
     const val PROGRAM = "program/{id}"
@@ -242,6 +244,7 @@ private fun IronlogNavHost(
         }
         composable(Routes.RECIPE) { RecipeScreen(container, nav) }
         composable(Routes.PROGRESS) { ProgressScreen(container) }
+        composable(Routes.PROFILE) { ProfileScreen(container, nav) }
         composable(Routes.SETTINGS) {
             SettingsScreen(container, onTheme, onExport, onImport, onBack = { nav.back() })
         }

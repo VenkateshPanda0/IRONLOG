@@ -343,3 +343,5 @@ data class LoggedSet(
 data class DailyTotal(val date: String, val kcal: Double, val protein: Double, val carbs: Double, val fat: Double)
 
 data class FoodRef(val id: Long, val sourceRef: String)
+
+data class FoodDay(val date: String, val kcal: Double, val mealTypes: String)

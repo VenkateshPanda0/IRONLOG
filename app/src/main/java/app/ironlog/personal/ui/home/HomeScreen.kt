@@ -56,6 +56,7 @@ fun HomeScreen(c: AppContainer, nav: Navigator) {
     val nextPrescriptions by
         remember(nextDay?.id) { c.programs.prescriptions(nextDay?.id ?: -1L) }
             .collectAsState(initial = emptyList())
+    val engagement by c.engagement.engagement.collectAsState(initial = null)
     val scope = rememberCoroutineScope()
 
     val workoutDates =
@@ -70,7 +71,17 @@ fun HomeScreen(c: AppContainer, nav: Navigator) {
         title = greeting(profile?.name),
         subtitle = today.format(DateTimeFormatter.ofPattern("EEEE, d MMMM")),
         actions = {
-            IconButton(onClick = { nav.open(Routes.SETTINGS) }) {
+            engagement?.let {
+                Surface(
+                    onClick = { nav.open(Routes.PROFILE) },
+                    shape = androidx.compose.foundation.shape.CircleShape,
+                    color = IronTheme.colors.accent,
+                    contentColor = IronTheme.colors.onAccent,
+                ) {
+                    Text("LVL ${it.summary.level + 1}", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp))
+                }
+            }
+            IconButton(onClick = { nav.open(Routes.PROFILE) }) {
                 Icon(Icons.Outlined.Person, contentDescription = "Profile and settings")
             }
         },

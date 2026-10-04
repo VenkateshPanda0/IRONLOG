@@ -29,6 +29,7 @@ class AppContainer(context: Context) {
     val nutrition = NutritionRepository(db.dao())
     val body = BodyRepository(db.dao(), java.io.File(context.filesDir, "photos"))
     val goals = GoalRepository(db.dao())
+    val engagement = EngagementRepository(db.dao())
     val backup = BackupRepository(db)
     val programs = ProgramRepository(db)
     val seed = SeedLoader(context, db)

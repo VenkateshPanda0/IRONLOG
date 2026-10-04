@@ -257,6 +257,10 @@ interface IronlogDao {
     @Query("SELECT date, SUM(kcal) AS kcal, SUM(protein) AS protein, SUM(carbs) AS carbs, SUM(fat) AS fat FROM meal_entry WHERE date BETWEEN :start AND :end GROUP BY date")
     fun dailyTotals(start: String, end: String): Flow<List<DailyTotal>>
 
+    /** Every logged day with its calories and the set of meals that have entries. */
+    @Query("SELECT date, SUM(kcal) AS kcal, GROUP_CONCAT(DISTINCT mealType) AS mealTypes FROM meal_entry GROUP BY date")
+    fun foodDays(): Flow<List<FoodDay>>
+
     @Insert suspend fun addFood(value: FoodEntity): Long
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
