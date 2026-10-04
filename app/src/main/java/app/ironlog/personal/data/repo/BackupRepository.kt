@@ -32,6 +32,7 @@ class BackupRepository(private val db: IronlogDatabase) {
             dao.deleteAllFoods()
             dao.deleteAllWeights()
             dao.deleteAllActivePrograms()
+            dao.deleteAllSkippedProgramDays()
             dao.deleteAllPrescriptions()
             dao.deleteAllProgramDays()
             dao.deleteAllPrograms()
@@ -44,6 +45,7 @@ class BackupRepository(private val db: IronlogDatabase) {
             dao.restoreProgramDays(backup.programDays)
             dao.restorePrescriptions(backup.prescriptions)
             dao.restoreActivePrograms(backup.activePrograms)
+            dao.restoreSkippedProgramDays(backup.skippedProgramDays)
             dao.restoreProfiles(backup.profile)
             dao.restoreSessions(backup.sessions)
             dao.restoreSessionExercises(backup.sessionExercises)
@@ -61,6 +63,15 @@ class BackupRepository(private val db: IronlogDatabase) {
             value.profile.size <= 1 && value.activePrograms.size <= 1 && value.goals.size <= 1
         ) {
             "Backup contains duplicate singleton rows"
+        }
+        val programIds = value.programs.map { it.id }.toSet()
+        require(
+            value.skippedProgramDays.all {
+                it.programId in programIds && runCatching { LocalDate.parse(it.date) }.isSuccess
+            } && value.skippedProgramDays.map { it.programId to it.date }.distinct().size ==
+                value.skippedProgramDays.size
+        ) {
+            "Backup contains invalid skipped program days"
         }
         require(
             value.meals.all {

@@ -11,6 +11,7 @@ data class BackupSnapshot(
     val programDays: List<ProgramDayEntity> = emptyList(),
     val prescriptions: List<ProgramDayExerciseEntity> = emptyList(),
     val activePrograms: List<ActiveProgramEntity> = emptyList(),
+    val skippedProgramDays: List<SkippedProgramDayEntity> = emptyList(),
     val profile: List<UserProfileEntity> = emptyList(),
     val sessions: List<WorkoutSessionEntity> = emptyList(),
     val sessionExercises: List<SessionExerciseEntity> = emptyList(),

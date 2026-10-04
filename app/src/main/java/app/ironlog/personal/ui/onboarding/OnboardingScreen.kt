@@ -38,6 +38,7 @@ fun OnboardingScreen(c: AppContainer) {
     var age by remember { mutableStateOf("30") }
     var goal by remember { mutableStateOf("MAINTAIN") }
     var days by remember { mutableStateOf("3") }
+    var trainingWeekdays by remember { mutableStateOf(setOf("MON", "WED", "FRI")) }
     var equipment by remember { mutableStateOf("GYM") }
     var experience by remember { mutableStateOf(ExperienceLevel.BEGINNER) }
     var sessionMinutes by remember { mutableStateOf("45") }
@@ -55,6 +56,12 @@ fun OnboardingScreen(c: AppContainer) {
         Field("Height (cm)", height, { height = it }, true)
         Field("Age", age, { age = it }, true)
         Field("Training days per week", days, { days = it }, true)
+        Text("Choose the weekdays you expect to train")
+        WeekdaySelector(trainingWeekdays) { day ->
+            trainingWeekdays =
+                if (day in trainingWeekdays) trainingWeekdays - day else trainingWeekdays + day
+        }
+        Text("Select exactly ${days.toIntOrNull()?.coerceIn(2, 6) ?: 3} days.")
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             listOf("MALE", "FEMALE", "UNSPECIFIED").forEach {
                 FilterChip(sex == it, { sex = it }, label = { Text(it) })
@@ -148,7 +155,9 @@ fun OnboardingScreen(c: AppContainer) {
         }
         recommendationMessage?.let { Text(it) }
         Button(
-            enabled = suggestion.days.any { it.exercises.isNotEmpty() },
+            enabled =
+                suggestion.days.any { it.exercises.isNotEmpty() } &&
+                    trainingWeekdays.size == (days.toIntOrNull()?.coerceIn(2, 6) ?: 3),
             onClick = {
                 scope.launch {
                     val programDays = recommendationProgramDays(suggestion.days)

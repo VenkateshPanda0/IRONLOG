@@ -58,6 +58,7 @@ class AppContainer(context: Context) {
             dao.deleteAllFoods()
             dao.deleteAllWeights()
             dao.deleteAllActivePrograms()
+            dao.deleteAllSkippedProgramDays()
             dao.deleteAllPrescriptions()
             dao.deleteAllProgramDays()
             dao.deleteAllPrograms()

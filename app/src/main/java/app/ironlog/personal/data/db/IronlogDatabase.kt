@@ -25,6 +25,12 @@ interface IronlogDao {
     @Query("SELECT * FROM active_program")
     suspend fun allActivePrograms(): List<ActiveProgramEntity>
 
+    @Query("SELECT * FROM skipped_program_day")
+    suspend fun allSkippedProgramDays(): List<SkippedProgramDayEntity>
+
+    @Query("SELECT * FROM skipped_program_day WHERE date BETWEEN :start AND :end")
+    fun skippedProgramDays(start: String, end: String): Flow<List<SkippedProgramDayEntity>>
+
     @Query("SELECT * FROM user_profile") suspend fun allProfiles(): List<UserProfileEntity>
 
     @Query("SELECT * FROM workout_session") suspend fun allSessions(): List<WorkoutSessionEntity>
@@ -52,6 +58,7 @@ interface IronlogDao {
             programDays = allProgramDays(),
             prescriptions = allPrescriptions(),
             activePrograms = allActivePrograms(),
+            skippedProgramDays = allSkippedProgramDays(),
             profile = allProfiles(),
             sessions = allSessions(),
             sessionExercises = allSessionExercises(),
@@ -77,6 +84,9 @@ interface IronlogDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun restoreActivePrograms(rows: List<ActiveProgramEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun restoreSkippedProgramDays(rows: List<SkippedProgramDayEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun restoreProfiles(rows: List<UserProfileEntity>)
@@ -121,6 +131,8 @@ interface IronlogDao {
 
     @Query("DELETE FROM active_program") suspend fun deleteAllActivePrograms()
 
+    @Query("DELETE FROM skipped_program_day") suspend fun deleteAllSkippedProgramDays()
+
     @Query("DELETE FROM program_day_exercise") suspend fun deleteAllPrescriptions()
 
     @Query("DELETE FROM program_day") suspend fun deleteAllProgramDays()
@@ -148,6 +160,11 @@ interface IronlogDao {
 
     @Query("SELECT * FROM workout_session WHERE id=:id")
     suspend fun session(id: Long): WorkoutSessionEntity?
+
+    @Query(
+        "SELECT COUNT(*) FROM workout_session WHERE programId=:programId AND programDayName=:dayName AND startedAt>=:start AND startedAt<:end AND status='COMPLETED'"
+    )
+    suspend fun countCompletedProgramDay(programId: Long, dayName: String, start: Long, end: Long): Int
 
     @Insert suspend fun startSession(session: WorkoutSessionEntity): Long
 
@@ -274,6 +291,9 @@ interface IronlogDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun activate(value: ActiveProgramEntity)
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun addProgramDaySkip(value: SkippedProgramDayEntity): Long
+
     @Query("SELECT * FROM active_program WHERE id=1")
     fun activeProgram(): Flow<ActiveProgramEntity?>
 
@@ -360,6 +380,7 @@ interface IronlogDao {
             ProgramDayEntity::class,
             ProgramDayExerciseEntity::class,
             ActiveProgramEntity::class,
+            SkippedProgramDayEntity::class,
             UserProfileEntity::class,
             WorkoutSessionEntity::class,
             SessionExerciseEntity::class,

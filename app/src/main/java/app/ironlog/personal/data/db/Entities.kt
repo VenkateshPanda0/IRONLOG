@@ -97,6 +97,28 @@ data class ActiveProgramEntity(
 )
 
 @Serializable
+@Entity(
+    tableName = "skipped_program_day",
+    foreignKeys =
+        [
+            ForeignKey(
+                entity = ProgramEntity::class,
+                parentColumns = ["id"],
+                childColumns = ["programId"],
+                onDelete = ForeignKey.CASCADE,
+            )
+        ],
+    indices = [Index(value = ["programId", "date"], unique = true)],
+)
+data class SkippedProgramDayEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val programId: Long,
+    val date: String,
+    val dayNameSnapshot: String,
+    val createdAt: Long = System.currentTimeMillis(),
+)
+
+@Serializable
 @Entity(tableName = "user_profile")
 data class UserProfileEntity(
     @PrimaryKey val id: Int = 1,
@@ -112,6 +134,7 @@ data class UserProfileEntity(
     val experience: String = "BEGINNER",
     val sessionMinutes: Int = 45,
     val avoidList: String = "",
+    val trainingWeekdays: String = "MON,WED,FRI",
 )
 
 @Serializable
