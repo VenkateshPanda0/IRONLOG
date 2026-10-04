@@ -78,7 +78,7 @@ fun HomeScreen(c: AppContainer, nav: Navigator) {
                     color = IronTheme.colors.accent,
                     contentColor = IronTheme.colors.onAccent,
                 ) {
-                    Text("LVL ${it.summary.level + 1}", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp))
+                    Text("LVL ${it.level + 1}", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp))
                 }
             }
             IconButton(onClick = { nav.open(Routes.PROFILE) }) {

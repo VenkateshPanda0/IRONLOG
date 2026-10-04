@@ -103,7 +103,7 @@ class AppScreenshotTest {
         compose.activityRule.scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
 
         compose.onNodeWithContentDescription("Profile and settings").performClick()
-        compose.waitUntilAtLeastOneExists(hasText("Medals", substring = true, ignoreCase = true), 10_000)
+        compose.waitUntilAtLeastOneExists(hasText("Achievements", substring = true, ignoreCase = true), 10_000)
         shot("06_profile_new")
         compose.onNodeWithContentDescription("Settings").performClick()
         compose.waitUntilAtLeastOneExists(hasText("Your data", ignoreCase = true), 10_000)
@@ -154,7 +154,7 @@ class AppScreenshotTest {
         shot("12_summary_share")
         tap("Done")
         compose.onNodeWithContentDescription("Profile and settings").performClick()
-        compose.waitUntilAtLeastOneExists(hasText("Medals", substring = true, ignoreCase = true), 10_000)
+        compose.waitUntilAtLeastOneExists(hasText("Achievements", substring = true, ignoreCase = true), 10_000)
         compose.waitUntilAtLeastOneExists(hasText("First Rep", ignoreCase = true), 10_000)
         shot("13_profile")
         compose.onRoot().performTouchInput { swipeUp() }

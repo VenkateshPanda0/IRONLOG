@@ -15,6 +15,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,6 +37,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.ironlog.personal.ui.theme.EyebrowStyle
 import app.ironlog.personal.ui.theme.IronTheme
+
+/** Runs [load] once per key set and exposes the result, starting from [initial]. */
+@Composable
+fun <T> rememberLoaded(initial: T, vararg keys: Any?, load: suspend () -> T): State<T> {
+    val state = remember(*keys) { mutableStateOf(initial) }
+    LaunchedEffect(*keys) { state.value = load() }
+    return state
+}
 
 /**
  * Standard screen frame: large uppercase title, optional back button and trailing actions. Use

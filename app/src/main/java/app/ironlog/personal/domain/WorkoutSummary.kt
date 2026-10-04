@@ -82,4 +82,37 @@ object WorkoutMath {
             personalBests = bests,
         )
     }
+
+    /**
+     * Personal bests per session in one chronological pass, with the same rules as [summarize]:
+     * heaviest load and best estimated 1RM per exercise, counted only when an earlier session
+     * logged that exercise. Linear in history size, so years of logs stay fast.
+     */
+    fun personalBestCounts(history: List<ExerciseSet>): Map<Long, Int> {
+        val heaviest = mutableMapOf<String, Double>()
+        val bestE1rm = mutableMapOf<String, Double>()
+        val counts = mutableMapOf<Long, Int>()
+        history
+            .filter { !it.type.equals("WARMUP", true) && (it.weightKg ?: 0.0) > 0 && (it.reps ?: 0) > 0 }
+            .groupBy { it.sessionId }
+            .entries
+            .sortedBy { it.value.first().startedAt }
+            .forEach { (sessionId, sets) ->
+                var count = 0
+                sets.groupBy { it.exerciseId }.forEach { (exercise, rows) ->
+                    val top = rows.maxOf { it.weightKg!! }
+                    val e1rm = rows.mapNotNull { Calculations.e1rm(it.weightKg!!, it.reps!!) }.maxOrNull()
+                    val previousTop = heaviest[exercise]
+                    if (previousTop != null) {
+                        if (top > previousTop) count++
+                        val previousE1rm = bestE1rm[exercise]
+                        if (e1rm != null && previousE1rm != null && e1rm > previousE1rm) count++
+                    }
+                    heaviest[exercise] = maxOf(previousTop ?: top, top)
+                    if (e1rm != null) bestE1rm[exercise] = maxOf(bestE1rm[exercise] ?: e1rm, e1rm)
+                }
+                counts[sessionId] = count
+            }
+        return counts
+    }
 }

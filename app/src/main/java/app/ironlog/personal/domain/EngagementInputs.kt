@@ -8,16 +8,17 @@ object EngagementInputs {
      * One entry per completed workout with its working sets, volume and personal bests (measured
      * against earlier sessions only, as on the summary screen).
      */
-    fun workouts(history: List<ExerciseSet>, dateOf: (Long) -> LocalDate): List<WorkoutXpInput> =
-        history.groupBy { it.sessionId }.map { (sessionId, sets) ->
-            val summary = WorkoutMath.summarize(sessionId, history)
+    fun workouts(history: List<ExerciseSet>, dateOf: (Long) -> LocalDate): List<WorkoutXpInput> {
+        val bests = WorkoutMath.personalBestCounts(history)
+        return history.groupBy { it.sessionId }.map { (sessionId, sets) ->
             WorkoutXpInput(
                 date = dateOf(sets.first().startedAt),
-                completedWorkingSets = summary.sets,
-                newPrCount = summary.personalBests.size,
-                sessionVolumeKg = summary.volumeKg,
+                completedWorkingSets = sets.count { !it.type.equals("WARMUP", true) },
+                newPrCount = bests[sessionId] ?: 0,
+                sessionVolumeKg = WorkoutMath.volume(sets),
             )
         }
+    }
 
     fun foodDays(days: List<Triple<LocalDate, Double, Set<String>>>, kcalTarget: Int?): List<FoodXpInput> =
         days.map { (date, kcal, meals) -> FoodXpInput(date, kcal, (kcalTarget ?: 0).toDouble(), meals) }

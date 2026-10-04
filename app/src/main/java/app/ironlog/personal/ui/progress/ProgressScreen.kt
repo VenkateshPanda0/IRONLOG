@@ -366,8 +366,8 @@ private fun PhotoSection(c: AppContainer) {
 @Composable
 private fun PhotoImage(file: File, modifier: Modifier, sample: Int = 2, contentScale: ContentScale = ContentScale.Crop) {
     val bitmap by
-        produceState<ImageBitmap?>(null, file.path, sample) {
-            value = withContext(Dispatchers.IO) {
+        rememberLoaded<ImageBitmap?>(null, file.path, sample) {
+            withContext(Dispatchers.IO) {
                 runCatching {
                     BitmapFactory.decodeFile(file.path, BitmapFactory.Options().apply { inSampleSize = sample })?.asImageBitmap()
                 }.getOrNull()

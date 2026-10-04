@@ -71,7 +71,7 @@ object ExerciseMedia {
 @Composable
 fun ExerciseDemo(exerciseId: String, name: String, modifier: Modifier = Modifier, intervalMs: Long = 1_100) {
     val context = LocalContext.current
-    val frames by produceState<List<ImageBitmap>?>(null, exerciseId) { value = ExerciseMedia.frames(context, exerciseId) }
+    val frames by rememberLoaded<List<ImageBitmap>?>(null, exerciseId) { ExerciseMedia.frames(context, exerciseId) }
     var playing by remember { mutableStateOf(true) }
     var index by remember(exerciseId) { mutableIntStateOf(0) }
     val loaded = frames
@@ -136,8 +136,8 @@ fun ExerciseDemo(exerciseId: String, name: String, modifier: Modifier = Modifier
 @Composable
 fun ExerciseThumb(exerciseId: String, name: String, size: Dp = 48.dp) {
     val context = LocalContext.current
-    val frames by produceState<List<ImageBitmap>?>(null, exerciseId) {
-        value = ExerciseMedia.frames(context, exerciseId, sampleSize = 4, count = 1)
+    val frames by rememberLoaded<List<ImageBitmap>?>(null, exerciseId) {
+        ExerciseMedia.frames(context, exerciseId, sampleSize = 4, count = 1)
     }
     val first = frames?.firstOrNull()
     if (first == null) {

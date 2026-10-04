@@ -50,6 +50,8 @@ dependencies {
     implementation(libs.serialization.json)
     implementation(libs.coroutines.android)
     implementation(libs.code.scanner)
+    // The scanner brings an old Fragment; 1.3+ is required for registerForActivityResult.
+    implementation(libs.fragment)
     ksp(libs.room.compiler)
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)

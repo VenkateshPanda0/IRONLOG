@@ -10,11 +10,16 @@ class EngagementReplayTest {
     @Test
     fun levelThresholdsArePinned() {
         assertEquals(500, EngagementReplay.xpForLevel(1))
-        assertEquals(1500, EngagementReplay.xpForLevel(2))
-        assertEquals(3000, EngagementReplay.xpForLevel(3))
+        assertEquals(1075, EngagementReplay.xpForLevel(2))
+        assertEquals(1725, EngagementReplay.xpForLevel(3))
+        assertEquals(112_700, EngagementReplay.xpForLevel(49))
         assertEquals(0, EngagementReplay.levelFor(499))
         assertEquals(1, EngagementReplay.levelFor(500))
-        assertEquals(2, EngagementReplay.levelFor(1500))
+        assertEquals(2, EngagementReplay.levelFor(1075))
+        // Capped at displayed level 50.
+        assertEquals(49, EngagementReplay.levelFor(10_000_000))
+        assertEquals("Legend", EngagementReplay.title(49))
+        assertEquals("Rookie", EngagementReplay.title(0))
     }
 
     @Test

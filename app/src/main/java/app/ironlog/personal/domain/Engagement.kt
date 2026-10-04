@@ -36,13 +36,27 @@ data class EngagementSummary(
 object EngagementReplay {
     private val workoutThresholds = listOf(1, 10, 50, 100, 250)
 
-    fun xpForLevel(level: Int) = 500 * level * (level + 1) / 2
+    /** Highest displayed level; internal levels are 0-based, so the cap is reached at [MAX_LEVEL] - 1. */
+    const val MAX_LEVEL = 50
+
+    /**
+     * XP needed to complete [level] levels. Each level costs 75 XP more than the previous one,
+     * starting at 500, so early levels arrive within days and level 50 needs 112,700 XP — about
+     * two years of four workouts a week with food logging (see the simulation test).
+     */
+    fun xpForLevel(level: Int) = 500 * level + 75 * level * (level - 1) / 2
 
     fun levelFor(xp: Int): Int {
         var level = 0
-        while (xp >= xpForLevel(level + 1)) level++
+        while (level < MAX_LEVEL - 1 && xp >= xpForLevel(level + 1)) level++
         return level
     }
+
+    /** Rank title for a 0-based level, changing every five levels. */
+    fun title(level: Int): String =
+        listOf("Rookie", "Novice", "Apprentice", "Regular", "Athlete", "Veteran", "Elite", "Master", "Champion", "Titan")
+            .getOrElse(level / 5) { "Titan" }
+            .let { if (level >= MAX_LEVEL - 1) "Legend" else it }
 
     fun replay(
         workouts: List<WorkoutXpInput>,

@@ -28,6 +28,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import app.ironlog.personal.AppContainer
 import app.ironlog.personal.SeedState
+import app.ironlog.personal.ui.components.rememberLoaded
+import kotlinx.coroutines.flow.first
 import app.ironlog.personal.ui.home.HomeScreen
 import app.ironlog.personal.ui.library.ExerciseDetailScreen
 import app.ironlog.personal.ui.library.ExerciseLibraryScreen
@@ -135,8 +137,8 @@ fun IronlogRoot(
     onImport: () -> Unit,
 ) {
     val profile by container.profile.collectAsState(initial = null)
-    val profileLoaded by
-        produceState(false, container) { container.profile.collect { value = true } }
+    // Distinguishes "no profile yet" (onboarding) from "not loaded yet" (spinner).
+    val profileLoaded by rememberLoaded(false, container) { container.profile.first(); true }
     val seedState by container.seedState.collectAsState()
     val controller = rememberNavController()
     val nav = remember(controller) { Navigator(controller) }
