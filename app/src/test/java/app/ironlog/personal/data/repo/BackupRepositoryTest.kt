@@ -51,4 +51,32 @@ class BackupRepositoryTest {
             throw AssertionError("invalid backup was accepted")
         } catch (_: IllegalArgumentException) {}
     }
+
+    @Test
+    fun wellnessAndPhysiqueSurviveExportAndImport() = runBlocking {
+        val dao = db.dao()
+        dao.addCardio(app.ironlog.personal.data.db.CardioSessionEntity(date = "2026-10-01", type = "RUN", durationMin = 30.0, distanceKm = 5.0))
+        dao.saveDailyLog(app.ironlog.personal.data.db.DailyLogEntity(date = "2026-10-01", steps = 9000, waterMl = 2500))
+        val habit = dao.addHabit(app.ironlog.personal.data.db.HabitEntity(name = "Creatine"))
+        dao.checkHabit(app.ironlog.personal.data.db.HabitCheckEntity(habit, "2026-10-01"))
+        dao.addMeasurement(app.ironlog.personal.data.db.BodyMeasurementEntity(date = "2026-10-01", waistCm = 82.0))
+        dao.addPhysiqueScan(app.ironlog.personal.data.db.PhysiqueScanEntity(date = "2026-10-01", fileName = "a.jpg", goal = "CLASSIC", shoulder = 180.0, waist = 110.0, hip = 130.0, leftThigh = 60.0, rightThigh = 60.0, height = 700.0, legToTorso = 1.4, matchScore = 70))
+        val content = backup.exportJson()
+        dao.deleteAllCardio()
+        dao.deleteAllHabits()
+        dao.deleteAllPhysiqueScans()
+        backup.importJson(content)
+        assertEquals(1, dao.allCardio().size)
+        assertEquals(9000, dao.dailyLogOnce("2026-10-01")?.steps)
+        assertEquals(listOf("Creatine"), dao.allHabits().map { it.name })
+        assertEquals(1, dao.allHabitChecks().size)
+        assertEquals(82.0, dao.allMeasurements().single().waistCm!!, 0.0)
+        assertEquals(70, dao.allPhysiqueScans().single().matchScore)
+    }
+
+    @Test
+    fun oldBackupWithoutWellnessStillImports() = runBlocking {
+        backup.importJson("""{"schemaVersion":1,"profile":[{"id":1,"name":"Old"}]}""")
+        assertEquals("Old", db.dao().profileOnce()?.name)
+    }
 }

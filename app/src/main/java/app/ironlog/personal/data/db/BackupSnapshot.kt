@@ -21,4 +21,11 @@ data class BackupSnapshot(
     val meals: List<MealEntryEntity> = emptyList(),
     val weights: List<BodyWeightEntity> = emptyList(),
     val goals: List<GoalEntity> = emptyList(),
+    // Added with wellness and physique tracking; older backups simply leave them empty.
+    val cardio: List<CardioSessionEntity> = emptyList(),
+    val dailyLogs: List<DailyLogEntity> = emptyList(),
+    val habits: List<HabitEntity> = emptyList(),
+    val habitChecks: List<HabitCheckEntity> = emptyList(),
+    val measurements: List<BodyMeasurementEntity> = emptyList(),
+    val physiqueScans: List<PhysiqueScanEntity> = emptyList(),
 )

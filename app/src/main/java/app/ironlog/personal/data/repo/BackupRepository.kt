@@ -40,6 +40,11 @@ class BackupRepository(private val db: IronlogDatabase) {
             dao.deleteAllProfiles()
             dao.deleteAllGoals()
             dao.clearRestTimer()
+            dao.deleteAllCardio()
+            dao.deleteAllDailyLogs()
+            dao.deleteAllHabits()
+            dao.deleteAllMeasurements()
+            dao.deleteAllPhysiqueScans()
             dao.restoreExercises(backup.exercises)
             dao.restorePrograms(backup.programs)
             dao.restoreProgramDays(backup.programDays)
@@ -55,6 +60,12 @@ class BackupRepository(private val db: IronlogDatabase) {
             dao.restoreMeals(backup.meals)
             dao.restoreWeights(backup.weights)
             dao.restoreGoals(backup.goals)
+            dao.restoreCardio(backup.cardio)
+            dao.restoreDailyLogs(backup.dailyLogs)
+            dao.restoreHabits(backup.habits)
+            dao.restoreHabitChecks(backup.habitChecks)
+            dao.restoreMeasurements(backup.measurements)
+            dao.restorePhysiqueScans(backup.physiqueScans)
         }
     }
 
@@ -99,6 +110,14 @@ class BackupRepository(private val db: IronlogDatabase) {
             value.sessionExercises.all { row -> value.sessions.any { it.id == row.sessionId } }
         ) {
             "A workout exercise references a missing session"
+        }
+        val habits = value.habits.map { it.id }.toSet()
+        require(value.habitChecks.all { it.habitId in habits }) { "A habit check references a missing habit" }
+        require(
+            (value.cardio.map { it.date } + value.dailyLogs.map { it.date } + value.measurements.map { it.date } + value.physiqueScans.map { it.date })
+                .all { runCatching { LocalDate.parse(it) }.isSuccess }
+        ) {
+            "Backup contains invalid wellness dates"
         }
         val foods = value.foods.map { it.id }.toSet()
         require(value.meals.all { it.foodId == null || it.foodId in foods }) {

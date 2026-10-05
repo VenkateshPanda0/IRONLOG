@@ -68,7 +68,37 @@ interface IronlogDao {
             meals = allMeals(),
             weights = allWeights(),
             goals = allGoals(),
+            cardio = allCardio(),
+            dailyLogs = allDailyLogs(),
+            habits = allHabits(),
+            habitChecks = allHabitChecks(),
+            measurements = allMeasurements(),
+            physiqueScans = allPhysiqueScans(),
         )
+
+    @Query("SELECT * FROM cardio_session") suspend fun allCardio(): List<CardioSessionEntity>
+
+    @Query("SELECT * FROM daily_log") suspend fun allDailyLogs(): List<DailyLogEntity>
+
+    @Query("SELECT * FROM habit") suspend fun allHabits(): List<HabitEntity>
+
+    @Query("SELECT * FROM habit_check") suspend fun allHabitChecks(): List<HabitCheckEntity>
+
+    @Query("SELECT * FROM body_measurement") suspend fun allMeasurements(): List<BodyMeasurementEntity>
+
+    @Query("SELECT * FROM physique_scan") suspend fun allPhysiqueScans(): List<PhysiqueScanEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun restoreCardio(rows: List<CardioSessionEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun restoreDailyLogs(rows: List<DailyLogEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun restoreHabits(rows: List<HabitEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun restoreHabitChecks(rows: List<HabitCheckEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun restoreMeasurements(rows: List<BodyMeasurementEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun restorePhysiqueScans(rows: List<PhysiqueScanEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun restoreExercises(rows: List<ExerciseEntity>)
