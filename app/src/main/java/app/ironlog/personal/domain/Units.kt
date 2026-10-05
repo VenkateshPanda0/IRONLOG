@@ -56,3 +56,100 @@ enum class WeightUnit(val label: String, private val perKg: Double, /** Smallest
         fun of(name: String?): WeightUnit? = entries.firstOrNull { it.name == name }
     }
 }
+
+/**
+ * How lengths are shown and typed: body measurements and height, and cardio distance and pace.
+ * Storage stays in cm and km. IN shows inches, feet and inches for height, and miles.
+ */
+enum class LengthUnit(val label: String, val distanceLabel: String, private val perCm: Double, private val perKm: Double) {
+    CM("cm", "km", 1.0, 1.0),
+    IN("in", "mi", 1 / 2.54, 1 / 1.609344);
+
+    fun fromCm(cm: Double) = cm * perCm
+
+    fun toCm(value: Double) = value / perCm
+
+    /** "84", "84.5" or "33.1": up to one decimal. */
+    fun number(cm: Double): String = trim1(fromCm(cm))
+
+    /** "84 cm" or "33.1 in". */
+    fun format(cm: Double) = "${number(cm)} $label"
+
+    fun parse(text: String): Double? = text.trim().replace(',', '.').toDoubleOrNull()?.let(::toCm)
+
+    /** Height: "180" in cm, or 5'11" in feet and inches. */
+    fun height(cm: Double): String =
+        if (this == CM) trim1(cm)
+        else {
+            val inches = Math.round(cm / 2.54).toInt()
+            "${inches / 12}'${inches % 12}\""
+        }
+
+    /**
+     * Parses a height into cm. In inches mode it accepts 5'11", 5' 11, 5 11, 5ft 11in, plain
+     * inches (71) or plain feet (5.9 or less).
+     */
+    fun parseHeight(text: String): Double? {
+        if (this == CM) return parse(text)
+        val t = text.trim().lowercase()
+        Regex("""^(\d)(?:\s*(?:'|ft|feet|’)\s*|\s+)(\d{1,2}(?:[.,]\d+)?)\s*(?:"|in|inches|”|'')?$""").find(t)?.let { m ->
+            val feet = m.groupValues[1].toInt()
+            val inches = m.groupValues[2].replace(',', '.').toDouble()
+            if (inches < 12) return (feet * 12 + inches) * 2.54
+        }
+        Regex("""^(\d)\s*(?:'|ft|feet|’)$""").find(t)?.let { return it.groupValues[1].toInt() * 12 * 2.54 }
+        val plain = t.replace(',', '.').toDoubleOrNull() ?: return null
+        return if (plain < 9) plain * 12 * 2.54 else plain * 2.54
+    }
+
+    fun fromKm(km: Double) = km * perKm
+
+    fun toKm(value: Double) = value / perKm
+
+    /** "5.04 km" or "3.13 mi": up to two decimals. */
+    fun distance(km: Double): String = "${trim2(fromKm(km))} $distanceLabel"
+
+    fun distanceNumber(km: Double): String = trim2(fromKm(km))
+
+    fun parseDistance(text: String): Double? = text.trim().replace(',', '.').toDoubleOrNull()?.let(::toKm)
+
+    /** Pace from minutes per km: "4:48 /km" or "7:43 /mi". */
+    fun pace(minPerKm: Double): String {
+        val perUnit = minPerKm / perKm
+        val total = Math.round(perUnit * 60).toInt()
+        return "%d:%02d /%s".format(total / 60, total % 60, distanceLabel)
+    }
+
+    /** Rewrites fixed texts: "Run 5 km at under 5:00 /km" becomes "Run 3.1 mi at under 8:03 /mi". */
+    fun localize(text: String): String {
+        if (this == CM) return text
+        val paced =
+            Regex("""(\d+):(\d{2}) /km""").replace(text) { m -> pace(m.groupValues[1].toInt() + m.groupValues[2].toInt() / 60.0) }
+        return Regex("""(\d[\d,]*(?:\.\d+)?) km\b""").replace(paced) { m ->
+            val km = m.groupValues[1].replace(",", "").toDouble()
+            val v = fromKm(km)
+            (if (v >= 100) "%,.0f".format(v) else trim1(v)) + " " + distanceLabel
+        }
+    }
+
+    companion object {
+        /** Inches, feet and miles where they are the everyday units (United States, Liberia, Myanmar). */
+        fun defaultFor(locale: Locale = Locale.getDefault()): LengthUnit = if (locale.country in setOf("US", "LR", "MM")) IN else CM
+
+        fun of(name: String?): LengthUnit? = entries.firstOrNull { it.name == name }
+    }
+}
+
+private fun trim1(v: Double): String {
+    val r = Math.round(v * 10) / 10.0
+    return if (r % 1.0 == 0.0) "%.0f".format(r) else "%.1f".format(r)
+}
+
+private fun trim2(v: Double): String {
+    val r = Math.round(v * 100) / 100.0
+    return when {
+        r % 1.0 == 0.0 -> "%.0f".format(r)
+        (r * 10) % 1.0 == 0.0 -> "%.1f".format(r)
+        else -> "%.2f".format(r)
+    }
+}

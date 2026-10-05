@@ -177,3 +177,11 @@ Each step was built, tested and pushed to `main` separately: redesign and naviga
 - Fixed a timing flake in HealthTwoWayTest (a workout started and finished in the same millisecond is correctly skipped as zero-length).
 - Tests: conversion/format/parse/localize/defaults/plate rounding; walkthrough switches kg on onboarding, then lb at the end and checks the stored kg values are unchanged. Gate: 132 tests pass, lint 0 errors.
 
+## 2026-10-05 · Inches, feet and miles
+
+- `LengthUnit` (cm or in) converts at display and input only; storage stays cm and km. In inches mode: body and physique measurements in inches, height as feet and inches (accepts 5'11", 5' 11, 5 11, 5ft 11in, 71 or 5.9), cardio distance in miles and pace per mile, and cardio medal texts ("Run 5 km or more at under 5:00 /km" -> "Run 3.1 mi or more at under 8:03 /mi").
+- Settings › Units has Weight and Lengths toggles; onboarding has a cm/ft toggle next to height that converts what was typed. Defaults imperial for US, LR, MM.
+- Drift guards as for weights: Settings height and prefilled physique fields keep stored cm when left unchanged.
+- Found by the tests: "71" was parsed as 7'1"; feet and inches now need a mark or a space between them, and plain numbers are inches (or feet below 9).
+- Gate: 134 tests pass, lint 0 errors. The walkthrough types 5'11, switches to cm (180.3), and at the end checks stored cm/km are unchanged after viewing in inches and miles.
+

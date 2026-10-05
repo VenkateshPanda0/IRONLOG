@@ -98,7 +98,11 @@ class AppScreenshotTest {
         shot("00_onboarding_welcome")
         tap("Continue")
         type("Age", "29")
-        type("Height (cm)", "180")
+        // US locale: height starts in feet and inches; switching to cm converts what was typed.
+        type("Height (ft'in\")", "5'11")
+        tap("CM")
+        compose.waitUntilAtLeastOneExists(hasText("Height (cm)"), 10_000)
+        compose.waitUntilAtLeastOneExists(hasText("180.3"), 10_000)
         // Robolectric runs in a US locale, where pounds are the default; this walk uses kg.
         compose.waitUntilAtLeastOneExists(hasText("Weight (lb)"), 10_000)
         tap("KG")
@@ -379,5 +383,17 @@ class AppScreenshotTest {
         shot("04_progress_strength_lb")
         val storedAfter = runBlocking { container.body.weights.first().map { it.weightKg } to container.dao().allLoggedSets().first().map { it.weightKg } }
         org.junit.Assert.assertEquals(storedBefore, storedAfter)
+
+        // Inches and miles: measurements, cardio distance and pace follow; stored cm and km do not change.
+        val lengthsBefore = runBlocking { container.wellness.measurements.first().map { it.waistCm } to container.wellness.cardio.first().map { it.distanceKm } }
+        runBlocking { container.setLengthUnit(app.ironlog.personal.domain.LengthUnit.IN) }
+        tap("Body")
+        compose.waitUntilAtLeastOneExists(hasText("Waist · 33.1 in"), 10_000)
+        shot("04_progress_body_in")
+        tap("Cardio")
+        compose.waitUntilAtLeastOneExists(hasText("/mi", substring = true), 10_000)
+        shot("04_progress_cardio_mi")
+        val lengthsAfter = runBlocking { container.wellness.measurements.first().map { it.waistCm } to container.wellness.cardio.first().map { it.distanceKm } }
+        org.junit.Assert.assertEquals(lengthsBefore, lengthsAfter)
     }
 }

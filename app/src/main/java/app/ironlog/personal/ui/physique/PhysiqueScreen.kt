@@ -82,13 +82,16 @@ fun PhysiqueScreen(c: AppContainer, nav: Navigator) {
         fun last(pick: (app.ironlog.personal.data.db.BodyMeasurementEntity) -> Double?) = measurements.lastOrNull { pick(it) != null }?.let(pick)
         listOf(last { it.shouldersCm }, last { it.waistCm }, last { it.hipsCm }, last { it.thighCm })
     }
-    var shoulders by remember(latest) { mutableStateOf(latest[0]?.let(::cm).orEmpty()) }
-    var waist by remember(latest) { mutableStateOf(latest[1]?.let(::cm).orEmpty()) }
-    var hips by remember(latest) { mutableStateOf(latest[2]?.let(::cm).orEmpty()) }
-    var thigh by remember(latest) { mutableStateOf(latest[3]?.let(::cm).orEmpty()) }
+    val length = LocalLengthUnit.current
+    val shown = remember(latest, length) { latest.map { it?.let(length::number).orEmpty() } }
+    var shoulders by remember(shown) { mutableStateOf(shown[0]) }
+    var waist by remember(shown) { mutableStateOf(shown[1]) }
+    var hips by remember(shown) { mutableStateOf(shown[2]) }
+    var thigh by remember(shown) { mutableStateOf(shown[3]) }
     var saved by remember { mutableStateOf(false) }
-    fun num(text: String) = text.replace(',', '.').toDoubleOrNull()
-    val proportions = BodyProportions.of(num(shoulders), num(waist), num(hips), num(thigh), profile?.heightCm)
+    // A prefilled value left as shown keeps its stored cm exactly (no in/cm rounding drift).
+    fun num(i: Int, text: String) = if (text == shown[i] && latest[i] != null) latest[i] else length.parse(text)
+    val proportions = BodyProportions.of(num(0, shoulders), num(1, waist), num(2, hips), num(3, thigh), profile?.heightCm)
 
     Page("Physique", onBack = { nav.back() }, subtitle = "Compare your proportions with your goal, measured with a tape.") {
         if (goal == null || picking) {
@@ -117,15 +120,15 @@ fun PhysiqueScreen(c: AppContainer, nav: Navigator) {
         SectionHeader("Measure")
         MeasureGuide()
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Field("Shoulders (cm)", shoulders, { shoulders = it; saved = false }, number = true, modifier = Modifier.weight(1f))
-            Field("Waist (cm)", waist, { waist = it; saved = false }, number = true, modifier = Modifier.weight(1f))
+            Field("Shoulders (${length.label})", shoulders, { shoulders = it; saved = false }, number = true, modifier = Modifier.weight(1f))
+            Field("Waist (${length.label})", waist, { waist = it; saved = false }, number = true, modifier = Modifier.weight(1f))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Field("Hips (cm)", hips, { hips = it; saved = false }, number = true, modifier = Modifier.weight(1f))
-            Field("Thigh (cm)", thigh, { thigh = it; saved = false }, number = true, modifier = Modifier.weight(1f))
+            Field("Hips (${length.label})", hips, { hips = it; saved = false }, number = true, modifier = Modifier.weight(1f))
+            Field("Thigh (${length.label})", thigh, { thigh = it; saved = false }, number = true, modifier = Modifier.weight(1f))
         }
         if (proportions == null) {
-            Text("Enter all four measurements in centimetres to see how you compare.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("Enter all four measurements in ${if (length.label == "cm") "centimetres" else "inches"} to see how you compare.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         } else {
             val report = remember(proportions, goal) { PhysiqueCoach.report(proportions, goal) }
             ReportSection(proportions, report, previous = scans.firstOrNull { !PhysiqueRepository.isPhotoEstimate(it) })
@@ -150,8 +153,6 @@ fun PhysiqueScreen(c: AppContainer, nav: Navigator) {
         )
     }
 }
-
-private fun cm(value: Double) = if (value % 1.0 == 0.0) "%.0f".format(value) else "%.1f".format(value)
 
 @Composable
 private fun MeasureGuide() {
@@ -248,6 +249,7 @@ private fun MetricBar(r: MetricResult) {
 
 @Composable
 private fun History(scans: List<PhysiqueScanEntity>) {
+    val length = LocalLengthUnit.current
     SectionHeader("History")
     val taped = scans.filterNot { PhysiqueRepository.isPhotoEstimate(it) }
     if (taped.size >= 2) {
@@ -265,7 +267,7 @@ private fun History(scans: List<PhysiqueScanEntity>) {
             title = "${scan.matchScore}% · ${physiqueGoalOf(scan.goal)?.title ?: scan.goal}",
             subtitle =
                 if (PhysiqueRepository.isPhotoEstimate(scan)) "%s · V-taper %.2f · photo estimate".format(scan.date, scan.shoulder / scan.waist)
-                else "%s · V-taper %.2f · waist %s cm".format(scan.date, scan.shoulder / scan.waist, cm(scan.waist)),
+                else "%s · V-taper %.2f · waist %s".format(scan.date, scan.shoulder / scan.waist, length.format(scan.waist)),
             leading = { Icon(Icons.Filled.Accessibility, contentDescription = null) },
         )
     }

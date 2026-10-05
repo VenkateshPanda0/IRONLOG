@@ -35,7 +35,9 @@ fun SettingsScreen(
     val unit = app.ironlog.personal.ui.components.LocalWeightUnit.current
     val shownWeight = profile?.weightKg?.let(unit::number).orEmpty()
     var editWeight by remember(profile, unit) { mutableStateOf(shownWeight) }
-    var editHeight by remember(profile) { mutableStateOf(profile?.heightCm?.toString().orEmpty()) }
+    val length = app.ironlog.personal.ui.components.LocalLengthUnit.current
+    val shownHeight = profile?.heightCm?.let(length::height).orEmpty()
+    var editHeight by remember(profile, length) { mutableStateOf(shownHeight) }
     var editAge by remember(profile) { mutableStateOf(profile?.age?.toString().orEmpty()) }
     var editDays by remember(profile) { mutableStateOf(profile?.daysPerWeek?.toString().orEmpty()) }
     var editMinutes by
@@ -73,7 +75,7 @@ fun SettingsScreen(
             SectionHeader("Profile")
             Field("Name", editName, { editName = it })
             Field("Weight (${unit.label})", editWeight, { editWeight = it }, true)
-            Field("Height (cm)", editHeight, { editHeight = it }, true)
+            Field(if (length == app.ironlog.personal.domain.LengthUnit.CM) "Height (cm)" else "Height (ft'in\")", editHeight, { editHeight = it }, length == app.ironlog.personal.domain.LengthUnit.CM)
             Field("Age", editAge, { editAge = it }, true)
             Text("Sex")
             ChoiceRow(listOf("MALE", "FEMALE", "UNSPECIFIED"), editSex) { editSex = it }
@@ -117,7 +119,8 @@ fun SettingsScreen(
                         if (editWeight == shownWeight) savedProfile.weightKg
                         else unit.parse(editWeight)?.takeIf { it in 25.0..400.0 } ?: savedProfile.weightKg
                     val heightCm =
-                        editHeight.toDoubleOrNull()?.takeIf { it > 0 } ?: savedProfile.heightCm
+                        if (editHeight == shownHeight) savedProfile.heightCm
+                        else length.parseHeight(editHeight)?.takeIf { it in 100.0..250.0 } ?: savedProfile.heightCm
                     val age = editAge.toIntOrNull()?.coerceIn(1, 120) ?: savedProfile.age
                     val updated =
                         savedProfile.copy(
@@ -165,8 +168,15 @@ fun SettingsScreen(
         SectionHeader("Units")
         ListRow(
             title = "Weight",
-            subtitle = "Lifts, body weight, goals and records. Lengths stay in cm.",
+            subtitle = "Lifts, body weight, goals and records",
             trailing = { app.ironlog.personal.ui.onboarding.UnitSwitch(unit) { scope.launch { c.setWeightUnit(it) } } },
+        )
+        ListRow(
+            title = "Lengths",
+            subtitle = "Body measurements, height (ft and in) and cardio distance (miles)",
+            trailing = {
+                app.ironlog.personal.ui.components.UnitToggle(app.ironlog.personal.domain.LengthUnit.entries, length, { it.label }) { scope.launch { c.setLengthUnit(it) } }
+            },
         )
         SectionHeader("Appearance")
         ListRow(

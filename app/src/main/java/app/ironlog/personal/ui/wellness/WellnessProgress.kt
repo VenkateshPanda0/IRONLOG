@@ -47,17 +47,25 @@ fun BodySection(c: AppContainer) {
     val scope = rememberCoroutineScope()
     var values by remember { mutableStateOf(METRICS.associate { it.key to "" }) }
     var metric by rememberSaveable { mutableStateOf("waist") }
+    val length = LocalLengthUnit.current
+    // Lengths are stored in cm; body fat stays a percentage.
+    fun unitOf(m: Metric) = if (m.unit == "cm") length.label else m.unit
+    fun shown(m: Metric, v: Double) = if (m.unit == "cm") length.fromCm(v) else v
     IronCard {
         Eyebrow("Log measurements · fill in any")
         METRICS.chunked(2).forEach { pair ->
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 pair.forEach { m ->
-                    Field("${m.label} (${m.unit})", values.getValue(m.key), { v -> values = values + (m.key to v) }, number = true, modifier = Modifier.weight(1f))
+                    Field("${m.label} (${unitOf(m)})", values.getValue(m.key), { v -> values = values + (m.key to v) }, number = true, modifier = Modifier.weight(1f))
                 }
                 if (pair.size == 1) Spacer(Modifier.weight(1f))
             }
         }
-        val parsed = values.mapValues { it.value.replace(',', '.').toDoubleOrNull()?.takeIf { v -> v > 0 } }
+        val parsed =
+            METRICS.associate { m ->
+                val text = values.getValue(m.key)
+                m.key to (if (m.unit == "cm") length.parse(text) else text.replace(',', '.').toDoubleOrNull())?.takeIf { v -> v > 0 }
+            }
         PrimaryButton(
             "Save measurements",
             enabled = parsed.values.any { it != null },
@@ -85,8 +93,8 @@ fun BodySection(c: AppContainer) {
         if (series.isNotEmpty()) {
             val change = series.last().second - series.first().second
             ListRow(
-                title = "${m.label} · ${formatKg(series.last().second)} ${m.unit}",
-                subtitle = if (series.size > 1) "%+.1f %s since %s".format(change, m.unit, series.first().first.format(SHORT)) else "First entry ${series.first().first.format(SHORT)}",
+                title = "${m.label} · ${formatKg(shown(m, series.last().second))} ${unitOf(m)}",
+                subtitle = if (series.size > 1) "%+.1f %s since %s".format(shown(m, change), unitOf(m), series.first().first.format(SHORT)) else "First entry ${series.first().first.format(SHORT)}",
                 onClick = { metric = m.key },
             )
         }
@@ -99,7 +107,7 @@ fun BodySection(c: AppContainer) {
             LineChart(
                 points = series.map { it.first.toEpochDay().toDouble() to it.second },
                 description = "${chosen.label} over ${series.size} measurements",
-                format = { "%.1f %s".format(it, chosen.unit) },
+                format = { "%.1f %s".format(shown(chosen, it), unitOf(chosen)) },
                 xLabels = series.first().first.format(SHORT) to series.last().first.format(SHORT),
             )
         }
@@ -108,7 +116,7 @@ fun BodySection(c: AppContainer) {
     rows.reversed().take(20).forEach { r ->
         ListRow(
             title = LocalDate.parse(r.date).format(DateTimeFormatter.ofPattern("d MMM yyyy")),
-            subtitle = METRICS.mapNotNull { m -> m.read(r)?.let { "${m.label} ${formatKg(it)}" } }.joinToString(" · "),
+            subtitle = METRICS.mapNotNull { m -> m.read(r)?.let { "${m.label} ${formatKg(shown(m, it))}" } }.joinToString(" · "),
             trailing = { IconButton(onClick = { scope.launch { c.wellness.deleteMeasurement(r.id) } }) { Icon(Icons.Filled.Delete, contentDescription = "Delete entry") } },
         )
     }
@@ -124,9 +132,10 @@ fun CardioSection(c: AppContainer) {
     }
     val dated = sessions.map { LocalDate.parse(it.date) to it }
     val thisWeek = dated.filter { Training.weekStart(it.first) == Training.weekStart(today) }
+    val length = LocalLengthUnit.current
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         StatTile("This week", formatKg(thisWeek.sumOf { it.second.durationMin }), Modifier.weight(1f), "minutes")
-        StatTile("Distance", formatKg(dated.filter { it.first > today.minusDays(30) }.sumOf { it.second.distanceKm ?: 0.0 }), Modifier.weight(1f), "km · 30 days")
+        StatTile("Distance", formatKg(length.fromKm(dated.filter { it.first > today.minusDays(30) }.sumOf { it.second.distanceKm ?: 0.0 })), Modifier.weight(1f), "${length.distanceLabel} · 30 days")
         StatTile("Sessions", "${sessions.size}", Modifier.weight(1f), "all time")
     }
     val weekly = ProgressMath.weeklyVolume(dated.map { it.first to it.second.durationMin }, today, 12)
@@ -147,7 +156,7 @@ fun CardioSection(c: AppContainer) {
         ListRow(
             title = t.label,
             subtitle = "${list.size} session${if (list.size == 1) "" else "s"} · ${formatKg(list.sumOf { it.durationMin })} min" +
-                (if (km > 0) " · ${formatKg(km)} km" else "") + (best?.let { " · best pace " + Wellness.formatPace(it) } ?: ""),
+                (if (km > 0) " · ${length.distance(km)}" else "") + (best?.let { " · best pace " + length.pace(it) } ?: ""),
         )
     }
 }

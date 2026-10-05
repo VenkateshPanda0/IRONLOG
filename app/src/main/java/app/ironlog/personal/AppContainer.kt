@@ -248,6 +248,16 @@ class AppContainer(context: Context) {
         appContext.preferences.edit { it[weightUnitKey] = value.name }
     }
 
+    private val lengthUnitKey = stringPreferencesKey("length_unit")
+
+    /** cm/km or in/mi for showing and typing lengths and distances; storage stays cm and km. */
+    val lengthUnit =
+        context.preferences.data.map { app.ironlog.personal.domain.LengthUnit.of(it[lengthUnitKey]) ?: app.ironlog.personal.domain.LengthUnit.defaultFor() }
+
+    suspend fun setLengthUnit(value: app.ironlog.personal.domain.LengthUnit) {
+        appContext.preferences.edit { it[lengthUnitKey] = value.name }
+    }
+
     private val themeKey = stringPreferencesKey("theme")
     private val seedVersionKey = intPreferencesKey("seed_version")
     val theme = context.preferences.data.map { it[themeKey] ?: "DARK" }

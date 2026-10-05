@@ -263,7 +263,8 @@ fun CardioScreen(c: AppContainer, nav: Navigator) {
     val weight = profile?.weightKg ?: 75.0
     val elapsedMs = startedAt?.let { (now - it - pausedMs - (pausedAt?.let { p -> now - p } ?: 0L)).coerceAtLeast(0) } ?: 0L
     val mins = minutes.replace(',', '.').toDoubleOrNull()
-    val km = distance.replace(',', '.').toDoubleOrNull()
+    val length = LocalLengthUnit.current
+    val km = length.parseDistance(distance)
 
     Page("Cardio", onBack = { nav.back() }) {
         ChipRow(CardioType.entries.toList(), type, { it.label }, { type = it })
@@ -299,7 +300,7 @@ fun CardioScreen(c: AppContainer, nav: Navigator) {
         IronCard {
             Eyebrow("Log session")
             Field("Duration (minutes)", minutes, { minutes = it }, number = true)
-            if (type.hasDistance) Field("Distance (km)", distance, { distance = it }, number = true)
+            if (type.hasDistance) Field("Distance (${length.distanceLabel})", distance, { distance = it }, number = true)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Field("Calories (optional)", calories, { calories = it }, number = true, modifier = Modifier.weight(1f))
                 Field("Avg heart rate", heartRate, { heartRate = it }, number = true, modifier = Modifier.weight(1f))
@@ -307,7 +308,7 @@ fun CardioScreen(c: AppContainer, nav: Navigator) {
             if (mins != null && mins > 0) {
                 Text(
                     listOfNotNull(
-                        Wellness.paceMinPerKm(mins, km)?.let { "Pace " + Wellness.formatPace(it) },
+                        Wellness.paceMinPerKm(mins, km)?.let { "Pace " + length.pace(it) },
                         if (calories.isBlank()) "≈ ${Wellness.estimatedCalories(type, mins, weight)} kcal (estimate)" else null,
                     ).joinToString(" · "),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -341,9 +342,9 @@ fun CardioScreen(c: AppContainer, nav: Navigator) {
         sessions.take(50).forEach { s ->
             val t = runCatching { CardioType.valueOf(s.type) }.getOrDefault(CardioType.OTHER)
             ListRow(
-                title = "${t.label} · ${formatKg(s.durationMin)} min" + (s.distanceKm?.let { " · ${formatKg(it)} km" } ?: ""),
+                title = "${t.label} · ${formatKg(s.durationMin)} min" + (s.distanceKm?.let { " · ${length.distance(it)}" } ?: ""),
                 subtitle = LocalDate.parse(s.date).format(SHORT) +
-                    (Wellness.paceMinPerKm(s.durationMin, s.distanceKm)?.let { " · " + Wellness.formatPace(it) } ?: "") +
+                    (Wellness.paceMinPerKm(s.durationMin, s.distanceKm)?.let { " · " + length.pace(it) } ?: "") +
                     (s.calories?.let { " · $it kcal" } ?: "") + (s.avgHeartRate?.let { " · $it bpm" } ?: "") +
                     (if (s.healthId != null) " · Health Connect" + (s.notes.takeIf { it.isNotBlank() }?.let { " ($it)" } ?: "") else ""),
                 trailing = {

@@ -37,3 +37,33 @@ class UnitsTest {
         assertEquals(WeightUnit.KG, WeightUnit.defaultFor(Locale.UK))
     }
 }
+
+class LengthUnitTest {
+    @Test
+    fun measurementsHeightsDistancesAndPace() {
+        assertEquals("84 cm", LengthUnit.CM.format(84.0))
+        assertEquals("33.1 in", LengthUnit.IN.format(84.0))
+        assertEquals(84.07, LengthUnit.IN.parse("33.1")!!, 0.01)
+        assertEquals("180", LengthUnit.CM.height(180.0))
+        assertEquals("5'11\"", LengthUnit.IN.height(180.0))
+        listOf("5'11\"", "5' 11", "5 11", "5ft 11in", "71").forEach { assertEquals(it, 180.34, LengthUnit.IN.parseHeight(it)!!, 0.01) }
+        assertEquals(152.4, LengthUnit.IN.parseHeight("5'")!!, 0.01)
+        assertEquals(176.8, LengthUnit.IN.parseHeight("5.8")!!, 0.1) // feet with a decimal
+        assertEquals(null, LengthUnit.IN.parseHeight("tall"))
+        assertEquals("5.04 km", LengthUnit.CM.distance(5.04))
+        assertEquals("3.13 mi", LengthUnit.IN.distance(5.04))
+        assertEquals(5.0, LengthUnit.IN.parseDistance("3.10686")!!, 0.001)
+        assertEquals("4:48 /km", LengthUnit.CM.pace(4.8))
+        assertEquals("7:43 /mi", LengthUnit.IN.pace(4.8))
+    }
+
+    @Test
+    fun fixedTextsAndDefaults() {
+        assertEquals("Run 3.1 mi or more at under 8:03 /mi", LengthUnit.IN.localize("Run 5 km or more at under 5:00 /km"))
+        assertEquals("Cover 311 mi in total", LengthUnit.IN.localize("Cover 500 km in total"))
+        assertEquals("Run 26.2 mi in one session", LengthUnit.IN.localize("Run 42.2 km in one session"))
+        assertEquals("Run 5 km in one session", LengthUnit.CM.localize("Run 5 km in one session"))
+        assertEquals(LengthUnit.IN, LengthUnit.defaultFor(Locale.US))
+        assertEquals(LengthUnit.CM, LengthUnit.defaultFor(Locale("en", "IN")))
+    }
+}

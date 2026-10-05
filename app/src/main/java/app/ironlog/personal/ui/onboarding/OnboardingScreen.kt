@@ -71,8 +71,9 @@ fun OnboardingScreen(c: AppContainer, onImport: () -> Unit = {}) {
     var saving by remember { mutableStateOf(false) }
 
     val unit = LocalWeightUnit.current
+    val length = LocalLengthUnit.current
     val w = unit.parse(weight)?.takeIf { it in 25.0..400.0 }
-    val h = height.toDoubleOrNull()?.takeIf { it in 100.0..250.0 }
+    val h = length.parseHeight(height)?.takeIf { it in 100.0..250.0 }
     val a = age.toIntOrNull()?.takeIf { it in 13..100 }
     val daysPerWeek = weekdays.size
 
@@ -161,7 +162,14 @@ fun OnboardingScreen(c: AppContainer, onImport: () -> Unit = {}) {
                     Eyebrow("Sex")
                     ChipRow(listOf("MALE", "FEMALE", "UNSPECIFIED"), sex, { it.lowercase().replaceFirstChar(Char::uppercase) }, { sex = it })
                     Field("Age", age, { age = it }, number = true)
-                    Field("Height (cm)", height, { height = it }, number = true)
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Field(if (length == app.ironlog.personal.domain.LengthUnit.CM) "Height (cm)" else "Height (ft'in\")", height, { height = it }, number = length == app.ironlog.personal.domain.LengthUnit.CM, modifier = Modifier.weight(1f))
+                        UnitToggle(app.ironlog.personal.domain.LengthUnit.entries, length, { if (it == app.ironlog.personal.domain.LengthUnit.CM) "cm" else "ft" }) { next ->
+                            // Keep the typed height meaning the same in the new unit.
+                            length.parseHeight(height)?.let { height = next.height(it) }
+                            scope.launch { c.setLengthUnit(next) }
+                        }
+                    }
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         Field("Weight (${unit.label})", weight, { weight = it }, number = true, modifier = Modifier.weight(1f))
                         UnitSwitch(unit) { next ->
@@ -422,18 +430,5 @@ private fun RestoreOptions(c: AppContainer, onImport: () -> Unit) {
 
 /** Compact kg / lb toggle next to a weight field. */
 @Composable
-fun UnitSwitch(selected: app.ironlog.personal.domain.WeightUnit, onSelect: (app.ironlog.personal.domain.WeightUnit) -> Unit) {
-    Row(Modifier.clip(CircleShape).background(MaterialTheme.colorScheme.surfaceContainer)) {
-        app.ironlog.personal.domain.WeightUnit.entries.forEach { u ->
-            val on = u == selected
-            Surface(
-                onClick = { if (!on) onSelect(u) },
-                shape = CircleShape,
-                color = if (on) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.surfaceContainer,
-                contentColor = if (on) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.onSurface,
-            ) {
-                Text(u.label.uppercase(), style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp))
-            }
-        }
-    }
-}
+fun UnitSwitch(selected: app.ironlog.personal.domain.WeightUnit, onSelect: (app.ironlog.personal.domain.WeightUnit) -> Unit) =
+    UnitToggle(app.ironlog.personal.domain.WeightUnit.entries, selected, { it.label }, onSelect)

@@ -146,12 +146,16 @@ fun IronlogRoot(
     val profileLoaded by rememberLoaded(false, container) { container.profile.first(); true }
     val seedState by container.seedState.collectAsState()
     val weightUnit by container.weightUnit.collectAsState(initial = app.ironlog.personal.domain.WeightUnit.defaultFor())
+    val lengthUnit by container.lengthUnit.collectAsState(initial = app.ironlog.personal.domain.LengthUnit.defaultFor())
     val controller = rememberNavController()
     val nav = remember(controller) { Navigator(controller) }
     val backStack by controller.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route
 
-    CompositionLocalProvider(app.ironlog.personal.ui.components.LocalWeightUnit provides weightUnit) {
+    CompositionLocalProvider(
+        app.ironlog.personal.ui.components.LocalWeightUnit provides weightUnit,
+        app.ironlog.personal.ui.components.LocalLengthUnit provides lengthUnit,
+    ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
