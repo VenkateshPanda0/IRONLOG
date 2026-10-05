@@ -43,6 +43,13 @@ android {
     }
 }
 
+// Unit tests run against the debug variant only: Room migration tests need the schema files and
+// Compose UI tests need the test activity from ui-test-manifest, both deliberately kept out of the
+// release APK. The release build is checked by assembleRelease and lintVitalRelease instead.
+androidComponents {
+    beforeVariants(selector().withBuildType("release")) { it.enableUnitTest = false }
+}
+
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.compose)
