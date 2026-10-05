@@ -1,8 +1,8 @@
 # Ironlog build state
 
-## Current (2026-10-04, main @ physique check)
+## Current (2026-10-05, main @ security audit and README)
 
-- PASS: `assembleDebug`, `testDebugUnitTest` (143 tests), `lintDebug` (0 errors) in the Linux cloud session (JDK 21, Android SDK 35 at /opt/android-sdk).
+- PASS: `./gradlew clean build` (assembleDebug, assembleRelease with R8, testDebugUnitTest 148 tests, lint 0 errors) in the Linux cloud session (JDK 21, Android SDK 35 at /opt/android-sdk).
 - Room schema v9 with tested migrations 1->2->3->4->5->6->7->8->9 (v6: daily_log stepsFromHealth/sleepFromHealth; v7: healthId on body_weight and cardio_session; v8: body_measurement shouldersCm; v9: session_exercise supersetGroup) (v4: food cuisine/popularity; v5: profile physique goal and physique_scan table).
 - Physique check: tape-measure circumferences (`domain/Physique.kt`), ML Kit removed (APK 72 MB -> 43 MB). Older photo-estimate checks stay in history, labelled.
 - Done since the first build: STNDRD-style redesign and navigation, five-step onboarding, program recommender with staple lifts and weekly coverage of all 17 muscle groups, exercise library with movement demos, full workout logger with drop/rest-pause sets and swap, summary and share cards, progress analytics and photos, nutrition diary with full USDA table, barcode scanning and recipes, wellness (readiness, water, steps, sleep, habits, cardio, measurements), 183 tiered achievements (physique and collection medals added) and a 50-level two-year progression.
@@ -17,6 +17,8 @@
 - Training: `domain/Coaching.kt` (Coach double progression with RPE, Plates, Warmups); supersets via session_exercise.supersetGroup.
 - Live workout notification: `timer/WorkoutNotifier.kt` observes the active session, its sets and the rest timer (new Flow query) and redraws an ongoing low-importance notification; `WorkoutActionReceiver` handles Done/+30 s/Skip rest. Rest-end alarm now clears the finished timer row.
 - App tour: `ui/tour/AppTour.kt` (spotlight overlay over the real app, anchors registered with `Modifier.tourAnchor`), shown when DataStore `tour_pending` is set by onboarding or Settings › Replay app tour.
+- Security hardening: safe photo file names (`data/SafeNames.kt`), size-capped zip/JSON/photo reads, full value and date validation of imported backups, capped and sanity-checked Open Food Facts responses, barcode-only lookups, the exported activity's open-workout extra honoured only for the active session, immutable PendingIntents.
+- Release build: R8 minify + resource shrinking (`app/proguard-rules.pro` keeps kotlinx serializers), about 23 MB vs 43 MB debug. Release-variant unit tests are disabled because migration schemas and the Compose test manifest are debug-only; the release build is checked by assembleRelease and lintVitalRelease.
 - Next ideas: upgrade AGP + compileSdk 36 (then Health Connect 1.1.0 stable),  reminders, backup of photos to Drive, automatic scheduled Drive backups, on-device verification.
 
 ## History (earlier sessions)

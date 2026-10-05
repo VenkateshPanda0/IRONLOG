@@ -209,3 +209,11 @@ Each step was built, tested and pushed to `main` separately: redesign and naviga
 - Shown once after onboarding (onboarding sets `tour_pending`); users who restore a backup never pass through onboarding so are not shown it. Settings › Help › Replay app tour shows it again.
 - The walkthrough test takes the whole tour after onboarding and, at the end, replays it from Settings and skips it. Gate: 143 tests pass, lint 0 errors.
 
+
+## 2026-10-05 · Full audit, security hardening, README
+
+- Security: photo names restricted to a safe pattern on import and when reading files (path traversal); bounded copies for backup JSON (200 MB), photos (30 MB each, 4 GB total) and entry count (zip bombs); backup validation of every date and numeric range, goals and profile; Open Food Facts responses capped at 4 MB, HTTP status checked, implausible nutrition rejected, text fields trimmed; only 6-14 digit barcodes are looked up; MainActivity's open-workout extra only opens the active session.
+- Bugs: coach no longer crashes on an inverted rep range from a bad backup; typed weight/reps are passed straight to the set tick (no race with the text-field debounce); clearing personal data also resets Health Connect sync state; real photo downscaling in the auto-backup snapshot.
+- Release: R8 minify + resource shrinking with proguard rules for kotlinx serialization (APK 43 MB -> 23 MB); themed (monochrome) launcher icon on Android 13+; release-variant unit tests disabled (debug-only schemas and test manifest).
+- README rewritten with an at-a-glance stats table and 22 screenshots from the walkthrough test (`docs/screenshots/`).
+- Gate: `./gradlew clean build` PASS: 148 tests, lint 0 errors, debug and release APKs built.
