@@ -347,32 +347,22 @@ class AppScreenshotTest {
         shot("04_progress_body")
     
 
-        // Physique check: ML Kit cannot run here, so a synthetic body stands in for the detector,
-        // and the photo picker result is delivered by hand.
-        container.physique.detector =
-            app.ironlog.personal.data.repo.BodyDetector { app.ironlog.personal.domain.SyntheticBody.build(170, 118, 130, 66) }
+        // Physique check by tape measure. Measurements typed in earlier (waist 84) prefill the form.
         tap("Photos")
         tap("Physique check")
-        compose.waitUntilAtLeastOneExists(hasText("For an accurate check", ignoreCase = true), 10_000)
+        compose.waitUntilAtLeastOneExists(hasText("How to measure", ignoreCase = true), 10_000)
         shot("16_physique")
-        val photo = java.io.File(activity.cacheDir, "front.png")
-        android.graphics.Bitmap.createBitmap(400, 800, android.graphics.Bitmap.Config.ARGB_8888)
-            .apply { eraseColor(android.graphics.Color.LTGRAY) }
-            .let { b -> photo.outputStream().use { b.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) } }
-        tap("Check a photo")
-        scenario.onActivity {
-            val shadow = org.robolectric.Shadows.shadowOf(it)
-            val request = shadow.nextStartedActivityForResult
-            shadow.receiveResult(request.intent, android.app.Activity.RESULT_OK, android.content.Intent().setData(android.net.Uri.fromFile(photo)))
-        }
-        compose.waitUntilAtLeastOneExists(hasText("match to Classic", substring = true), 20_000)
+        type("Shoulders (cm)", "118")
+        type("Hips (cm)", "98")
+        type("Thigh (cm)", "58")
+        compose.waitUntilAtLeastOneExists(hasText("match to Classic", substring = true), 10_000)
+        compose.onNode(hasText("match to Classic", substring = true)).performScrollTo()
         shot("16_physique_report")
         compose.onRoot().performTouchInput { swipeUp() }
         shot("16_physique_findings")
         tap("Save this check")
         compose.waitUntilAtLeastOneExists(hasText("History", ignoreCase = true), 10_000)
-        compose.onRoot().performTouchInput { swipeUp() }
-        compose.onRoot().performTouchInput { swipeUp() }
+        compose.onNode(hasText("History", ignoreCase = true)).performScrollTo()
         shot("16_physique_history")
         tap("Build a program with this focus")
         compose.waitUntilAtLeastOneExists(hasText("Classic focus", ignoreCase = true), 10_000)

@@ -33,6 +33,7 @@ private val METRICS =
     listOf(
         Metric("waist", "Waist", "cm") { it.waistCm },
         Metric("chest", "Chest", "cm") { it.chestCm },
+        Metric("shoulders", "Shoulders", "cm") { it.shouldersCm },
         Metric("arm", "Arm", "cm") { it.armCm },
         Metric("thigh", "Thigh", "cm") { it.thighCm },
         Metric("hips", "Hips", "cm") { it.hipsCm },
@@ -65,7 +66,7 @@ fun BodySection(c: AppContainer) {
                     c.wellness.addMeasurement(
                         BodyMeasurementEntity(
                             date = LocalDate.now().toString(),
-                            waistCm = parsed["waist"], chestCm = parsed["chest"], armCm = parsed["arm"], thighCm = parsed["thigh"],
+                            waistCm = parsed["waist"], chestCm = parsed["chest"], shouldersCm = parsed["shoulders"], armCm = parsed["arm"], thighCm = parsed["thigh"],
                             hipsCm = parsed["hips"], neckCm = parsed["neck"], bodyFatPct = parsed["bodyfat"]?.takeIf { it < 75 },
                         )
                     )

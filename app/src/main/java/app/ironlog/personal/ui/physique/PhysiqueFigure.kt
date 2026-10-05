@@ -16,8 +16,11 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import app.ironlog.personal.domain.BodyProportions
 import app.ironlog.personal.domain.FigureShape
 
-/** The user's measured proportions as a drawable shape, with the waist as the unit. */
-fun shapeOf(p: BodyProportions) = FigureShape(p.vTaper, 1.0, p.hipWidth / p.waistWidth, p.thighToWaist, 0.26)
+/**
+ * The user's measured proportions as a drawable shape, with the waist as the unit. A thigh's
+ * circumference relative to the waist runs about 1.2x its drawn width, hence the scaling.
+ */
+fun shapeOf(p: BodyProportions) = FigureShape(p.vTaper, 1.0, p.hipsCm / p.waistCm, p.thighToWaist / 1.2, 0.26)
 
 /** A goal shape rescaled to the same waist as [reference], so outlines can be compared. */
 fun FigureShape.matchedTo(reference: FigureShape): FigureShape {

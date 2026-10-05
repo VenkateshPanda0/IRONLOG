@@ -3,74 +3,59 @@ package app.ironlog.personal.domain
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-/**
- * Synthetic front-view bodies with known widths stand in for camera photos, so the geometry can
- * be checked exactly without a device.
- */
+/** Tape-measure proportions against goal physiques, with realistic circumferences in cm. */
 class PhysiqueTest {
-    private val w = SyntheticBody.W
-    private val h = SyntheticBody.H
-
-    private fun body(shoulder: Int, waist: Int, hip: Int, thigh: Int, armsIn: Boolean = false, leftThighExtra: Int = 0, sideOn: Boolean = false) =
-        SyntheticBody.build(shoulder, waist, hip, thigh, armsIn, leftThighExtra, sideOn)
+    private fun body(shoulders: Double, waist: Double, hips: Double, thigh: Double, height: Double? = 178.0) = BodyProportions(shoulders, waist, hips, thigh, height)
 
     @Test
-    fun measuresKnownWidths() {
-        val (mask, joints) = body(shoulder = 180, waist = 110, hip = 130, thigh = 60)
-        val a = PhysiqueAnalyzer.analyze(mask, joints)
-        assertTrue(a.issues.toString(), a.issues.isEmpty())
-        val p = a.proportions!!
-        assertEquals(181.0, p.shoulderWidth, 2.0)
-        assertEquals(111.0, p.waistWidth, 3.0)
-        assertEquals(131.0, p.hipWidth, 2.0)
-        assertEquals(61.0, p.thighWidth, 2.0)
-        assertEquals(1.63, p.vTaper, 0.05)
+    fun ratiosAndPlausibilityChecks() {
+        val p = body(121.0, 76.0, 95.0, 62.0)
+        assertEquals(1.59, p.vTaper, 0.01)
+        assertEquals(0.80, p.waistToHip, 0.01)
+        assertEquals(0.82, p.thighToWaist, 0.01)
+        assertEquals(0.43, p.waistToHeight!!, 0.01)
+        assertNotNull(BodyProportions.of(121.0, 76.0, 95.0, 62.0, null))
+        assertNull(BodyProportions.of(121.0, 76.0, 95.0, null, null))
+        assertNull(BodyProportions.of(12.1, 76.0, 95.0, 62.0, null)) // typed in metres or a typo
     }
 
     @Test
-    fun flagsSideOnArmsTouchingAndMissingBody() {
-        val (side, sideJoints) = body(180, 110, 130, 60, sideOn = true)
-        assertTrue(PhotoIssue.SIDE_ON in PhysiqueAnalyzer.analyze(side, sideJoints).issues)
-        val (arms, armJoints) = body(180, 110, 130, 60, armsIn = true)
-        assertTrue(PhotoIssue.ARMS_TOUCHING in PhysiqueAnalyzer.analyze(arms, armJoints).issues)
-        val empty = BodyMask.of(w, h) { _, _ -> false }
-        assertEquals(listOf(PhotoIssue.BODY_NOT_FOUND), PhysiqueAnalyzer.analyze(empty, emptyMap()).issues)
-        val (mask, joints) = body(180, 110, 130, 60)
-        assertEquals(listOf(PhotoIssue.NOT_FULL_BODY), PhysiqueAnalyzer.analyze(mask, joints - Joint.LEFT_KNEE).issues)
-    }
-
-    @Test
-    fun narrowFrameGetsVTaperAndLegFocusWithCut() {
-        val p = PhysiqueAnalyzer.analyze(body(150, 120, 125, 52).first, body(150, 120, 125, 52).second).proportions!!
-        val report = PhysiqueCoach.report(p, PhysiqueType.CLASSIC)
+    fun averageManAgainstClassicNeedsTaperLegsAndACut() {
+        // Typical untrained build: 112 / 92 / 100 / 56 cm at 175 cm tall.
+        val report = PhysiqueCoach.report(body(112.0, 92.0, 100.0, 56.0, 175.0), PhysiqueType.CLASSIC)
         assertFalse(report.results.first { it.target.metric == Metric.V_TAPER }.withinTarget)
         assertTrue(report.findings.any { it.title == "Build your V-taper" })
         assertTrue(report.findings.any { it.title == "Bring up your legs" })
         assertEquals(listOf("shoulders", "lats"), report.priorityMuscles.take(2))
-        assertEquals(CalorieDirection.CUT, report.calories)
-        assertTrue(report.match < 80)
+        assertEquals(CalorieDirection.CUT, report.calories) // waist / height 0.53
+        assertTrue(report.match < 50)
     }
 
     @Test
-    fun aestheticFrameMatchesClassicAndAsymmetryIsCaught() {
-        val (mask, joints) = body(190, 112, 132, 78)
-        val p = PhysiqueAnalyzer.analyze(mask, joints).proportions!!
-        val classic = PhysiqueCoach.report(p, PhysiqueType.CLASSIC)
+    fun classicBuildMatchesAndLeanSizeGapMeansBulk() {
+        val classic = PhysiqueCoach.report(body(124.0, 76.0, 95.0, 63.0), PhysiqueType.CLASSIC)
         assertEquals(100, classic.match)
-        assertEquals(CalorieDirection.RECOMP, classic.calories)
-        val (uneven, unevenJoints) = body(190, 112, 132, 60, leftThighExtra = 14)
-        val unevenReport = PhysiqueCoach.report(PhysiqueAnalyzer.analyze(uneven, unevenJoints).proportions!!, PhysiqueType.CLASSIC)
-        assertTrue(unevenReport.findings.any { it.title == "Even out your legs" })
+        assertTrue(classic.findings.isEmpty())
+        // Lean but small legs for a bodybuilder: grow, don't diet.
+        val bb = PhysiqueCoach.report(body(122.0, 77.0, 95.0, 60.0), PhysiqueType.BODYBUILDER)
+        assertEquals(CalorieDirection.LEAN_BULK, bb.calories)
+        assertTrue(bb.findings.any { it.title == "Bring up your legs" })
     }
 
     @Test
-    fun tapeWaistAboveHalfHeightMeansCutAndSizeGapMeansBulk() {
-        val p = PhysiqueAnalyzer.analyze(body(190, 112, 132, 50).first, body(190, 112, 132, 50).second).proportions!!
-        assertEquals(CalorieDirection.LEAN_BULK, PhysiqueCoach.report(p, PhysiqueType.BODYBUILDER).calories)
-        assertEquals(CalorieDirection.CUT, PhysiqueCoach.report(p, PhysiqueType.BODYBUILDER, waistToHeight = 0.55).calories)
+    fun womenGoalsUseWaistToHipAndShoulderToHip() {
+        val p = body(98.0, 72.0, 100.0, 58.0, 165.0)
+        val bikini = PhysiqueCoach.report(p, PhysiqueType.BIKINI)
+        // 0.72 waist-to-hip is inside Bikini's 0.70 (+0.03) but not Wellness's 0.65 (+0.03).
+        assertTrue(bikini.results.first { it.target.metric == Metric.WAIST_HIP }.withinTarget)
+        assertTrue(bikini.findings.none { it.title == "Tighten the waist" })
+        val wellness = PhysiqueCoach.report(p, PhysiqueType.WELLNESS)
+        assertFalse(wellness.results.first { it.target.metric == Metric.WAIST_HIP }.withinTarget)
+        assertTrue("glutes" in wellness.priorityMuscles)
         assertNotNull(PhysiqueType.forSex("FEMALE").firstOrNull { it == PhysiqueType.BIKINI })
         assertTrue(PhysiqueType.forSex("MALE").none { it.sex == Sex.FEMALE })
     }

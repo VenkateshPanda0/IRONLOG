@@ -23,11 +23,7 @@ android {
         val localProps = Properties().apply { rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) } }
         val webClientId = (localProps.getProperty("googleWebClientId") ?: providers.gradleProperty("googleWebClientId").orNull).orEmpty()
         buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$webClientId\"")
-        // ML Kit's native pose library is ~20 MB per ABI; 32-bit x86 has no current phones.
-        ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64") }
     }
-    // Compressed native libraries keep the download small; they are extracted on install.
-    packaging { jniLibs.useLegacyPackaging = true }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -66,9 +62,6 @@ dependencies {
     implementation(libs.code.scanner)
     // The scanner brings an old Fragment; 1.3+ is required for registerForActivityResult.
     implementation(libs.fragment)
-    // On-device pose and person segmentation for the physique check; models are bundled, no network.
-    implementation(libs.mlkit.pose)
-    implementation(libs.mlkit.segmentation)
     // Optional Google sign-in (Credential Manager) and Drive app-folder backup.
     implementation(libs.credentials)
     implementation(libs.credentials.play.services)

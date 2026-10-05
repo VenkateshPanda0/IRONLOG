@@ -417,6 +417,8 @@ data class BodyMeasurementEntity(
     val date: String,
     val waistCm: Double? = null,
     val chestCm: Double? = null,
+    /** Around the widest point of the shoulders, arms relaxed: the top of the V-taper. */
+    val shouldersCm: Double? = null,
     val armCm: Double? = null,
     val thighCm: Double? = null,
     val hipsCm: Double? = null,
@@ -425,7 +427,10 @@ data class BodyMeasurementEntity(
     val createdAt: Long = System.currentTimeMillis(),
 )
 
-/** One physique photo check: the measured frontal widths (pixels) and the match to the goal then. */
+/**
+ * One physique check: circumferences in cm (shoulder, waist, hip, thigh) and the match to the goal
+ * at the time. Rows with a [fileName] predate tape checks and hold widths estimated from a photo.
+ */
 @Serializable
 @Entity(tableName = "physique_scan", indices = [Index("date")])
 data class PhysiqueScanEntity(

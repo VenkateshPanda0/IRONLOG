@@ -207,7 +207,7 @@ fun OnboardingScreen(c: AppContainer) {
                     }
                 }
                 3 -> {
-                    StepTitle("Your goal look", "Pick the physique you are training for. Later, check a photo to compare yourself with it.")
+                    StepTitle("Your goal look", "Pick the physique you are training for. Later, compare your tape measurements with it.")
                     app.ironlog.personal.ui.physique.PhysiqueTypePicker(
                         app.ironlog.personal.domain.PhysiqueType.forSex(sex),
                         physiqueType,

@@ -671,7 +671,7 @@ interface IronlogDao {
             BodyMeasurementEntity::class,
             PhysiqueScanEntity::class,
         ],
-    version = 7,
+    version = 8,
     exportSchema = true,
 )
 abstract class IronlogDatabase : RoomDatabase() {
@@ -690,6 +690,14 @@ abstract class IronlogDatabase : RoomDatabase() {
                             "fileName TEXT NOT NULL, note TEXT NOT NULL, createdAt INTEGER NOT NULL)"
                     )
                     db.execSQL("CREATE INDEX IF NOT EXISTS index_progress_photo_date ON progress_photo (date)")
+                }
+            }
+
+        /** v8: shoulder circumference, for tape-measure physique checks. */
+        val MIGRATION_7_8 =
+            object : androidx.room.migration.Migration(7, 8) {
+                override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                    db.execSQL("ALTER TABLE body_measurement ADD COLUMN shouldersCm REAL")
                 }
             }
 

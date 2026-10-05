@@ -1,29 +1,22 @@
 package app.ironlog.personal.ui.physique
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Accessibility
-import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import app.ironlog.personal.AppContainer
 import app.ironlog.personal.data.db.PhysiqueScanEntity
-import app.ironlog.personal.data.repo.PhysiqueCheck
 import app.ironlog.personal.data.repo.PhysiqueRepository
 import app.ironlog.personal.domain.BodyProportions
 import app.ironlog.personal.domain.MetricResult
-import app.ironlog.personal.domain.PhotoIssue
 import app.ironlog.personal.domain.PhysiqueCoach
 import app.ironlog.personal.domain.PhysiqueReport
 import app.ironlog.personal.domain.PhysiqueType
@@ -76,46 +69,31 @@ fun PhysiqueTypePicker(types: List<PhysiqueType>, selected: PhysiqueType?, onSel
     }
 }
 
-private sealed interface CheckState {
-    data object Idle : CheckState
-
-    data object Working : CheckState
-
-    data class Done(val check: PhysiqueCheck, val forced: Boolean = false) : CheckState
-
-    data class Failed(val reason: String) : CheckState
-}
-
 @Composable
 fun PhysiqueScreen(c: AppContainer, nav: Navigator) {
     val profile by c.profile.collectAsState(initial = null)
     val scans by c.physique.scans.collectAsState(initial = emptyList())
     val measurements by c.wellness.measurements.collectAsState(initial = emptyList())
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
     val goal = physiqueGoalOf(profile?.physiqueGoal)
     var picking by remember { mutableStateOf(false) }
-    var state by remember { mutableStateOf<CheckState>(CheckState.Idle) }
+    // Prefill from the latest values ever logged, one measurement at a time.
+    val latest = remember(measurements) {
+        fun last(pick: (app.ironlog.personal.data.db.BodyMeasurementEntity) -> Double?) = measurements.lastOrNull { pick(it) != null }?.let(pick)
+        listOf(last { it.shouldersCm }, last { it.waistCm }, last { it.hipsCm }, last { it.thighCm })
+    }
+    var shoulders by remember(latest) { mutableStateOf(latest[0]?.let(::cm).orEmpty()) }
+    var waist by remember(latest) { mutableStateOf(latest[1]?.let(::cm).orEmpty()) }
+    var hips by remember(latest) { mutableStateOf(latest[2]?.let(::cm).orEmpty()) }
+    var thigh by remember(latest) { mutableStateOf(latest[3]?.let(::cm).orEmpty()) }
     var saved by remember { mutableStateOf(false) }
-    val waistToHeight =
-        measurements.lastOrNull { it.waistCm != null }?.waistCm?.let { waist -> profile?.heightCm?.takeIf { it > 0 }?.let { waist / it } }
+    fun num(text: String) = text.replace(',', '.').toDoubleOrNull()
+    val proportions = BodyProportions.of(num(shoulders), num(waist), num(hips), num(thigh), profile?.heightCm)
 
-    val picker =
-        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-            if (uri == null) return@rememberLauncherForActivityResult
-            state = CheckState.Working
-            saved = false
-            scope.launch {
-                state =
-                    runCatching { CheckState.Done(c.physique.check(context.contentResolver, uri)) }
-                        .getOrElse { CheckState.Failed(it.message ?: "The photo could not be analysed.") }
-            }
-        }
-
-    Page("Physique", onBack = { nav.back() }, subtitle = "Compare your shape with your goal. Analysed on this phone only.") {
+    Page("Physique", onBack = { nav.back() }, subtitle = "Compare your proportions with your goal, measured with a tape.") {
         if (goal == null || picking) {
             SectionHeader("Pick your goal physique")
-            Text("Choose the look you are training for. Your photo checks and program focus follow it.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("Choose the look you are training for. Your checks and program focus follow it.", color = MaterialTheme.colorScheme.onSurfaceVariant)
             PhysiqueTypePicker(PhysiqueType.forSex(profile?.sex), goal) { type ->
                 scope.launch { c.physique.setGoal(type) }
                 picking = false
@@ -136,97 +114,62 @@ fun PhysiqueScreen(c: AppContainer, nav: Navigator) {
             }
         }
 
-        when (val s = state) {
-            CheckState.Idle, is CheckState.Failed -> {
-                PhotoGuide()
-                if (s is CheckState.Failed) Text(s.reason, color = MaterialTheme.colorScheme.error)
-                PrimaryButton(
-                    "Check a photo",
-                    icon = Icons.Filled.PhotoLibrary,
-                    onClick = { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
-                )
-            }
-            CheckState.Working ->
-                IronCard {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 3.dp)
-                        Spacer(Modifier.width(12.dp))
-                        Text("Finding your outline and joints…")
+        SectionHeader("Measure")
+        MeasureGuide()
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Field("Shoulders (cm)", shoulders, { shoulders = it; saved = false }, number = true, modifier = Modifier.weight(1f))
+            Field("Waist (cm)", waist, { waist = it; saved = false }, number = true, modifier = Modifier.weight(1f))
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Field("Hips (cm)", hips, { hips = it; saved = false }, number = true, modifier = Modifier.weight(1f))
+            Field("Thigh (cm)", thigh, { thigh = it; saved = false }, number = true, modifier = Modifier.weight(1f))
+        }
+        if (proportions == null) {
+            Text("Enter all four measurements in centimetres to see how you compare.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        } else {
+            val report = remember(proportions, goal) { PhysiqueCoach.report(proportions, goal) }
+            ReportSection(proportions, report, previous = scans.firstOrNull { !PhysiqueRepository.isPhotoEstimate(it) })
+            PrimaryButton(
+                if (saved) "Saved" else "Save this check",
+                enabled = !saved,
+                onClick = {
+                    scope.launch {
+                        c.physique.save(proportions, goal, report.match)
+                        saved = true
                     }
-                }
-            is CheckState.Done -> {
-                val analysis = s.check.analysis
-                val p = analysis.proportions
-                if ((analysis.issues.isNotEmpty() && !s.forced) || p == null) {
-                    IssuesCard(analysis.issues, canIgnore = p != null, onIgnore = { state = s.copy(forced = true) })
-                    PrimaryButton(
-                        "Try another photo",
-                        icon = Icons.Filled.PhotoLibrary,
-                        onClick = {
-                            scope.launch { c.physique.discard(s.check) }
-                            picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                        },
-                    )
-                } else {
-                    val report = remember(p, goal, waistToHeight) { PhysiqueCoach.report(p, goal, waistToHeight) }
-                    ReportSection(p, report, previous = scans.firstOrNull())
-                    PrimaryButton(
-                        if (saved) "Saved" else "Save this check",
-                        enabled = !saved,
-                        onClick = {
-                            scope.launch {
-                                c.physique.save(s.check, p, goal, report.match)
-                                saved = true
-                            }
-                        },
-                    )
-                    SecondaryButton("Build a program with this focus", onClick = { nav.open(Routes.BUILDER) })
-                    SecondaryButton(
-                        "Check another photo",
-                        onClick = {
-                            if (!saved) scope.launch { c.physique.discard(s.check) }
-                            state = CheckState.Idle
-                        },
-                    )
-                }
-            }
+                },
+            )
+            SecondaryButton("Build a program with this focus", onClick = { nav.open(Routes.BUILDER) })
         }
 
         if (scans.isNotEmpty()) History(scans)
         Text(
-            "Widths from a single front photo are estimates; clothing, pose and lighting change them. Use the same spot, light and pose each time and compare trends, not single checks.",
+            "Ratios are coaching guides, not competition criteria. Measure at the same time of day (morning, before eating) every 4 weeks and compare the trend.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
 
-@Composable
-private fun PhotoGuide() {
-    IronCard {
-        Eyebrow("For an accurate check")
-        listOf(
-            "Front-facing, full body from head to feet",
-            "Fitted clothing or swimwear so your outline shows",
-            "Arms a hand's width away from your sides",
-            "Phone upright at chest height, about 2–3 m away",
-            "Plain background and even light",
-        ).forEach { tip ->
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(6.dp).clip(CircleShape).background(IronTheme.colors.accent))
-                Spacer(Modifier.width(10.dp))
-                Text(tip, style = MaterialTheme.typography.bodyMedium)
-            }
-        }
-    }
-}
+private fun cm(value: Double) = if (value % 1.0 == 0.0) "%.0f".format(value) else "%.1f".format(value)
 
 @Composable
-private fun IssuesCard(issues: List<PhotoIssue>, canIgnore: Boolean, onIgnore: () -> Unit) {
+private fun MeasureGuide() {
     IronCard {
-        Eyebrow("This photo can't be measured well")
-        issues.ifEmpty { listOf(PhotoIssue.BODY_NOT_FOUND) }.forEach { Text("• ${it.message}") }
-        if (canIgnore) TextButton(onClick = onIgnore, contentPadding = PaddingValues(0.dp)) { Text("SHOW RESULTS ANYWAY") }
+        Eyebrow("How to measure")
+        listOf(
+            "Shoulders" to "around the widest point, over the deltoids, arms relaxed at your sides",
+            "Waist" to "at the navel, standing relaxed, after breathing out",
+            "Hips" to "around the widest part of the glutes, feet together",
+            "Thigh" to "around the widest part of one thigh, just below the glutes",
+        ).forEach { (name, how) ->
+            Row(verticalAlignment = Alignment.Top) {
+                Box(Modifier.padding(top = 7.dp).size(6.dp).clip(CircleShape).background(IronTheme.colors.accent))
+                Spacer(Modifier.width(10.dp))
+                Text("$name: $how", style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+        Text("Keep the tape level and snug without pressing into the skin.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
@@ -306,9 +249,10 @@ private fun MetricBar(r: MetricResult) {
 @Composable
 private fun History(scans: List<PhysiqueScanEntity>) {
     SectionHeader("History")
-    if (scans.size >= 2) {
-        val first = scans.last()
-        val last = scans.first()
+    val taped = scans.filterNot { PhysiqueRepository.isPhotoEstimate(it) }
+    if (taped.size >= 2) {
+        val first = taped.last()
+        val last = taped.first()
         val vFirst = first.shoulder / first.waist
         val vLast = last.shoulder / last.waist
         Text(
@@ -319,7 +263,9 @@ private fun History(scans: List<PhysiqueScanEntity>) {
     scans.take(12).forEach { scan ->
         ListRow(
             title = "${scan.matchScore}% · ${physiqueGoalOf(scan.goal)?.title ?: scan.goal}",
-            subtitle = "%s · V-taper %.2f · legs %.2f".format(scan.date, scan.shoulder / scan.waist, (scan.leftThigh + scan.rightThigh) / 2 / scan.waist),
+            subtitle =
+                if (PhysiqueRepository.isPhotoEstimate(scan)) "%s · V-taper %.2f · photo estimate".format(scan.date, scan.shoulder / scan.waist)
+                else "%s · V-taper %.2f · waist %s cm".format(scan.date, scan.shoulder / scan.waist, cm(scan.waist)),
             leading = { Icon(Icons.Filled.Accessibility, contentDescription = null) },
         )
     }
@@ -339,11 +285,11 @@ fun PhysiqueCard(c: AppContainer, nav: Navigator) {
                 when {
                     goal == null -> {
                         Text("PICK YOUR GOAL LOOK", style = MaterialTheme.typography.titleMedium)
-                        Text("Choose a physique type and compare your photos with it.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("Choose a physique type and compare your measurements with it.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     latest == null -> {
                         Text(goal.title.uppercase(), style = MaterialTheme.typography.titleMedium)
-                        Text("Check a front photo to see how close you are.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("Measure shoulders, waist, hips and thigh to see how close you are.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     else -> {
                         Text("${latest.matchScore}% ${goal.title.uppercase()}", style = MaterialTheme.typography.titleMedium)

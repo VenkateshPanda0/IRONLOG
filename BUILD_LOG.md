@@ -151,3 +151,10 @@ Each step was built, tested and pushed to `main` separately: redesign and naviga
 - Schema v7 adds `healthId` to body_weight and cardio_session. Each part of a sync runs only with its permission; Settings shows per-type access (in / out / in only / not allowed) with "Allow more data types".
 - Gate: 127 tests pass, lint 0 errors. Not verified on a device with real Health Connect.
 
+## 2026-10-05 · Review cleanup: demos, dead code, physique by tape
+
+- Exercise demos default to the real photos again; the stick figure is one tap away (default only when an exercise has no photos).
+- Removed the online USDA FoodData Central provider (could never be enabled; all SR Legacy foods are bundled) and the placeholder "unset@example.invalid" contact; Open Food Facts requests identify the app by its project URL.
+- Physique check now uses tape-measure circumferences (shoulders, waist, hips, thigh; schema v8 adds shouldersCm) instead of widths estimated from a photo with ML Kit. Targets retuned for circumferences; waist-to-height now comes from the measured waist and profile height. Score falls to 0 five tolerances from target (was three) so progress shows. Saving a check also logs a body measurement. ML Kit removed: APK 72.5 MB -> 43.4 MB. Old photo-based checks remain in history marked "photo estimate".
+- Gate: 126 tests pass, lint 0 errors.
+
