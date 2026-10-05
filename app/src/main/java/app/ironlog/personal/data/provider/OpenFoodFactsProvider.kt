@@ -16,8 +16,10 @@ class OpenFoodFactsProvider(
     /** Open Food Facts asks apps to identify themselves; the project page is the contact. */
     private val contact: String = "https://github.com/VenkateshPanda0/IRONLOG",
 ) {
-    suspend fun byBarcode(barcode: String): FoodEntity? =
+    suspend fun byBarcode(scanned: String): FoodEntity? =
         withContext(Dispatchers.IO) {
+            // Product barcodes are 6 to 14 digits; anything else (a QR code's text) is not looked up.
+            val barcode = scanned.trim().takeIf { it.matches(Regex("\\d{6,14}")) } ?: return@withContext null
             val ref = "off:$barcode"
             dao.foodBySourceRef(ref)?.let {
                 return@withContext it
@@ -69,13 +71,27 @@ class OpenFoodFactsProvider(
         connection.readTimeout = 8000
         connection.setRequestProperty("User-Agent", "Ironlog/0.1 ($contact)")
         return try {
-            JSONObject(connection.inputStream.bufferedReader().use { it.readText() })
+            if (connection.responseCode !in 200..299) throw java.io.IOException("Open Food Facts returned HTTP ${connection.responseCode}")
+            // Bounded read: a broken or hostile response cannot exhaust memory.
+            val bytes = java.io.ByteArrayOutputStream()
+            connection.inputStream.use { input ->
+                val buffer = ByteArray(16 * 1024)
+                while (true) {
+                    val n = input.read(buffer)
+                    if (n < 0) break
+                    bytes.write(buffer, 0, n)
+                    if (bytes.size() > MAX_RESPONSE) throw java.io.IOException("Open Food Facts response too large")
+                }
+            }
+            JSONObject(bytes.toString(Charsets.UTF_8.name()))
         } finally {
             connection.disconnect()
         }
     }
 
     companion object {
+        private const val MAX_RESPONSE = 4 * 1024 * 1024
+
         /** Parses a product object (or a v2 response wrapping one); incomplete macros return null. */
         fun parseProduct(json: JSONObject, ref: String): FoodEntity? {
             if (json.has("status") && json.optInt("status", 1) != 1) return null
@@ -86,12 +102,14 @@ class OpenFoodFactsProvider(
             val carbs = nutrients.optDouble("carbohydrates_100g", Double.NaN)
             val fat = nutrients.optDouble("fat_100g", Double.NaN)
             if (listOf(kcal, protein, carbs, fat).any { !it.isFinite() || it < 0 }) return null
-            val title = product.optString("product_name").trim().ifBlank { "Packaged food" }
+            // Crowd-sourced labels: reject values no food can have per 100 g.
+            if (kcal > 950 || protein > 100 || carbs > 100 || fat > 100 || protein + carbs + fat > 105) return null
+            val title = product.optString("product_name").trim().take(120).ifBlank { "Packaged food" }
             // The search service returns brands as an array, the product API as a comma string.
             val brand =
                 product.optJSONArray("brands")?.let { array ->
                     (0 until array.length()).map { array.optString(it) }.firstOrNull { it.isNotBlank() }
-                } ?: product.optString("brands").substringBefore(',').trim().takeIf(String::isNotBlank)
+                }?.take(60) ?: product.optString("brands").substringBefore(',').trim().take(60).takeIf(String::isNotBlank)
             return FoodEntity(
                 name = title,
                 brand = brand,
@@ -101,7 +119,7 @@ class OpenFoodFactsProvider(
                 proteinPer100g = protein,
                 carbsPer100g = carbs,
                 fatPer100g = fat,
-                fiberPer100g = nutrients.optDouble("fiber_100g").takeIf(Double::isFinite),
+                fiberPer100g = nutrients.optDouble("fiber_100g").takeIf { it.isFinite() && it in 0.0..100.0 },
                 confidence = "MEDIUM",
             )
         }
@@ -111,7 +129,7 @@ class OpenFoodFactsProvider(
             val grams = product.optDouble("serving_quantity", Double.NaN).takeIf { it.isFinite() && it > 0 && it <= 2000 }
                 ?: product.optString("serving_quantity").toDoubleOrNull()?.takeIf { it > 0 && it <= 2000 }
                 ?: return null
-            val label = product.optString("serving_size").trim().ifBlank { "1 serving" }
+            val label = product.optString("serving_size").trim().take(60).ifBlank { "1 serving" }
             return label to grams
         }
     }

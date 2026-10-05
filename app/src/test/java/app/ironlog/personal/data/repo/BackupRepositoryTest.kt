@@ -79,4 +79,27 @@ class BackupRepositoryTest {
         backup.importJson("""{"schemaVersion":1,"profile":[{"id":1,"name":"Old"}]}""")
         assertEquals("Old", db.dao().profileOnce()?.name)
     }
+
+    private fun rejected(json: String): Boolean = runBlocking { runCatching { backup.importJson(json) }.isFailure }
+
+    @Test
+    fun maliciousOrCorruptBackupsAreRefusedWithoutTouchingData() = runBlocking {
+        db.dao().saveProfile(UserProfileEntity(name = "Venkatesh"))
+        // Path traversal through a photo name.
+        assertEquals(true, rejected("""{"schemaVersion":1,"photos":[{"id":1,"date":"2026-10-01","fileName":"../../databases/ironlog.db"}]}"""))
+        assertEquals(true, rejected("""{"schemaVersion":1,"photos":[{"id":1,"date":"2026-10-01","fileName":"a/b.jpg"}]}"""))
+        // A bad date would crash every screen that reads it.
+        assertEquals(true, rejected("""{"schemaVersion":1,"habits":[{"id":1,"name":"x"}],"habitChecks":[{"habitId":1,"date":"not-a-date"}]}"""))
+        // Impossible numbers would poison every stat.
+        assertEquals(true, rejected("""{"schemaVersion":1,"cardio":[{"id":1,"date":"2026-10-01","type":"RUN","durationMin":-5.0}]}"""))
+        assertEquals("Venkatesh", db.dao().profileOnce()?.name)
+    }
+
+    @Test
+    fun storedPhotoNamesCannotReachOtherFiles() {
+        val repo = BodyRepository(db.dao(), java.io.File("/data/photos"))
+        val photo = app.ironlog.personal.data.db.ProgressPhotoEntity(date = "2026-10-01", fileName = "../databases/ironlog.db")
+        assertEquals("/data/photos/invalid-name", repo.photoFile(photo).path)
+        assertEquals("/data/photos/photo_1.jpg", repo.photoFile(photo.copy(fileName = "photo_1.jpg")).path)
+    }
 }

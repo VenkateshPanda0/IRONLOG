@@ -259,8 +259,11 @@ private fun IronlogNavHost(
     LaunchedEffect(container) {
         container.openWorkoutRequest.collect { id ->
             if (id != null) {
-                nav.workout(id)
                 container.openWorkoutRequest.value = null
+                // The launcher activity is exported, so another app could send this extra: only
+                // the workout actually in progress is opened.
+                val active = container.workouts.active.first()
+                if (active != null && active.id == id) nav.workout(id)
             }
         }
     }

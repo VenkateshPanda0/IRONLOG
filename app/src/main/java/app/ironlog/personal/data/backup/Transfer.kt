@@ -18,7 +18,20 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 /** Only plain file names are accepted for photos, so an archive can never write outside its folder. */
-internal fun safePhotoName(name: String): String? = name.takeIf { it.matches(Regex("[A-Za-z0-9_.-]{1,120}")) && !it.startsWith(".") }
+internal fun safePhotoName(name: String): String? = app.ironlog.personal.data.safeFileName(name)
+
+/** Copies at most [limit] bytes; larger entries are rejected rather than filling memory or disk. */
+private fun java.io.InputStream.copyLimited(out: java.io.OutputStream, limit: Long): Long {
+    val buffer = ByteArray(64 * 1024)
+    var total = 0L
+    while (true) {
+        val n = read(buffer)
+        if (n < 0) return total
+        total += n
+        if (total > limit) throw IllegalArgumentException("Backup entry is too large")
+        out.write(buffer, 0, n)
+    }
+}
 
 /**
  * Everything in one file: `ironlog_backup.json` plus `photos/<name>` for progress photos. Also
@@ -49,7 +62,8 @@ class BackupArchive(private val backup: BackupRepository, private val photoDir: 
             val zip = stream.read() == 'P'.code && stream.read() == 'K'.code
             stream.reset()
             if (!zip) {
-                backup.importJson(stream.bufferedReader().readText())
+                val bytes = java.io.ByteArrayOutputStream().also { stream.copyLimited(it, MAX_JSON) }
+                backup.importJson(bytes.toString(Charsets.UTF_8.name()))
                 return@withContext
             }
             // Unpack photos to a staging folder first; nothing changes unless the JSON imports.
@@ -58,10 +72,18 @@ class BackupArchive(private val backup: BackupRepository, private val photoDir: 
             try {
                 ZipInputStream(stream).use { z ->
                     var entry = z.nextEntry
+                    var entries = 0
+                    var photoBytes = 0L
                     while (entry != null) {
+                        // Bounded so a crafted archive (zip bomb) cannot exhaust memory or storage.
+                        if (++entries > MAX_ENTRIES) throw IllegalArgumentException("Backup has too many files")
                         when {
-                            entry.name == JSON -> json = z.readBytes().toString(Charsets.UTF_8)
-                            entry.name.startsWith("photos/") -> safePhotoName(entry.name.removePrefix("photos/"))?.let { name -> File(staging, name).outputStream().use { z.copyTo(it) } }
+                            entry.name == JSON -> json = java.io.ByteArrayOutputStream().also { z.copyLimited(it, MAX_JSON) }.toString(Charsets.UTF_8.name())
+                            entry.name.startsWith("photos/") ->
+                                safePhotoName(entry.name.removePrefix("photos/"))?.let { name ->
+                                    photoBytes += File(staging, name).outputStream().use { z.copyLimited(it, MAX_PHOTO) }
+                                    if (photoBytes > MAX_PHOTOS_TOTAL) throw IllegalArgumentException("Backup photos are too large")
+                                }
                         }
                         entry = z.nextEntry
                     }
@@ -78,6 +100,10 @@ class BackupArchive(private val backup: BackupRepository, private val photoDir: 
 
     companion object {
         const val JSON = "ironlog_backup.json"
+        private const val MAX_JSON = 200L * 1024 * 1024
+        private const val MAX_PHOTO = 30L * 1024 * 1024
+        private const val MAX_PHOTOS_TOTAL = 4L * 1024 * 1024 * 1024
+        private const val MAX_ENTRIES = 20_000
     }
 }
 

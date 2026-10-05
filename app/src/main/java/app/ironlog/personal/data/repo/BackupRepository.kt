@@ -116,17 +116,37 @@ class BackupRepository(private val db: IronlogDatabase) {
             "A set references a missing exercise row"
         }
         require(
-            value.sessionExercises.all { row -> value.sessions.any { it.id == row.sessionId } }
+            value.sets.all { s ->
+                (s.weightKg == null || (s.weightKg.isFinite() && s.weightKg in 0.0..2000.0)) &&
+                    (s.reps == null || s.reps in 0..1000) &&
+                    (s.rpe == null || (s.rpe.isFinite() && s.rpe in 0.0..10.0))
+            }
         ) {
+            "Backup contains invalid set data"
+        }
+        val sessionIds = value.sessions.map { it.id }.toSet()
+        require(value.sessionExercises.all { it.sessionId in sessionIds }) {
             "A workout exercise references a missing session"
         }
         val habits = value.habits.map { it.id }.toSet()
         require(value.habitChecks.all { it.habitId in habits }) { "A habit check references a missing habit" }
         require(
-            (value.cardio.map { it.date } + value.dailyLogs.map { it.date } + value.measurements.map { it.date } + value.physiqueScans.map { it.date })
+            (value.cardio.map { it.date } + value.dailyLogs.map { it.date } + value.measurements.map { it.date } + value.physiqueScans.map { it.date } +
+                value.habitChecks.map { it.date } + value.photos.map { it.date })
                 .all { runCatching { LocalDate.parse(it) }.isSuccess }
         ) {
             "Backup contains invalid wellness dates"
+        }
+        require(
+            value.cardio.all { it.durationMin.isFinite() && it.durationMin in 0.0..1440.0 && (it.distanceKm == null || (it.distanceKm.isFinite() && it.distanceKm in 0.0..1000.0)) } &&
+                value.measurements.all { m -> listOfNotNull(m.waistCm, m.chestCm, m.shouldersCm, m.armCm, m.thighCm, m.hipsCm, m.neckCm, m.bodyFatPct).all { it.isFinite() && it in 0.0..300.0 } } &&
+                value.physiqueScans.all { p -> listOf(p.shoulder, p.waist, p.hip, p.leftThigh, p.rightThigh, p.height).all { it.isFinite() && it >= 0 } }
+        ) {
+            "Backup contains invalid body or cardio data"
+        }
+        // Photo names become file paths; anything but a plain file name is refused.
+        require(value.photos.all { app.ironlog.personal.data.safeFileName(it.fileName) != null }) {
+            "Backup contains an unsafe photo file name"
         }
         val foods = value.foods.map { it.id }.toSet()
         require(value.meals.all { it.foodId == null || it.foodId in foods }) {

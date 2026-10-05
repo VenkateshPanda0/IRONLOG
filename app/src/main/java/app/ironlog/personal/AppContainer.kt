@@ -115,6 +115,12 @@ class AppContainer(context: Context) {
         body.deleteAllPhotos()
         // The snapshot would otherwise offer the deleted data back on the next onboarding.
         autoBackup.clear()
+        appContext.preferences.edit {
+            it.remove(healthIgnoredKey)
+            it.remove(healthPendingKey)
+            it.remove(healthSyncedAtKey)
+            it[healthSyncKey] = false
+        }
         dataChanged = false
         // The wipe also removes bundled library rows; restore them so the app stays usable.
         setSeedVersion(0)

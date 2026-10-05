@@ -489,7 +489,8 @@ class BodyRepository(
         onWeightDeleted(row)
     }
 
-    fun photoFile(photo: ProgressPhotoEntity) = java.io.File(photoDir, photo.fileName)
+    /** Never resolves outside the photo folder, whatever the stored name is. */
+    fun photoFile(photo: ProgressPhotoEntity) = java.io.File(photoDir, app.ironlog.personal.data.safeFileName(photo.fileName) ?: "invalid-name")
 
     /**
      * Copies the picked image into app-private storage, scaled so the long edge is at most 1600 px.

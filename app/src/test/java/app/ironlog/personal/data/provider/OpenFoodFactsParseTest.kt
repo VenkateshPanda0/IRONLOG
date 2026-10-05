@@ -35,4 +35,25 @@ class OpenFoodFactsParseTest {
         assertNull(OpenFoodFactsProvider.parseProduct(missing, "off:2"))
         assertNull(OpenFoodFactsProvider.parseServing(missing))
     }
+
+    @Test
+    fun hostileOrBrokenProductsAreRejectedOrTrimmed() {
+        fun product(kcal: Double, protein: Double, name: String = "X") =
+            JSONObject().put("product_name", name).put("nutriments", JSONObject().put("energy-kcal_100g", kcal).put("proteins_100g", protein).put("carbohydrates_100g", 1).put("fat_100g", 1))
+        assertNull(OpenFoodFactsProvider.parseProduct(product(90_000.0, 10.0), "off:1"))
+        assertNull(OpenFoodFactsProvider.parseProduct(product(400.0, 250.0), "off:1"))
+        assertEquals(120, OpenFoodFactsProvider.parseProduct(product(400.0, 10.0, "A".repeat(5_000)), "off:1")!!.name.length)
+    }
+
+    @Test
+    fun nonBarcodeScansAreNeverSentToTheNetwork() = kotlinx.coroutines.runBlocking {
+        val db = androidx.room.Room.inMemoryDatabaseBuilder(org.robolectric.RuntimeEnvironment.getApplication(), app.ironlog.personal.data.db.IronlogDatabase::class.java).allowMainThreadQueries().build()
+        try {
+            val provider = OpenFoodFactsProvider(db.dao())
+            // QR text, URLs and path tricks return immediately (no request is made in tests).
+            listOf("https://evil.example/x", "../../etc", "12ab", "123").forEach { assertNull(provider.byBarcode(it)) }
+        } finally {
+            db.close()
+        }
+    }
 }
