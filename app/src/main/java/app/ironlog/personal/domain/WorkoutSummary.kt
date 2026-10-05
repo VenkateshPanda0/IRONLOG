@@ -29,9 +29,9 @@ object WorkoutMath {
     fun volume(sets: List<ExerciseSet>): Double =
         sets.filter { !it.type.equals("WARMUP", true) }.sumOf { (it.weightKg ?: 0.0) * (it.reps ?: 0) }
 
-    /** Drop sets start at 80% of the previous load, rounded to the nearest 2.5 kg plate step. */
-    fun dropWeight(weightKg: Double?): Double? =
-        weightKg?.takeIf { it > 0 }?.let { (it * 0.8 / 2.5).roundToLong() * 2.5 }
+    /** Drop sets start at 80% of the previous load, rounded to the nearest plate step (2.5 kg, or 5 lb in kg). */
+    fun dropWeight(weightKg: Double?, plateStepKg: Double = 2.5): Double? =
+        weightKg?.takeIf { it > 0 }?.let { (it * 0.8 / plateStepKg).roundToLong() * plateStepKg }
 
     /** Active training time: wall time minus completed and ongoing pauses. */
     fun elapsedMs(startedAt: Long, endedAt: Long?, totalPausedMs: Long, pausedAt: Long?, now: Long): Long {

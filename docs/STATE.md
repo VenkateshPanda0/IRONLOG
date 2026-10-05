@@ -2,7 +2,7 @@
 
 ## Current (2026-10-04, main @ physique check)
 
-- PASS: `assembleDebug`, `testDebugUnitTest` (129 tests), `lintDebug` (0 errors) in the Linux cloud session (JDK 21, Android SDK 35 at /opt/android-sdk).
+- PASS: `assembleDebug`, `testDebugUnitTest` (132 tests), `lintDebug` (0 errors) in the Linux cloud session (JDK 21, Android SDK 35 at /opt/android-sdk).
 - Room schema v8 with tested migrations 1->2->3->4->5->6->7->8 (v6: daily_log stepsFromHealth/sleepFromHealth; v7: healthId on body_weight and cardio_session; v8: body_measurement shouldersCm) (v4: food cuisine/popularity; v5: profile physique goal and physique_scan table).
 - Physique check: tape-measure circumferences (`domain/Physique.kt`), ML Kit removed (APK 72 MB -> 43 MB). Older photo-estimate checks stay in history, labelled.
 - Done since the first build: STNDRD-style redesign and navigation, five-step onboarding, program recommender with staple lifts and weekly coverage of all 17 muscle groups, exercise library with movement demos, full workout logger with drop/rest-pause sets and swap, summary and share cards, progress analytics and photos, nutrition diary with full USDA table, barcode scanning and recipes, wellness (readiness, water, steps, sleep, habits, cardio, measurements), 183 tiered achievements (physique and collection medals added) and a 50-level two-year progression.
@@ -12,7 +12,8 @@
 - Stick-figure demos: `domain/Motion.kt` (25 side-view movement patterns, forward kinematics, name-based mapping covering 565 of 657 strength exercises and every staple a side view can show), drawn by `ui/components/StickFigure.kt`; Photos are the default demo with Motion one tap away.
 - Reminders: daily inexact alarms (`reminders/ReminderScheduler.kt`) whose receiver applies `domain/Reminders.kt` rules; rescheduled on app start, boot, update and clock changes. POST_NOTIFICATIONS is now requested (it never was before, so the rest-timer alert could not show on Android 13+).
 - Health Connect: steps and sleep in, weight and exercise sessions both ways (`data/health/`; client IDs make writes idempotent, own records filtered on read, tombstones in DataStore for deletions), foreground sync on resume throttled to 15 min, merge rules unit-tested; NOT RUN against a real Health Connect. Client pinned to 1.1.0-beta01 (1.1.0 needs compileSdk 36 / newer AGP).
-- Next ideas: upgrade AGP + compileSdk 36 (then Health Connect 1.1.0 stable),  reminders, units (lb), backup of photos to Drive, automatic scheduled Drive backups, on-device verification.
+- Units: `domain/Units.kt` (WeightUnit kg/lb, display/parse only; storage stays kg), `LocalWeightUnit` provided in IronlogRoot from DataStore. Edited fields compare displayed text to avoid kg/lb rounding drift.
+- Next ideas: inches for lengths; upgrade AGP + compileSdk 36 (then Health Connect 1.1.0 stable),  reminders, backup of photos to Drive, automatic scheduled Drive backups, on-device verification.
 
 ## History (earlier sessions)
 

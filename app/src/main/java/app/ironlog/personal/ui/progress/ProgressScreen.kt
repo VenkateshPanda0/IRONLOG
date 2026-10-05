@@ -94,16 +94,18 @@ private fun WeightSection(c: AppContainer) {
     val average = remember(daily) { ProgressMath.movingAverage(daily) }.filter { it.first in visible.keys }
     val mean = Calculations.sevenDayMean(daily, today)
     val monthAgo = Calculations.sevenDayMean(daily, today.minusDays(30))
+    val u = LocalWeightUnit.current
+    val entryKg = u.parse(entry)
 
     IronCard {
         Eyebrow("Log weigh-in")
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Field("Weight today (kg)", entry, { entry = it }, number = true, modifier = Modifier.weight(1f))
+            Field("Weight today (${u.label})", entry, { entry = it }, number = true, modifier = Modifier.weight(1f))
             Button(
-                enabled = entry.replace(',', '.').toDoubleOrNull()?.let { it in 25.0..400.0 } == true,
+                enabled = entryKg?.let { it in 25.0..400.0 } == true,
                 onClick = {
                     scope.launch {
-                        c.body.log(today, entry.replace(',', '.').toDouble())
+                        c.body.log(today, entryKg!!)
                         entry = ""
                     }
                 },
@@ -116,13 +118,13 @@ private fun WeightSection(c: AppContainer) {
     }
     val latest = daily.toSortedMap().entries.last()
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        StatTile("Latest", formatKg(latest.value), Modifier.weight(1f), "kg · ${latest.key.format(SHORT)}")
-        StatTile("7-day avg", mean?.let { "%.1f".format(it) } ?: "—", Modifier.weight(1f), "kg")
+        StatTile("Latest", u.number(latest.value), Modifier.weight(1f), "${u.label} · ${latest.key.format(SHORT)}")
+        StatTile("7-day avg", mean?.let { "%.1f".format(u.fromKg(it)) } ?: "—", Modifier.weight(1f), u.label)
         StatTile(
             "30 days",
-            if (mean != null && monthAgo != null) "%+.1f".format(mean - monthAgo) else "—",
+            if (mean != null && monthAgo != null) "%+.1f".format(u.fromKg(mean - monthAgo)) else "—",
             Modifier.weight(1f),
-            "kg change",
+            "${u.label} change",
         )
     }
     ChipRow(listOf("1M", "3M", "6M", "1Y", "ALL"), range, { it }, { range = it })
@@ -130,7 +132,7 @@ private fun WeightSection(c: AppContainer) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Eyebrow("Body weight · 7-day average")
             TextButton(onClick = { editingGoal = true }) {
-                Text(goal?.goalWeightKg?.let { "GOAL ${formatKg(it)} KG" } ?: "SET GOAL")
+                Text(goal?.goalWeightKg?.let { "GOAL ${u.format(it).uppercase()}" } ?: "SET GOAL")
             }
         }
         if (visible.isEmpty()) {
@@ -141,7 +143,7 @@ private fun WeightSection(c: AppContainer) {
                 secondary = average.map { (d, v) -> d.toEpochDay().toDouble() to v },
                 goal = goal?.goalWeightKg,
                 description = "Body weight with seven-day average, ${visible.size} weigh-ins",
-                format = { "%.1f kg".format(it) },
+                format = { "%.1f %s".format(u.fromKg(it), u.label) },
                 xLabels = visible.keys.first().format(SHORT) to visible.keys.last().format(SHORT),
             )
         }
@@ -151,7 +153,7 @@ private fun WeightSection(c: AppContainer) {
         .take(30)
         .forEach { row ->
             ListRow(
-                title = "${formatKg(row.weightKg)} kg",
+                title = u.format(row.weightKg),
                 subtitle = LocalDate.parse(row.date).format(LONG) + (row.note?.let { " · $it" } ?: "") + (if (row.healthId != null) " · Health Connect" else ""),
                 trailing = {
                     IconButton(onClick = { scope.launch { c.body.deleteWeight(row.id) } }) {
@@ -161,16 +163,18 @@ private fun WeightSection(c: AppContainer) {
             )
         }
     if (editingGoal) {
-        var value by remember { mutableStateOf(goal?.goalWeightKg?.let(::formatKg).orEmpty()) }
+        val original = goal?.goalWeightKg?.let(u::number).orEmpty()
+        var value by remember { mutableStateOf(original) }
         AlertDialog(
             onDismissRequest = { editingGoal = false },
             title = { Text("Goal weight") },
-            text = { Field("Goal (kg)", value, { value = it }, number = true) },
+            text = { Field("Goal (${u.label})", value, { value = it }, number = true) },
             confirmButton = {
                 TextButton(onClick = {
                     editingGoal = false
                     scope.launch {
-                        val kg = value.replace(',', '.').toDoubleOrNull()?.takeIf { it in 25.0..400.0 }
+                        // An untouched field keeps the stored goal exactly (no kg/lb rounding drift).
+                        val kg = if (value == original) goal?.goalWeightKg else u.parse(value)?.takeIf { it in 25.0..400.0 }
                         c.goals.save((goal ?: GoalEntity()).copy(goalWeightKg = kg))
                     }
                 }) { Text(if (value.isBlank()) "CLEAR" else "SAVE") }
@@ -182,6 +186,7 @@ private fun WeightSection(c: AppContainer) {
 
 @Composable
 private fun StrengthSection(c: AppContainer) {
+    val unit = LocalWeightUnit.current
     val logged by c.workouts.allLoggedSets.collectAsState(initial = emptyList())
     val byExercise = remember(logged) { logged.groupBy { it.exerciseId } }
     // Exercises ranked by how often they were trained.
@@ -197,14 +202,14 @@ private fun StrengthSection(c: AppContainer) {
     ChipRow(ranked.map { it.key }, current, { id -> byExercise.getValue(id).first().exerciseName }, { selected = it })
     IronCard {
         Eyebrow("Estimated 1RM · ${rows.first().exerciseName}")
-        Text(stats.bestE1rmKg?.let { "%.1f kg".format(it) } ?: "—", style = MaterialTheme.typography.displaySmall)
+        Text(stats.bestE1rmKg?.let { LocalWeightUnit.current.format(it) } ?: "—", style = MaterialTheme.typography.displaySmall)
         if (stats.e1rmTrend.size >= 2) {
             val zone = ZoneId.systemDefault()
             fun day(ms: Long) = Instant.ofEpochMilli(ms).atZone(zone).toLocalDate().format(SHORT)
             LineChart(
                 points = stats.e1rmTrend.map { it.first.toDouble() to it.second },
                 description = "Estimated one-rep max trend",
-                format = { "%.0f kg".format(it) },
+                format = { "%.0f %s".format(unit.fromKg(it), unit.label) },
                 xLabels = day(stats.e1rmTrend.first().first) to day(stats.e1rmTrend.last().first),
             )
         } else {
@@ -212,8 +217,8 @@ private fun StrengthSection(c: AppContainer) {
         }
     }
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        StatTile("Heaviest", stats.heaviestKg?.let(::formatKg) ?: "—", Modifier.weight(1f), "kg")
-        StatTile("Best set", stats.bestSetVolumeKg?.let { "%.0f".format(it) } ?: "—", Modifier.weight(1f), "kg volume")
+        StatTile("Heaviest", stats.heaviestKg?.let(unit::number) ?: "—", Modifier.weight(1f), unit.label)
+        StatTile("Best set", stats.bestSetVolumeKg?.let { "%,.0f".format(unit.fromKg(it)) } ?: "—", Modifier.weight(1f), "${unit.label} volume")
         StatTile("Sessions", "${stats.sessions}", Modifier.weight(1f))
     }
     SectionHeader("Top lifts")
@@ -228,13 +233,14 @@ private fun StrengthSection(c: AppContainer) {
                 subtitle = "Estimated 1RM",
                 onClick = { selected = id },
                 leading = { ExerciseThumb(id, name, 44.dp) },
-                trailing = { Text("%.1f kg".format(e1rm), style = MaterialTheme.typography.titleSmall) },
+                trailing = { Text(unit.format(e1rm), style = MaterialTheme.typography.titleSmall) },
             )
         }
 }
 
 @Composable
 private fun VolumeSection(c: AppContainer) {
+    val unit = LocalWeightUnit.current
     val logged by c.workouts.allLoggedSets.collectAsState(initial = emptyList())
     val exercises by c.workouts.exercises.collectAsState(initial = emptyList())
     val zone = remember { ZoneId.systemDefault() }
@@ -250,13 +256,13 @@ private fun VolumeSection(c: AppContainer) {
     }
     IronCard {
         Eyebrow("Weekly volume · last 12 weeks")
-        Text(formatVolume(weekly.last().second), style = MaterialTheme.typography.displaySmall)
+        Text(formatVolume(weekly.last().second, unit), style = MaterialTheme.typography.displaySmall)
         Text("this week", color = MaterialTheme.colorScheme.onSurfaceVariant)
         BarChart(
             values = weekly.map { it.second },
             labels = weekly.mapIndexed { i, (week, _) -> if (i % 3 == 2 || i == weekly.lastIndex) week.format(COMPACT) else "" },
             description = "Weekly training volume for 12 weeks",
-            format = { formatVolume(it) },
+            format = { formatVolume(it, unit) },
         )
     }
     IronCard {
@@ -292,7 +298,7 @@ private fun VolumeSection(c: AppContainer) {
     }
     val sessions = remember(working) { working.map { it.sessionId }.distinct().size }
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        StatTile("Lifetime", formatVolume(WorkoutMath.volume(working.map { app.ironlog.personal.domain.ExerciseSet(it.sessionId, it.startedAt, it.exerciseId, it.exerciseName, it.type, it.weightKg, it.reps) })), Modifier.weight(1f))
+        StatTile("Lifetime", formatVolume(WorkoutMath.volume(working.map { app.ironlog.personal.domain.ExerciseSet(it.sessionId, it.startedAt, it.exerciseId, it.exerciseName, it.type, it.weightKg, it.reps) }), unit), Modifier.weight(1f))
         StatTile("Sets", "${working.size}", Modifier.weight(1f), "in $sessions workouts")
     }
 }

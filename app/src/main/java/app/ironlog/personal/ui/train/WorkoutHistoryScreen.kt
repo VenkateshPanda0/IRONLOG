@@ -34,11 +34,11 @@ import kotlinx.coroutines.launch
 
 private fun LoggedSet.toExerciseSet() = ExerciseSet(sessionId, startedAt, exerciseId, exerciseName, type, weightKg, reps)
 
-fun formatVolume(kg: Double): String =
-    if (kg >= 10_000) "%.1fk kg".format(kg / 1000) else "%,.0f kg".format(kg)
+fun formatVolume(kg: Double, unit: app.ironlog.personal.domain.WeightUnit): String = unit.volume(kg)
 
 @Composable
 fun HistoryRoute(container: AppContainer, nav: Navigator) {
+    val unit = LocalWeightUnit.current
     val sessions by container.workouts.history.collectAsState(initial = emptyList())
     val allSets by container.workouts.allLoggedSets.collectAsState(initial = emptyList())
     val zone = remember { ZoneId.systemDefault() }
@@ -59,7 +59,7 @@ fun HistoryRoute(container: AppContainer, nav: Navigator) {
                     ListRow(
                         title = session.name,
                         subtitle = day.format(Instant.ofEpochMilli(session.startedAt)) + " · " + formatDuration(duration) +
-                            " · ${sets.count { it.type != "WARMUP" }} sets · " + formatVolume(WorkoutMath.volume(sets.map { it.toExerciseSet() })),
+                            " · ${sets.count { it.type != "WARMUP" }} sets · " + formatVolume(WorkoutMath.volume(sets.map { it.toExerciseSet() }), unit),
                         onClick = { nav.open(Routes.summary(session.id)) },
                         trailing = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) },
                     )
@@ -72,6 +72,7 @@ fun HistoryRoute(container: AppContainer, nav: Navigator) {
 /** Post-workout summary; also the read-only detail view for past sessions in history. */
 @Composable
 fun WorkoutSummaryScreen(container: AppContainer, nav: Navigator, sessionId: Long) {
+    val unit = LocalWeightUnit.current
     val session by remember(sessionId) { container.workouts.observeSession(sessionId) }.collectAsState(initial = null)
     val allSets by container.workouts.allLoggedSets.collectAsState(initial = emptyList())
     val context = LocalContext.current
@@ -88,16 +89,16 @@ fun WorkoutSummaryScreen(container: AppContainer, nav: Navigator, sessionId: Lon
     val date = DateTimeFormatter.ofPattern("EEEE d MMMM yyyy").withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(current.startedAt))
     val justFinished = current.endedAt != null && System.currentTimeMillis() - current.endedAt < 30 * 60_000
 
-    val card = remember(summary, template, current.name, duration) {
+    val card = remember(summary, template, current.name, duration, unit) {
         renderShareCard(
             ShareCardData(
                 title = current.name,
                 date = date,
                 duration = formatDuration(duration),
-                volume = formatVolume(summary.volumeKg),
+                volume = formatVolume(summary.volumeKg, unit),
                 sets = "${summary.sets}",
-                bests = summary.personalBests.map { "${it.exerciseName} · ${it.kind} ${formatKg(it.valueKg)} kg" },
-                lines = summary.exercises.map { it.name to (it.bestSet?.let { s -> formatSet(s.weightKg, s.reps) } ?: "${it.sets} sets") },
+                bests = summary.personalBests.map { "${it.exerciseName} · ${it.kind} ${unit.format(it.valueKg)}" },
+                lines = summary.exercises.map { it.name to (it.bestSet?.let { s -> formatSet(s.weightKg, s.reps, unit) } ?: "${it.sets} sets") },
             ),
             template,
         )
@@ -113,7 +114,7 @@ fun WorkoutSummaryScreen(container: AppContainer, nav: Navigator, sessionId: Lon
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             StatTile("Time", formatDuration(duration), Modifier.weight(1f))
-            StatTile("Volume", formatVolume(summary.volumeKg), Modifier.weight(1f))
+            StatTile("Volume", formatVolume(summary.volumeKg, unit), Modifier.weight(1f))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             StatTile("Sets", "${summary.sets}", Modifier.weight(1f))
@@ -124,7 +125,7 @@ fun WorkoutSummaryScreen(container: AppContainer, nav: Navigator, sessionId: Lon
             summary.personalBests.forEach { best ->
                 ListRow(
                     title = best.exerciseName,
-                    subtitle = "${best.kind} ${formatKg(best.valueKg)} kg · previous ${formatKg(best.previousKg)} kg",
+                    subtitle = "${best.kind} ${unit.format(best.valueKg)} · previous ${unit.format(best.previousKg)}",
                     leading = { Icon(Icons.Filled.EmojiEvents, contentDescription = null, tint = IronTheme.colors.accent) },
                 )
             }
@@ -134,9 +135,9 @@ fun WorkoutSummaryScreen(container: AppContainer, nav: Navigator, sessionId: Lon
         summary.exercises.forEach { recap ->
             ListRow(
                 title = recap.name,
-                subtitle = "${recap.sets} ${if (recap.sets == 1) "set" else "sets"} · ${formatVolume(recap.volumeKg)}",
+                subtitle = "${recap.sets} ${if (recap.sets == 1) "set" else "sets"} · ${formatVolume(recap.volumeKg, unit)}",
                 trailing = {
-                    Text(recap.bestSet?.let { formatSet(it.weightKg, it.reps) } ?: "", style = MaterialTheme.typography.titleSmall)
+                    Text(recap.bestSet?.let { formatSet(it.weightKg, it.reps, unit) } ?: "", style = MaterialTheme.typography.titleSmall)
                 },
             )
         }

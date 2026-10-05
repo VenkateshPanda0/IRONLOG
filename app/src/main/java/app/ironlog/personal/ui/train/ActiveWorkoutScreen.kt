@@ -310,9 +310,10 @@ private fun ExerciseCard(
             }
         }
         if (showDemo) ExerciseDemo(row.exerciseId, row.exerciseNameSnapshot)
+        val unit = LocalWeightUnit.current
         if (previous.isNotEmpty()) {
             Text(
-                "Last time · " + previous.filter { it.type != "WARMUP" }.joinToString("  ") { "${formatKg(it.weightKg ?: 0.0)}×${it.reps ?: 0}" },
+                "Last time · " + previous.filter { it.type != "WARMUP" }.joinToString("  ") { "${unit.number(it.weightKg ?: 0.0)}×${it.reps ?: 0}" },
                 style = MaterialTheme.typography.bodySmall,
                 color = IronTheme.colors.accent,
                 maxLines = 2,
@@ -328,7 +329,7 @@ private fun ExerciseCard(
             Row(Modifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                 Header("SET", Modifier.width(44.dp))
                 Header("PREVIOUS", Modifier.weight(1.3f))
-                Header("KG", Modifier.weight(1f))
+                Header(unit.label.uppercase(), Modifier.weight(1f))
                 Header("REPS", Modifier.weight(1f))
                 Spacer(Modifier.width(44.dp))
             }
@@ -345,7 +346,7 @@ private fun ExerciseCard(
                 SetRow(
                     set = set,
                     label = when (set.type) { "WARMUP" -> "W"; "DROP" -> "D"; "REST_PAUSE" -> "RP"; else -> "$workingNumber" },
-                    previous = hintSource?.let { "${formatKg(it.weightKg ?: 0.0)} × ${it.reps ?: 0}" } ?: "—",
+                    previous = hintSource?.let { "${unit.number(it.weightKg ?: 0.0)} × ${it.reps ?: 0}" } ?: "—",
                     hintWeight = hintWeight,
                     hintReps = hintReps,
                     onDraft = { weight, reps -> scope.launch { w.saveSetDraft(set.id, weight, reps) } },
@@ -359,7 +360,7 @@ private fun ExerciseCard(
                         }
                     },
                     onType = { type -> scope.launch { w.setType(set.id, type) } },
-                    onAddSub = { type -> scope.launch { w.addSubSet(set.id, type) } },
+                    onAddSub = { type -> scope.launch { w.addSubSet(set.id, type, unit.plateStepKg) } },
                     onDelete = { scope.launch { w.removeSet(set.id) } },
                 )
             }
@@ -396,15 +397,19 @@ private fun SetRow(
     onAddSub: (String) -> Unit,
     onDelete: () -> Unit,
 ) {
-    var weight by remember(set.id, set.weightKg) { mutableStateOf(set.weightKg?.let(::formatKg).orEmpty()) }
+    val unit = LocalWeightUnit.current
+    val shownWeight = set.weightKg?.let(unit::number).orEmpty()
+    var weight by remember(set.id, set.weightKg, unit) { mutableStateOf(shownWeight) }
     var reps by remember(set.id, set.reps) { mutableStateOf(set.reps?.toString().orEmpty()) }
     var menu by remember { mutableStateOf(false) }
     val doneColor = IronTheme.colors.accent.copy(alpha = 0.14f)
     LaunchedEffect(weight, reps) {
         delay(300)
-        val w = weight.replace(',', '.').toDoubleOrNull()
         val r = reps.toIntOrNull()
-        if (w != set.weightKg || r != set.reps) onDraft(w, r)
+        // Compare the text, not the converted number: a 100 kg set shown as 220.5 lb must not be
+        // rewritten as 100.02 kg just because it was displayed.
+        val weightChanged = weight != shownWeight
+        if (weightChanged || r != set.reps) onDraft(if (weightChanged) unit.parse(weight) else set.weightKg, r)
     }
     Row(
         Modifier.fillMaxWidth()
@@ -445,7 +450,7 @@ private fun SetRow(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
         )
-        NumberCell(weight, { weight = it }, hintWeight?.let(::formatKg), KeyboardType.Decimal, Modifier.weight(1f))
+        NumberCell(weight, { weight = it }, hintWeight?.let(unit::number), KeyboardType.Decimal, Modifier.weight(1f))
         NumberCell(reps, { reps = it }, hintReps?.toString(), KeyboardType.Number, Modifier.weight(1f))
         Box(Modifier.width(44.dp), contentAlignment = Alignment.Center) {
             Surface(

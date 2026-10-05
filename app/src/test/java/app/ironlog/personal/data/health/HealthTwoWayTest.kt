@@ -99,6 +99,8 @@ class HealthTwoWayTest {
         fake.sessions += HealthSession("other-lift", at(1, 18), at(1, 19), null, "Gym", null) // strength from another app: skipped
         fake.sessions += HealthSession("blip", at(1, 20), at(1, 20).plusSeconds(120), CardioType.WALK, null, 0.1) // under 5 minutes
         val workout = c.workouts.start("Push", emptyList())
+        // Zero-length sessions are skipped (Health Connect rejects them); a real one takes time.
+        kotlinx.coroutines.delay(20)
         c.workouts.finish(workout)
         c.wellness.addCardio(CardioSessionEntity(date = today.toString(), type = "CYCLE", durationMin = 40.0, distanceKm = 15.0))
         val first = c.syncHealth()

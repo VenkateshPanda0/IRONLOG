@@ -140,9 +140,9 @@ class WorkoutRepository(private val db: IronlogDatabase) {
     }
 
     /** Adds a drop or rest-pause set right after [setId]; drop sets start at a lighter load. */
-    suspend fun addSubSet(setId: Long, type: String): Long? {
+    suspend fun addSubSet(setId: Long, type: String, plateStepKg: Double = 2.5): Long? {
         val row = dao.set(setId) ?: return null
-        val weight = if (type == "DROP") WorkoutMath.dropWeight(row.weightKg) else row.weightKg
+        val weight = if (type == "DROP") WorkoutMath.dropWeight(row.weightKg, plateStepKg) else row.weightKg
         return dao.insertSetAfter(row.sessionExerciseId, row.setIndex, type, weight)
     }
 

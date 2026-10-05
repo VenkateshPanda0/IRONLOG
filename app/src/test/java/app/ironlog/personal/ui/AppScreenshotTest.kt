@@ -99,6 +99,10 @@ class AppScreenshotTest {
         tap("Continue")
         type("Age", "29")
         type("Height (cm)", "180")
+        // Robolectric runs in a US locale, where pounds are the default; this walk uses kg.
+        compose.waitUntilAtLeastOneExists(hasText("Weight (lb)"), 10_000)
+        tap("KG")
+        compose.waitUntilAtLeastOneExists(hasText("Weight (kg)"), 10_000)
         type("Weight (kg)", "82")
         tap("Male")
         shot("00_onboarding_body")
@@ -360,5 +364,20 @@ class AppScreenshotTest {
         compose.waitUntilAtLeastOneExists(hasText("Classic focus", ignoreCase = true), 10_000)
         compose.onRoot().performTouchInput { swipeUp() }
         shot("17_builder_focus")
+        back()
+        back()
+
+        // Switching to pounds changes every weight shown, without touching the stored kilograms.
+        val storedBefore = runBlocking { container.body.weights.first().map { it.weightKg } to container.dao().allLoggedSets().first().map { it.weightKg } }
+        runBlocking { container.setWeightUnit(app.ironlog.personal.domain.WeightUnit.LB) }
+        tap("Weight")
+        compose.waitUntilAtLeastOneExists(hasText("Weight today (lb)"), 10_000)
+        compose.waitUntilAtLeastOneExists(hasText("lb change", substring = true), 10_000)
+        shot("04_progress_weight_lb")
+        tap("Strength")
+        compose.waitUntilAtLeastOneExists(hasText("lb", substring = true), 10_000)
+        shot("04_progress_strength_lb")
+        val storedAfter = runBlocking { container.body.weights.first().map { it.weightKg } to container.dao().allLoggedSets().first().map { it.weightKg } }
+        org.junit.Assert.assertEquals(storedBefore, storedAfter)
     }
 }

@@ -238,6 +238,16 @@ class AppContainer(context: Context) {
         runCatching { syncHealth() }
     }
 
+    private val weightUnitKey = stringPreferencesKey("weight_unit")
+
+    /** kg or lb for showing and typing weights; data is always stored in kg. */
+    val weightUnit =
+        context.preferences.data.map { app.ironlog.personal.domain.WeightUnit.of(it[weightUnitKey]) ?: app.ironlog.personal.domain.WeightUnit.defaultFor() }
+
+    suspend fun setWeightUnit(value: app.ironlog.personal.domain.WeightUnit) {
+        appContext.preferences.edit { it[weightUnitKey] = value.name }
+    }
+
     private val themeKey = stringPreferencesKey("theme")
     private val seedVersionKey = intPreferencesKey("seed_version")
     val theme = context.preferences.data.map { it[themeKey] ?: "DARK" }

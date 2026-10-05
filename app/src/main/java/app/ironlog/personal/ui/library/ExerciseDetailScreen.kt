@@ -103,20 +103,21 @@ fun ExerciseDetailScreen(container: AppContainer, nav: Navigator, exerciseId: St
                         sets.forEach { set ->
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text("Set ${set.setIndex}" + if (set.type != "WORKING") " · ${set.type.lowercase()}" else "")
-                                Text(formatSet(set.weightKg, set.reps), style = MaterialTheme.typography.titleSmall)
+                                Text(formatSet(set.weightKg, set.reps, LocalWeightUnit.current), style = MaterialTheme.typography.titleSmall)
                             }
                         }
                     }
                 }
             }
             else -> {
+                val u = LocalWeightUnit.current
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    StatTile("Est. 1RM", stats.bestE1rmKg?.let { "%.1f".format(it) } ?: "—", Modifier.weight(1f), "kg")
-                    StatTile("Heaviest", stats.heaviestKg?.let { "%.1f".format(it) } ?: "—", Modifier.weight(1f), "kg")
+                    StatTile("Est. 1RM", stats.bestE1rmKg?.let(u::number) ?: "—", Modifier.weight(1f), u.label)
+                    StatTile("Heaviest", stats.heaviestKg?.let(u::number) ?: "—", Modifier.weight(1f), u.label)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     StatTile("Most reps", stats.mostReps?.toString() ?: "—", Modifier.weight(1f), "reps")
-                    StatTile("Best set", stats.bestSetVolumeKg?.let { "%.0f".format(it) } ?: "—", Modifier.weight(1f), "kg volume")
+                    StatTile("Best set", stats.bestSetVolumeKg?.let { "%,.0f".format(u.fromKg(it)) } ?: "—", Modifier.weight(1f), "${u.label} volume")
                 }
                 StatTile("Logged", "${stats.sets}", Modifier.fillMaxWidth(), "sets in ${stats.sessions} sessions")
                 if (stats.e1rmTrend.size >= 2) {
@@ -125,7 +126,7 @@ fun ExerciseDetailScreen(container: AppContainer, nav: Navigator, exerciseId: St
                         LineChart(
                             points = stats.e1rmTrend.map { it.first.toDouble() to it.second },
                             description = "Estimated one-rep max over ${stats.e1rmTrend.size} sessions",
-                            format = { "%.0f kg".format(it) },
+                            format = { "%.0f %s".format(u.fromKg(it), u.label) },
                         )
                     }
                 } else {
@@ -154,11 +155,11 @@ fun ExerciseDetailScreen(container: AppContainer, nav: Navigator, exerciseId: St
     }
 }
 
-fun formatSet(weightKg: Double?, reps: Int?): String =
+fun formatSet(weightKg: Double?, reps: Int?, unit: app.ironlog.personal.domain.WeightUnit): String =
     when {
-        weightKg != null && weightKg > 0 && reps != null -> "%s kg × %d".format(formatKg(weightKg), reps)
+        weightKg != null && weightKg > 0 && reps != null -> "%s × %d".format(unit.format(weightKg), reps)
         reps != null -> "$reps reps"
-        weightKg != null -> "%s kg".format(formatKg(weightKg))
+        weightKg != null -> unit.format(weightKg)
         else -> "—"
     }
 

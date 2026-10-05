@@ -145,11 +145,13 @@ fun IronlogRoot(
     // Distinguishes "no profile yet" (onboarding) from "not loaded yet" (spinner).
     val profileLoaded by rememberLoaded(false, container) { container.profile.first(); true }
     val seedState by container.seedState.collectAsState()
+    val weightUnit by container.weightUnit.collectAsState(initial = app.ironlog.personal.domain.WeightUnit.defaultFor())
     val controller = rememberNavController()
     val nav = remember(controller) { Navigator(controller) }
     val backStack by controller.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route
 
+    CompositionLocalProvider(app.ironlog.personal.ui.components.LocalWeightUnit provides weightUnit) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
@@ -207,7 +209,9 @@ fun IronlogRoot(
             }
         }
     }
+    }
 }
+
 
 @Composable
 private fun Loading(text: String?) {

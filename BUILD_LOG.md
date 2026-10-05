@@ -168,3 +168,12 @@ Each step was built, tested and pushed to `main` separately: redesign and naviga
 - Tests: zip round trip with photos, hostile zip entries, legacy JSON, snapshot restore with reduced photos, change detection, and an onboarding UI test of the welcome-back restore. Gate: 129 tests pass, lint 0 errors, APK 43.4 MB.
 - Not verified: an actual Google Auto Backup / restore cycle on devices (can be exercised with `adb shell bmgr backupnow app.ironlog.personal` and `adb shell bmgr restore`).
 
+## 2026-10-05 · kg / lb units
+
+- `WeightUnit` converts only at display and input; the database, backups and Health Connect stay in kg. Setting in Settings › Units and on the onboarding body step (switching converts the typed weight); default lb for US, LR, MM locales.
+- Converted: set logger (column header, last-time and hints, input), exercise stats and e1RM chart, workout summary/share card, history, Progress weight/strength/volume, Home weight card, profile lifetime volume, achievement progress and descriptions ("Bench press 150 kg" -> "331 lb"), goal weight, profile weight.
+- Drift guard: a 100 kg set shows as 220.5 lb; fields compare the displayed text, so viewing never rewrites 100 kg as 100.02 kg (set rows, profile weight, goal weight).
+- Drop sets round to the unit's plate step (2.5 kg or 5 lb).
+- Fixed a timing flake in HealthTwoWayTest (a workout started and finished in the same millisecond is correctly skipped as zero-length).
+- Tests: conversion/format/parse/localize/defaults/plate rounding; walkthrough switches kg on onboarding, then lb at the end and checks the stored kg values are unchanged. Gate: 132 tests pass, lint 0 errors.
+

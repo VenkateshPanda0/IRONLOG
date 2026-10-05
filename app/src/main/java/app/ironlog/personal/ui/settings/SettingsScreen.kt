@@ -32,7 +32,9 @@ fun SettingsScreen(
     var confirmImport by remember { mutableStateOf(false) }
     var confirmDelete by remember { mutableStateOf(false) }
     var editName by remember(profile) { mutableStateOf(profile?.name.orEmpty()) }
-    var editWeight by remember(profile) { mutableStateOf(profile?.weightKg?.toString().orEmpty()) }
+    val unit = app.ironlog.personal.ui.components.LocalWeightUnit.current
+    val shownWeight = profile?.weightKg?.let(unit::number).orEmpty()
+    var editWeight by remember(profile, unit) { mutableStateOf(shownWeight) }
     var editHeight by remember(profile) { mutableStateOf(profile?.heightCm?.toString().orEmpty()) }
     var editAge by remember(profile) { mutableStateOf(profile?.age?.toString().orEmpty()) }
     var editDays by remember(profile) { mutableStateOf(profile?.daysPerWeek?.toString().orEmpty()) }
@@ -70,7 +72,7 @@ fun SettingsScreen(
         profile?.let { savedProfile ->
             SectionHeader("Profile")
             Field("Name", editName, { editName = it })
-            Field("Weight (kg)", editWeight, { editWeight = it }, true)
+            Field("Weight (${unit.label})", editWeight, { editWeight = it }, true)
             Field("Height (cm)", editHeight, { editHeight = it }, true)
             Field("Age", editAge, { editAge = it }, true)
             Text("Sex")
@@ -110,8 +112,10 @@ fun SettingsScreen(
             PrimaryButton(
                 text = "Save profile and recalculate targets",
                 onClick = {
+                    // Untouched, the stored weight is kept exactly (no kg/lb rounding drift).
                     val weightKg =
-                        editWeight.toDoubleOrNull()?.takeIf { it > 0 } ?: savedProfile.weightKg
+                        if (editWeight == shownWeight) savedProfile.weightKg
+                        else unit.parse(editWeight)?.takeIf { it in 25.0..400.0 } ?: savedProfile.weightKg
                     val heightCm =
                         editHeight.toDoubleOrNull()?.takeIf { it > 0 } ?: savedProfile.heightCm
                     val age = editAge.toIntOrNull()?.coerceIn(1, 120) ?: savedProfile.age
@@ -158,6 +162,12 @@ fun SettingsScreen(
                 },
             )
         }
+        SectionHeader("Units")
+        ListRow(
+            title = "Weight",
+            subtitle = "Lifts, body weight, goals and records. Lengths stay in cm.",
+            trailing = { app.ironlog.personal.ui.onboarding.UnitSwitch(unit) { scope.launch { c.setWeightUnit(it) } } },
+        )
         SectionHeader("Appearance")
         ListRow(
             title = "Light theme",
@@ -197,7 +207,7 @@ fun SettingsScreen(
         DailyGoals(c, nutritionGoal)
         SectionHeader("Data sources")
         Text(
-            "Units: kg and cm. All exercises and 15,800 foods are built in and work offline. Only food searches and barcode scans you make are sent to Open Food Facts.",
+            "All exercises and 15,800 foods are built in and work offline. Only food searches and barcode scans you make are sent to Open Food Facts.",
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         SectionHeader("Attributions")

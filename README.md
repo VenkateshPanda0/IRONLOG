@@ -5,12 +5,13 @@ Ironlog is a local-first Android training app (Kotlin, Jetpack Compose, Room) in
 ## Status
 
 - `./gradlew assembleDebug` builds `app/build/outputs/apk/debug/app-debug.apk` (about 43 MB, mostly exercise demo photos).
-- `./gradlew testDebugUnitTest`: 129 tests pass, including a Robolectric + Roborazzi walkthrough that onboards, logs a workout, food, cardio, habits and measurements, runs a tape-measure physique check, and screenshots every main screen into `app/build/screens/`.
+- `./gradlew testDebugUnitTest`: 132 tests pass, including a Robolectric + Roborazzi walkthrough that onboards, logs a workout, food, cardio, habits and measurements, runs a tape-measure physique check, and screenshots every main screen into `app/build/screens/`.
 - `./gradlew lintDebug`: 0 errors.
 - Not verified: install and use on a physical device or emulator (none available in the build environment), live Open Food Facts requests from the app, the Google code scanner UI, notification delivery on a real device (the alarm-to-notification path is tested under Robolectric).
 
 ## Features
 
+- **Units**: kg or lb for every weight (lifts, body weight, goals, records, volume, medal texts), switchable in Settings or during onboarding; defaults to lb in the US, Liberia and Myanmar. Data is always stored in kg, so switching never changes logged numbers; drop sets round to 2.5 kg or 5 lb plates. Lengths stay in cm.
 - **Onboarding**: six steps (you, body, goal, goal physique, training days, plan) that create a program and nutrition targets.
 - **Train**: active program, program detail and builder (staple lifts, all 17 muscle groups trained each week), quick workouts by focus and time, mobility sessions, cardio entry, history.
 - **Workout logger**: live timer with pause, last-time hints, warm-up / working / drop / rest-pause sets, insert drop or rest-pause sets mid-workout, swap exercise (with revert), reorder, notes, rest timer, summary with personal bests and shareable image cards.

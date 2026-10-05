@@ -89,7 +89,7 @@ fun ProfileScreen(c: AppContainer, nav: Navigator) {
             StatTile("PRs", "${e.summary.personalRecords}", Modifier.weight(1f))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            StatTile("Volume", formatVolume(e.summary.lifetimeVolumeKg), Modifier.weight(1f), "lifted")
+            StatTile("Volume", formatVolume(e.summary.lifetimeVolumeKg, LocalWeightUnit.current), Modifier.weight(1f), "lifted")
             StatTile("Streak", "${e.weeklyStreak}", Modifier.weight(1f), "weeks on target")
         }
 
@@ -158,16 +158,17 @@ private fun LevelCard(e: Engagement) {
     }
 }
 
-private fun formatProgress(value: Double, unit: String): String =
+private fun formatProgress(value: Double, unit: String, weight: app.ironlog.personal.domain.WeightUnit): String =
     when {
         unit == "× bodyweight" -> "%.2f×".format(value)
-        unit == "kg" && value >= 1_000 -> "%,.0f kg".format(value)
-        unit == "kg" -> "%.1f kg".format(value).replace(".0 kg", " kg")
+        unit == "kg" && weight.fromKg(value) >= 1_000 -> "%,.0f %s".format(weight.fromKg(value), weight.label)
+        unit == "kg" -> weight.format(value)
         else -> "%,.0f".format(value)
     }
 
 @Composable
 private fun AchievementRow(a: Achievement) {
+    val weight = LocalWeightUnit.current
     val color = tierColor(a.def.tier)
     Surface(color = MaterialTheme.colorScheme.surfaceContainer, shape = MaterialTheme.shapes.medium, modifier = Modifier.fillMaxWidth()) {
         Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -189,7 +190,7 @@ private fun AchievementRow(a: Achievement) {
                     Text(a.def.title.uppercase(), style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f, fill = false))
                     Text(a.def.tier.label.uppercase(), style = MaterialTheme.typography.labelSmall, color = color)
                 }
-                Text(a.def.description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(weight.localize(a.def.description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (a.earned) {
                     Text("Earned ${a.earnedOn!!.format(EARNED)}", style = MaterialTheme.typography.labelSmall, color = color)
                 } else if (a.def.target > 1) {
@@ -201,7 +202,7 @@ private fun AchievementRow(a: Achievement) {
                         drawStopIndicator = {},
                     )
                     Text(
-                        "${formatProgress(a.progress, a.def.unit)} / ${formatProgress(a.def.target, a.def.unit)}" +
+                        "${formatProgress(a.progress, a.def.unit, weight)} / ${formatProgress(a.def.target, a.def.unit, weight)}" +
                             if (a.def.unit.isNotEmpty() && a.def.unit != "kg" && a.def.unit != "× bodyweight") " ${a.def.unit}" else "",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,

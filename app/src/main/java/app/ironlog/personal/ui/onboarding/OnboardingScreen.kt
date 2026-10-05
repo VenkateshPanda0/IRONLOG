@@ -70,7 +70,8 @@ fun OnboardingScreen(c: AppContainer, onImport: () -> Unit = {}) {
     val physiqueType = app.ironlog.personal.ui.physique.physiqueGoalOf(physique)
     var saving by remember { mutableStateOf(false) }
 
-    val w = weight.toDoubleOrNull()?.takeIf { it in 25.0..400.0 }
+    val unit = LocalWeightUnit.current
+    val w = unit.parse(weight)?.takeIf { it in 25.0..400.0 }
     val h = height.toDoubleOrNull()?.takeIf { it in 100.0..250.0 }
     val a = age.toIntOrNull()?.takeIf { it in 13..100 }
     val daysPerWeek = weekdays.size
@@ -161,7 +162,14 @@ fun OnboardingScreen(c: AppContainer, onImport: () -> Unit = {}) {
                     ChipRow(listOf("MALE", "FEMALE", "UNSPECIFIED"), sex, { it.lowercase().replaceFirstChar(Char::uppercase) }, { sex = it })
                     Field("Age", age, { age = it }, number = true)
                     Field("Height (cm)", height, { height = it }, number = true)
-                    Field("Weight (kg)", weight, { weight = it }, number = true)
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Field("Weight (${unit.label})", weight, { weight = it }, number = true, modifier = Modifier.weight(1f))
+                        UnitSwitch(unit) { next ->
+                            // Keep the typed amount meaning the same weight in the new unit.
+                            unit.parse(weight)?.let { weight = next.number(it) }
+                            scope.launch { c.setWeightUnit(next) }
+                        }
+                    }
                     if (a != null && a < 18) {
                         Text(
                             "Under 18: calorie targets are not estimated. You can set them yourself later.",
@@ -410,4 +418,22 @@ private fun RestoreOptions(c: AppContainer, onImport: () -> Unit) {
     }
     TextButton(onClick = onImport, contentPadding = PaddingValues(0.dp)) { Text("RESTORE FROM A BACKUP FILE") }
     error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+}
+
+/** Compact kg / lb toggle next to a weight field. */
+@Composable
+fun UnitSwitch(selected: app.ironlog.personal.domain.WeightUnit, onSelect: (app.ironlog.personal.domain.WeightUnit) -> Unit) {
+    Row(Modifier.clip(CircleShape).background(MaterialTheme.colorScheme.surfaceContainer)) {
+        app.ironlog.personal.domain.WeightUnit.entries.forEach { u ->
+            val on = u == selected
+            Surface(
+                onClick = { if (!on) onSelect(u) },
+                shape = CircleShape,
+                color = if (on) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.surfaceContainer,
+                contentColor = if (on) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.onSurface,
+            ) {
+                Text(u.label.uppercase(), style = MaterialTheme.typography.labelLarge, modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp))
+            }
+        }
+    }
 }

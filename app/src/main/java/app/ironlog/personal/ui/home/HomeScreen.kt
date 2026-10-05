@@ -196,10 +196,11 @@ fun HomeScreen(c: AppContainer, nav: Navigator) {
                 val latest = daily.toSortedMap().entries.last()
                 val mean = Calculations.sevenDayMean(daily, today)
                 val previousMean = Calculations.sevenDayMean(daily, today.minusDays(7))
+                val u = LocalWeightUnit.current
                 Row(verticalAlignment = Alignment.Bottom) {
-                    Text("%.1f".format(latest.value), style = MaterialTheme.typography.displaySmall)
+                    Text("%.1f".format(u.fromKg(latest.value)), style = MaterialTheme.typography.displaySmall)
                     Text(
-                        " kg",
+                        " ${u.label}",
                         modifier = Modifier.padding(bottom = 6.dp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -207,8 +208,8 @@ fun HomeScreen(c: AppContainer, nav: Navigator) {
                 Text(
                     when {
                         mean != null && previousMean != null ->
-                            "7-day average %.1f kg · %+.1f kg vs last week".format(mean, mean - previousMean)
-                        mean != null -> "7-day average %.1f kg".format(mean)
+                            "7-day average %.1f %s · %+.1f %s vs last week".format(u.fromKg(mean), u.label, u.fromKg(mean - previousMean), u.label)
+                        mean != null -> "7-day average %.1f %s".format(u.fromKg(mean), u.label)
                         else -> "Trend appears after 3 weigh-ins in a week."
                     },
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
