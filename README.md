@@ -6,7 +6,7 @@
 
 Built by **Venkatesh** ([@VenkateshPanda0](https://github.com/VenkateshPanda0)).
 
-**[⬇ Download the latest APK](apk/ironlog.apk)** — rebuilt automatically after every change, once all tests pass ([install steps](apk/README.md)).
+**[⬇ Android APK](apk/ironlog-android.apk)** · **[⬇ iPhone IPA](apk/ironlog-ios.ipa)**: rebuilt automatically after every change ([install steps](apk/README.md)).
 
 <p align="center">
   <img src="docs/screenshots/home.png" width="230" alt="Home: today's workout and week">

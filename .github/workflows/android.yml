@@ -52,7 +52,7 @@ jobs:
           path: app/build/outputs/apk/debug/app-debug.apk
           retention-days: 3
 
-  # Replaces apk/ironlog.apk on main with the APK that just passed every test and lint check.
+  # Replaces apk/ironlog-android.apk on main with the APK that just passed every test and lint check.
   publish-apk:
     needs: build
     if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
@@ -73,12 +73,13 @@ jobs:
       - name: Commit the latest APK
         run: |
           mkdir -p apk
-          mv build-apk/app-debug.apk apk/ironlog.apk
+          git rm -q --ignore-unmatch apk/ironlog.apk
+          mv build-apk/app-debug.apk apk/ironlog-android.apk
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add apk/ironlog.apk
+          git add apk/ironlog-android.apk
           git diff --cached --quiet && exit 0
-          git commit -m "Update apk/ironlog.apk to ${GITHUB_SHA::7}"
+          git commit -m "Update apk/ironlog-android.apk to ${GITHUB_SHA::7}"
           for attempt in 1 2 3; do
             git pull --rebase origin main && git push origin HEAD:main && exit 0
             sleep $((attempt * 5))

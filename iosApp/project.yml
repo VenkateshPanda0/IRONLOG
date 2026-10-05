@@ -1,0 +1,38 @@
+# XcodeGen spec for the iPhone app: `xcodegen generate` in this folder creates Ironlog.xcodeproj.
+name: Ironlog
+options:
+  bundleIdPrefix: app.ironlog
+  deploymentTarget:
+    iOS: "15.0"
+settings:
+  base:
+    MARKETING_VERSION: "0.1"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  Ironlog:
+    type: application
+    platform: iOS
+    sources:
+      - path: Ironlog
+      # Seed data and exercise photos, shared with Android, copied into the bundle as "assets/".
+      - path: ../app/src/androidMain/assets
+        type: folder
+        buildPhase: resources
+    preBuildScripts:
+      - name: Build the shared Kotlin code
+        basedOnDependencyAnalysis: false
+        script: |
+          cd "$SRCROOT/.."
+          ./gradlew :app:embedAndSignAppleFrameworkForXcode
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: app.ironlog.personal
+        PRODUCT_NAME: Ironlog
+        INFOPLIST_FILE: Ironlog/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1"
+        SWIFT_VERSION: "5.0"
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+        ENABLE_BITCODE: NO
+        FRAMEWORK_SEARCH_PATHS: "$(SRCROOT)/../app/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)"
+        OTHER_LDFLAGS: ["-framework", "IronlogKit"]

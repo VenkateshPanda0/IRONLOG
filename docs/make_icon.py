@@ -79,6 +79,7 @@ def render(size, mask):
     # Launchers show the 72dp centre of the 108dp canvas.
     lo, hi = 18 * k, 90 * k
     if mask == "circle": md.ellipse([lo, lo, hi, hi], fill=255)
+    elif mask == "square": md.rectangle([lo, lo, hi, hi], fill=255)  # iOS rounds the corners itself
     else: md.rounded_rectangle([lo, lo, hi, hi], radius=16 * k, fill=255)
     img.putalpha(m)
     img = img.crop((int(lo), int(lo), int(hi), int(hi)))
@@ -93,3 +94,4 @@ for i, (m, s) in enumerate([("circle", 260), ("squircle", 260), ("circle", 96)])
     im = render(s, m); prev.alpha_composite(im, (20 + i * 320 + (260 - s) // 2, 40 + (260 - s) // 2))
 prev.save(f"{out}/preview.png")
 render(512, "squircle").save(f"{out}/icon-512.png")
+render(1024, "square").convert("RGB").save(f"{out}/icon-ios-1024.png")
