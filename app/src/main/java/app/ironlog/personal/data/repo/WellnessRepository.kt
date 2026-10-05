@@ -11,7 +11,11 @@ import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 
 /** Cardio, steps, water, sleep, readiness check-ins, habits and body measurements. */
-class WellnessRepository(private val db: IronlogDatabase) {
+class WellnessRepository(
+    private val db: IronlogDatabase,
+    /** Told about each deleted cardio session, so the deletion can reach Health Connect. */
+    private val onCardioDeleted: suspend (CardioSessionEntity) -> Unit = {},
+) {
     private val dao = db.dao()
 
     val cardio: Flow<List<CardioSessionEntity>> = dao.cardio()
@@ -24,7 +28,11 @@ class WellnessRepository(private val db: IronlogDatabase) {
 
     suspend fun addCardio(value: CardioSessionEntity) = dao.addCardio(value)
 
-    suspend fun deleteCardio(id: Long) = dao.deleteCardio(id)
+    suspend fun deleteCardio(id: Long) {
+        val row = dao.cardioById(id) ?: return
+        dao.deleteCardio(id)
+        onCardioDeleted(row)
+    }
 
     /** Read-modify-write of one day's row inside a transaction so quick taps never lose updates. */
     suspend fun updateDay(date: LocalDate, change: (DailyLogEntity) -> DailyLogEntity) =

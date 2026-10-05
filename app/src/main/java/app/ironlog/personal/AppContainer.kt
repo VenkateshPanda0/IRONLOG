@@ -23,14 +23,14 @@ private val Context.preferences by preferencesDataStore(name = "ironlog_settings
 class AppContainer(context: Context) {
     private val appContext = context.applicationContext
     val db = Room.databaseBuilder(context, IronlogDatabase::class.java, "ironlog.db")
-            .addMigrations(IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3, IronlogDatabase.MIGRATION_3_4, IronlogDatabase.MIGRATION_4_5, IronlogDatabase.MIGRATION_5_6)
+            .addMigrations(IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3, IronlogDatabase.MIGRATION_3_4, IronlogDatabase.MIGRATION_4_5, IronlogDatabase.MIGRATION_5_6, IronlogDatabase.MIGRATION_6_7)
             .build()
     val workouts = WorkoutRepository(db)
     val nutrition = NutritionRepository(db.dao())
-    val body = BodyRepository(db.dao(), java.io.File(context.filesDir, "photos"))
+    val body = BodyRepository(db.dao(), java.io.File(context.filesDir, "photos")) { healthDeleted(it.healthId, "weight:" + app.ironlog.personal.data.health.HealthIds.weight(it.id)) }
     val goals = GoalRepository(db.dao())
     val engagement = EngagementRepository(db.dao())
-    val wellness = WellnessRepository(db)
+    val wellness = WellnessRepository(db) { healthDeleted(it.healthId, "session:" + app.ironlog.personal.data.health.HealthIds.cardio(it.id)) }
     val physique = PhysiqueRepository(db.dao(), java.io.File(context.filesDir, "physique"))
     val backup = BackupRepository(db)
     val programs = ProgramRepository(db)
@@ -181,6 +181,29 @@ class AppContainer(context: Context) {
         appContext.preferences.edit { it[reminderPromptKey] = true }
     }
 
+    private val healthIgnoredKey = stringSetPreferencesKey("health_ignored")
+    private val healthPendingKey = stringSetPreferencesKey("health_pending_deletes")
+
+    /**
+     * A deleted import is remembered so it is not imported again; a deleted Ironlog record is
+     * queued for removal from Health Connect at the next sync (only if sync is on).
+     */
+    private suspend fun healthDeleted(importedId: String?, ownClientId: String) {
+        if (importedId != null) appContext.preferences.edit { it[healthIgnoredKey] = it[healthIgnoredKey].orEmpty() + importedId }
+        else if (healthSyncEnabled.first()) appContext.preferences.edit { it[healthPendingKey] = it[healthPendingKey].orEmpty() + ownClientId }
+    }
+
+    private val tombstones =
+        object : app.ironlog.personal.data.health.HealthTombstones {
+            override suspend fun ignored() = appContext.preferences.data.first()[healthIgnoredKey].orEmpty()
+
+            override suspend fun pendingDeletes() = appContext.preferences.data.first()[healthPendingKey].orEmpty()
+
+            override suspend fun clearPendingDeletes(done: Set<String>) {
+                appContext.preferences.edit { it[healthPendingKey] = it[healthPendingKey].orEmpty() - done }
+            }
+        }
+
     private val healthSyncKey = booleanPreferencesKey("health_sync")
     private val healthSyncedAtKey = longPreferencesKey("health_synced_at")
     val healthConnect = app.ironlog.personal.data.health.HealthConnect(appContext)
@@ -201,7 +224,7 @@ class AppContainer(context: Context) {
     /** Imports steps and sleep; 30 days the first time, then the last week to pick up late edits. */
     suspend fun syncHealth(): app.ironlog.personal.data.health.SyncResult {
         val first = healthSyncedAt.first() == null
-        val result = app.ironlog.personal.data.health.HealthSyncer(db, healthSource).sync(days = if (first) 30 else 7)
+        val result = app.ironlog.personal.data.health.HealthSyncer(db, healthSource, tombstones).sync(days = if (first) 30 else 7)
         appContext.preferences.edit { it[healthSyncedAtKey] = System.currentTimeMillis() }
         return result
     }

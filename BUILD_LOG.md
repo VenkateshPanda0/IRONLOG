@@ -143,3 +143,11 @@ Each step was built, tested and pushed to `main` separately: redesign and naviga
 - Tests: merge/sleep rules, Room sync with a fake source (first vs later window, manual entries kept, throttle), v5->v6 migration, walkthrough shows imported steps tagged and manual sleep kept. Gate: 124 tests pass, lint 0 errors, APK about 72.5 MB.
 - Not verified: real Health Connect reads and permission screens on a device.
 
+## 2026-10-05 · Health Connect: weight and workouts
+
+- Weight both ways: other apps' readings fill days without an Ironlog weigh-in (latest per day, corrections refresh the import); Ironlog weigh-ins are written with client IDs `ironlog-weight-<id>` so re-sending updates instead of duplicating.
+- Workouts both ways: finished strength workouts (`ironlog-workout-<id>`, STRENGTH_TRAINING) and hand-logged cardio (`ironlog-cardio-<id>`, mapped exercise type) are written; other apps' cardio-type sessions of 5+ minutes are imported with distance when READ_DISTANCE is granted. Other apps' strength sessions are skipped (no sets to show).
+- Ironlog's own records are filtered out on read by data origin. Deletions: deleting an Ironlog record queues its Health Connect deletion for the next sync; deleting an import tombstones its ID (a weigh-in day with a deleted import stays empty - found by a test).
+- Schema v7 adds `healthId` to body_weight and cardio_session. Each part of a sync runs only with its permission; Settings shows per-type access (in / out / in only / not allowed) with "Allow more data types".
+- Gate: 127 tests pass, lint 0 errors. Not verified on a device with real Health Connect.
+

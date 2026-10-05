@@ -185,8 +185,16 @@ class AppScreenshotTest {
         shot("06_settings_health")
         // Health Connect is not installed under Robolectric; a fake source stands in for it.
         container.healthSource =
-            app.ironlog.personal.data.health.HealthSource { from, to ->
-                listOf(app.ironlog.personal.data.health.HealthDay(to, 8421, 6.9)).filter { it.date in from..to }
+            object : app.ironlog.personal.data.health.HealthSource {
+                override suspend fun read(from: java.time.LocalDate, to: java.time.LocalDate) =
+                    listOf(app.ironlog.personal.data.health.HealthDay(to, 8421, 6.9)).filter { it.date in from..to }
+
+                override suspend fun granted() = app.ironlog.personal.data.health.HealthAccess.entries.toSet()
+
+                override suspend fun readSessions(from: java.time.Instant, to: java.time.Instant, withDistance: Boolean) =
+                    java.time.LocalDate.now().atTime(6, 30).atZone(java.time.ZoneId.systemDefault()).toInstant().let { start ->
+                        listOf(app.ironlog.personal.data.health.HealthSession("watch-1", start, start.plusSeconds(28 * 60), app.ironlog.personal.domain.CardioType.RUN, "Watch", 5.2))
+                    }
             }
         runBlocking {
             container.setHealthSync(true)

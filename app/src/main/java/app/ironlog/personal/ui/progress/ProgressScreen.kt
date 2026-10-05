@@ -152,7 +152,7 @@ private fun WeightSection(c: AppContainer) {
         .forEach { row ->
             ListRow(
                 title = "${formatKg(row.weightKg)} kg",
-                subtitle = LocalDate.parse(row.date).format(LONG) + (row.note?.let { " · $it" } ?: ""),
+                subtitle = LocalDate.parse(row.date).format(LONG) + (row.note?.let { " · $it" } ?: "") + (if (row.healthId != null) " · Health Connect" else ""),
                 trailing = {
                     IconButton(onClick = { scope.launch { c.body.deleteWeight(row.id) } }) {
                         Icon(Icons.Filled.Delete, contentDescription = "Delete weigh-in")

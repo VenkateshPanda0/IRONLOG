@@ -307,6 +307,8 @@ data class BodyWeightEntity(
     val note: String? = null,
     val createdAt: Long = System.currentTimeMillis(),
     val source: String = "MANUAL",
+    /** Health Connect record ID when this weigh-in was imported from another app. */
+    val healthId: String? = null,
 )
 
 @Serializable
@@ -368,6 +370,8 @@ data class CardioSessionEntity(
     val avgHeartRate: Int? = null,
     val notes: String = "",
     val createdAt: Long = System.currentTimeMillis(),
+    /** Health Connect record ID when this session was imported from another app or a watch. */
+    val healthId: String? = null,
 )
 
 /** One row per day: steps, water, sleep and the morning readiness check-in. */

@@ -344,6 +344,20 @@ interface IronlogDao {
 
     @Query("DELETE FROM cardio_session WHERE id=:id") suspend fun deleteCardio(id: Long)
 
+    @Query("SELECT * FROM cardio_session WHERE id=:id") suspend fun cardioById(id: Long): CardioSessionEntity?
+
+    @Query("SELECT * FROM cardio_session WHERE date BETWEEN :from AND :to") suspend fun cardioBetween(from: String, to: String): List<CardioSessionEntity>
+
+    @Query("SELECT * FROM cardio_session WHERE healthId=:healthId LIMIT 1") suspend fun cardioByHealthId(healthId: String): CardioSessionEntity?
+
+    @Query("SELECT * FROM body_weight WHERE id=:id") suspend fun weightById(id: Long): BodyWeightEntity?
+
+    @Query("SELECT * FROM body_weight WHERE date BETWEEN :from AND :to") suspend fun weightsBetween(from: String, to: String): List<BodyWeightEntity>
+
+    @Query("SELECT * FROM workout_session WHERE status='COMPLETED' AND startedAt >= :fromMs") suspend fun completedSince(fromMs: Long): List<WorkoutSessionEntity>
+
+    @Update suspend fun updateWeight(value: BodyWeightEntity)
+
     @Query("SELECT * FROM cardio_session ORDER BY date DESC, createdAt DESC") fun cardio(): Flow<List<CardioSessionEntity>>
 
     // Daily log
@@ -657,7 +671,7 @@ interface IronlogDao {
             BodyMeasurementEntity::class,
             PhysiqueScanEntity::class,
         ],
-    version = 6,
+    version = 7,
     exportSchema = true,
 )
 abstract class IronlogDatabase : RoomDatabase() {
@@ -676,6 +690,15 @@ abstract class IronlogDatabase : RoomDatabase() {
                             "fileName TEXT NOT NULL, note TEXT NOT NULL, createdAt INTEGER NOT NULL)"
                     )
                     db.execSQL("CREATE INDEX IF NOT EXISTS index_progress_photo_date ON progress_photo (date)")
+                }
+            }
+
+        /** v7: Health Connect record IDs on imported weigh-ins and cardio sessions. */
+        val MIGRATION_6_7 =
+            object : androidx.room.migration.Migration(6, 7) {
+                override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                    db.execSQL("ALTER TABLE body_weight ADD COLUMN healthId TEXT")
+                    db.execSQL("ALTER TABLE cardio_session ADD COLUMN healthId TEXT")
                 }
             }
 

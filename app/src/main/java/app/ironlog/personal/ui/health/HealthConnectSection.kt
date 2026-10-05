@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import app.ironlog.personal.AppContainer
+import app.ironlog.personal.data.health.HealthAccess
 import app.ironlog.personal.data.health.HealthConnect
 import app.ironlog.personal.data.health.HealthStatus
 import app.ironlog.personal.health.HealthPermissionsActivity
@@ -32,10 +33,11 @@ fun HealthConnectSection(c: AppContainer) {
     val enabled by c.healthSyncEnabled.collectAsState(initial = false)
     val syncedAt by c.healthSyncedAt.collectAsState(initial = null)
     val status = remember { c.healthConnect.status() }
-    var granted by remember { mutableStateOf<Boolean?>(null) }
+    var access by remember { mutableStateOf<Set<HealthAccess>?>(null) }
+    val granted = access?.isNotEmpty()
     var busy by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<String?>(null) }
-    LaunchedEffect(enabled, status) { if (status == HealthStatus.AVAILABLE) granted = c.healthConnect.hasPermissions() }
+    LaunchedEffect(enabled, status) { if (status == HealthStatus.AVAILABLE) access = c.healthConnect.granted() }
 
     fun syncNow() {
         busy = true
@@ -43,7 +45,7 @@ fun HealthConnectSection(c: AppContainer) {
             message =
                 runCatching { c.syncHealth() }
                     .fold(
-                        { r -> if (r.daysRead == 0) "No steps or sleep found in Health Connect yet." else "Synced ${r.daysRead} days · ${r.daysUpdated} updated." },
+                        { r -> r.summary() },
                         { "Sync failed: ${it.message ?: "Health Connect did not respond"}" },
                     )
             busy = false
@@ -52,11 +54,11 @@ fun HealthConnectSection(c: AppContainer) {
 
     val request =
         rememberLauncherForActivityResult(HealthConnect.permissionContract()) { result ->
-            val ok = result.containsAll(c.healthConnect.permissions)
-            granted = ok
+            val now = c.healthConnect.accessFor(result)
+            access = now
             scope.launch {
-                c.setHealthSync(ok)
-                if (ok) syncNow() else message = "Ironlog needs both steps and sleep access to sync."
+                c.setHealthSync(now.isNotEmpty())
+                if (now.isNotEmpty()) syncNow() else message = "No access was granted, so nothing can sync."
             }
         }
 
@@ -71,9 +73,9 @@ fun HealthConnectSection(c: AppContainer) {
             IronCard {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
-                        Text("SYNC STEPS AND SLEEP", style = MaterialTheme.typography.titleSmall)
+                        Text("SYNC WITH HEALTH CONNECT", style = MaterialTheme.typography.titleSmall)
                         Text(
-                            "Read-only. Fills your daily steps and sleep; values you entered yourself are kept.",
+                            "Steps and sleep in; weigh-ins and workouts both ways. Values you entered yourself are kept.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -89,6 +91,11 @@ fun HealthConnectSection(c: AppContainer) {
                         },
                     )
                 }
+                if (enabled && access != null) {
+                    AccessRow("Steps and sleep", "in", HealthAccess.STEPS_SLEEP in access!!, null)
+                    AccessRow("Weight", "in · out", HealthAccess.READ_WEIGHT in access!!, HealthAccess.WRITE_WEIGHT in access!!)
+                    AccessRow("Workouts and cardio", "in · out", HealthAccess.READ_EXERCISE in access!!, HealthAccess.WRITE_EXERCISE in access!!)
+                }
                 if (enabled) {
                     Text(
                         syncedAt?.let { "Last synced ${WHEN.format(Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()))}" } ?: "Not synced yet",
@@ -100,6 +107,9 @@ fun HealthConnectSection(c: AppContainer) {
             if (enabled && granted == false) {
                 Text("Ironlog's access was removed in Health Connect.", color = MaterialTheme.colorScheme.error)
                 SecondaryButton("Grant access again", onClick = { request.launch(c.healthConnect.permissions) })
+            }
+            if (enabled && granted == true && access!!.size < HealthAccess.entries.size) {
+                TextButton(onClick = { request.launch(c.healthConnect.permissions) }, contentPadding = PaddingValues(0.dp)) { Text("ALLOW MORE DATA TYPES") }
             }
             if (enabled && granted == true) {
                 SecondaryButton(if (busy) "Syncing…" else "Sync now", enabled = !busy, icon = Icons.Filled.Sync, onClick = { syncNow() })
@@ -113,4 +123,24 @@ fun HealthConnectSection(c: AppContainer) {
         Text("HOW IRONLOG USES HEALTH DATA")
     }
     message?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+}
+
+/** One data type with whether reading (and writing, when it applies) is allowed. */
+@Composable
+private fun AccessRow(label: String, direction: String, read: Boolean, write: Boolean?) {
+    val all = read && (write ?: true)
+    val none = !read && write != true
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(label, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+        Text(
+            when {
+                all -> direction
+                none -> "not allowed"
+                read -> "in only"
+                else -> "out only"
+            },
+            style = MaterialTheme.typography.labelMedium,
+            color = if (none) MaterialTheme.colorScheme.onSurfaceVariant else IronTheme.colors.success,
+        )
+    }
 }

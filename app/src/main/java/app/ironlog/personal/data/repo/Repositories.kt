@@ -429,14 +429,23 @@ class NutritionRepository(private val dao: IronlogDao) {
         }
 }
 
-class BodyRepository(private val dao: IronlogDao, private val photoDir: java.io.File) {
+class BodyRepository(
+    private val dao: IronlogDao,
+    private val photoDir: java.io.File,
+    /** Told about each deleted weigh-in, so the deletion can reach Health Connect. */
+    private val onWeightDeleted: suspend (BodyWeightEntity) -> Unit = {},
+) {
     val weights: Flow<List<BodyWeightEntity>> = dao.weights()
     val photos: Flow<List<ProgressPhotoEntity>> = dao.photos()
 
     suspend fun log(date: LocalDate, kg: Double, note: String? = null) =
         dao.addWeight(BodyWeightEntity(date = date.toString(), weightKg = kg, note = note))
 
-    suspend fun deleteWeight(id: Long) = dao.deleteWeight(id)
+    suspend fun deleteWeight(id: Long) {
+        val row = dao.weightById(id) ?: return
+        dao.deleteWeight(id)
+        onWeightDeleted(row)
+    }
 
     fun photoFile(photo: ProgressPhotoEntity) = java.io.File(photoDir, photo.fileName)
 

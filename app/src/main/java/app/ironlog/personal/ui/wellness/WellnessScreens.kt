@@ -344,7 +344,8 @@ fun CardioScreen(c: AppContainer, nav: Navigator) {
                 title = "${t.label} · ${formatKg(s.durationMin)} min" + (s.distanceKm?.let { " · ${formatKg(it)} km" } ?: ""),
                 subtitle = LocalDate.parse(s.date).format(SHORT) +
                     (Wellness.paceMinPerKm(s.durationMin, s.distanceKm)?.let { " · " + Wellness.formatPace(it) } ?: "") +
-                    (s.calories?.let { " · $it kcal" } ?: "") + (s.avgHeartRate?.let { " · $it bpm" } ?: ""),
+                    (s.calories?.let { " · $it kcal" } ?: "") + (s.avgHeartRate?.let { " · $it bpm" } ?: "") +
+                    (if (s.healthId != null) " · Health Connect" + (s.notes.takeIf { it.isNotBlank() }?.let { " ($it)" } ?: "") else ""),
                 trailing = {
                     IconButton(onClick = { scope.launch { c.wellness.deleteCardio(s.id) } }) { Icon(Icons.Filled.Delete, contentDescription = "Delete session") }
                 },
