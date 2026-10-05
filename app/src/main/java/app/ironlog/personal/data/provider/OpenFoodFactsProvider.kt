@@ -13,7 +13,8 @@ import org.json.JSONObject
 /** Food-only network boundary. Only the user's explicit food query/barcode is sent. */
 class OpenFoodFactsProvider(
     private val dao: IronlogDao,
-    private val contact: String = "unset@example.invalid",
+    /** Open Food Facts asks apps to identify themselves; the project page is the contact. */
+    private val contact: String = "https://github.com/VenkateshPanda0/IRONLOG",
 ) {
     suspend fun byBarcode(barcode: String): FoodEntity? =
         withContext(Dispatchers.IO) {
@@ -116,14 +117,4 @@ class OpenFoodFactsProvider(
     }
 
     private fun encodePath(value: String) = URLEncoder.encode(value, "UTF-8").replace("+", "%20")
-}
-
-/** Placeholder provider reports unavailable unless an API key is configured. */
-class UsdaProvider(private val apiKey: String?) {
-    val isEnabled
-        get() = !apiKey.isNullOrBlank()
-
-    fun disabledReason(): String? =
-        if (isEnabled) null
-        else "USDA FoodData Central lookup is disabled: FDC_API_KEY is not configured."
 }

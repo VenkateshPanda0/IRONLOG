@@ -7,7 +7,6 @@ import androidx.room.Room
 import androidx.room.withTransaction
 import app.ironlog.personal.data.db.IronlogDatabase
 import app.ironlog.personal.data.provider.OpenFoodFactsProvider
-import app.ironlog.personal.data.provider.UsdaProvider
 import app.ironlog.personal.data.repo.*
 import app.ironlog.personal.data.seed.FoodSeedLoader
 import app.ironlog.personal.data.seed.ProgramSeedLoader
@@ -38,7 +37,6 @@ class AppContainer(context: Context) {
     val foodSeed = FoodSeedLoader(context, db)
     val programSeed = ProgramSeedLoader(context, db)
     val openFoodFacts = OpenFoodFactsProvider(db.dao())
-    val usda = UsdaProvider(null)
     val restTimer = RestTimerController(context, db.dao())
     private val mutableSeedState = MutableStateFlow<SeedState>(SeedState.Loading)
     val seedState: StateFlow<SeedState> = mutableSeedState

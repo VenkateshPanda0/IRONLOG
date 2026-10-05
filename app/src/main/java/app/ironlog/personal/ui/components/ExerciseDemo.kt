@@ -75,9 +75,9 @@ object ExerciseMedia {
 private enum class DemoMode(val label: String) { MOTION("Motion"), PHOTOS("Photos") }
 
 /**
- * Looping movement demo. Exercises with a known movement pattern show an animated stick figure
- * (smooth, full range of motion); the bundled start/end photos are one tap away and are the only
- * demo for movements a side view cannot show. Tap the demo to pause.
+ * Looping movement demo. The bundled start/end photos come first; exercises with a known movement
+ * pattern also offer an animated stick figure (one tap away, or the default when there are no
+ * photos). Tap the demo to pause.
  */
 @Composable
 fun ExerciseDemo(exerciseId: String, name: String, modifier: Modifier = Modifier, equipment: String? = null, intervalMs: Long = 1_100) {
@@ -85,7 +85,10 @@ fun ExerciseDemo(exerciseId: String, name: String, modifier: Modifier = Modifier
     val frames by rememberLoaded<List<ImageBitmap>?>(null, exerciseId) { ExerciseMedia.frames(context, exerciseId) }
     val pattern = remember(name) { Motion.patternFor(name) }
     val implement = remember(name, equipment) { Motion.implementFor(name, equipment) }
-    var mode by remember(exerciseId) { mutableStateOf(if (pattern != null) DemoMode.MOTION else DemoMode.PHOTOS) }
+    // Real photos show grip, stance and bar path; the animation is the fallback when none exist.
+    val hasPhotos = !frames.isNullOrEmpty()
+    var chosen by remember(exerciseId) { mutableStateOf<DemoMode?>(null) }
+    val mode = chosen ?: if (frames != null && !hasPhotos && pattern != null) DemoMode.MOTION else DemoMode.PHOTOS
     var playing by remember { mutableStateOf(true) }
     var index by remember(exerciseId) { mutableIntStateOf(0) }
     val loaded = frames
@@ -172,7 +175,7 @@ fun ExerciseDemo(exerciseId: String, name: String, modifier: Modifier = Modifier
                     Box(
                         Modifier.clip(CircleShape)
                             .background(if (on) Color.White else Color.Transparent)
-                            .clickable { mode = m }
+                            .clickable { chosen = m }
                             .padding(horizontal = 10.dp, vertical = 5.dp)
                     ) {
                         Text(m.label.uppercase(), style = MaterialTheme.typography.labelSmall, color = if (on) Color.Black else Color.White)

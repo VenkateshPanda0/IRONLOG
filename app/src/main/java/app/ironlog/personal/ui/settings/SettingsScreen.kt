@@ -197,9 +197,10 @@ fun SettingsScreen(
         SectionHeader("Daily goals")
         DailyGoals(c, nutritionGoal)
         SectionHeader("Data sources")
-        Text("Units · kg / cm")
-        Text("FoodData Central: disabled until an API key is configured.")
-        Text("Open Food Facts contact: unset@example.invalid")
+        Text(
+            "Units: kg and cm. All exercises and 15,800 foods are built in and work offline. Only food searches and barcode scans you make are sent to Open Food Facts.",
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         SectionHeader("Attributions")
         Text(
             "Exercise data and demo images: free-exercise-db by yuhonas (from wrkout/exercises.json), released into the public domain under the Unlicense.\nNutrition data: FoodData Central SR Legacy and FNDDS, U.S. Department of Agriculture (public domain).\nIndian dishes: Indian Nutrient Databank (INDB), Vijayakumar A. et al., Curr Dev Nutr 2024, derived from ICMR-NIN Indian Food Composition Tables 2017.\nPackaged-food data (online lookups and the bundled Indian brands list): Open Food Facts contributors, ODbL 1.0, world.openfoodfacts.org/terms-of-use.\nIronlog is independent and not affiliated with any fitness brand."
