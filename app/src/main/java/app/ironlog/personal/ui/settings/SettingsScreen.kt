@@ -193,6 +193,7 @@ fun SettingsScreen(
             },
         )
         app.ironlog.personal.ui.reminders.ReminderSection(c)
+        app.ironlog.personal.ui.health.HealthConnectSection(c)
         SectionHeader("Daily goals")
         DailyGoals(c, nutritionGoal)
         SectionHeader("Data sources")

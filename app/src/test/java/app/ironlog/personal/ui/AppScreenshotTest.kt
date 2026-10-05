@@ -181,8 +181,27 @@ class AppScreenshotTest {
         compose.onAllNodesWithContentDescription("15 minutes later")[0].performClick()
         compose.waitUntilAtLeastOneExists(hasText("18:15"), 10_000)
         shot("06_settings_reminders")
+        compose.onNode(hasText("How Ironlog uses health data", ignoreCase = true)).performScrollTo()
+        shot("06_settings_health")
+        // Health Connect is not installed under Robolectric; a fake source stands in for it.
+        container.healthSource =
+            app.ironlog.personal.data.health.HealthSource { from, to ->
+                listOf(app.ironlog.personal.data.health.HealthDay(to, 8421, 6.9)).filter { it.date in from..to }
+            }
+        runBlocking {
+            container.setHealthSync(true)
+            container.syncHealth()
+        }
         back()
         back()
+        // Synced steps show their source; the sleep typed in earlier is kept.
+        compose.onRoot().performTouchInput { swipeUp() }
+        compose.waitUntilAtLeastOneExists(hasText("8,421"), 10_000)
+        compose.waitUntilAtLeastOneExists(hasText("Health Connect", substring = true), 10_000)
+        compose.waitUntilAtLeastOneExists(hasText("Slept 7.5 h"), 10_000)
+        shot("01_home_health_connect")
+        compose.onRoot().performTouchInput { swipeDown() }
+        compose.onRoot().performTouchInput { swipeDown() }
 
         // Log an earlier session with today's exercises so hints and PRs have history.
         runBlocking {

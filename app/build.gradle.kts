@@ -74,6 +74,8 @@ dependencies {
     implementation(libs.credentials.play.services)
     implementation(libs.googleid)
     implementation(libs.play.services.auth)
+    // Reads steps and sleep from Health Connect (Android's on-device health data store).
+    implementation(libs.health.connect)
     ksp(libs.room.compiler)
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)

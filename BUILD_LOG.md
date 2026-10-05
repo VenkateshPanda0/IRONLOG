@@ -134,3 +134,12 @@ Each step was built, tested and pushed to `main` separately: redesign and naviga
 - Found and fixed: the app never requested POST_NOTIFICATIONS, so notifications (including the rest timer) were blocked on Android 13+. Notifications now open the app when tapped. Settings nutrition targets showed raw decimals (75.83333333333333); now rounded.
 - Tests: rule tests, Robolectric alarm/receiver/notification tests (training day, rest day, blocked permission, reboot, spoofed intent). Gate: 117 tests pass, lint 0 errors.
 
+## 2026-10-05 · Health Connect sync for steps and sleep
+
+- Read-only READ_STEPS and READ_SLEEP. Steps use Health Connect's daily aggregate (deduplicates phone + watch); sleep sums sessions per wake-up date minus awake/out-of-bed stages, ignoring blips under 15 minutes.
+- Schema v6 marks imported values. Merge: empty days filled; imported values refreshed; manual sleep never replaced; manual steps only replaced by a higher count; manual edits take a value back.
+- Sync on app resume (throttled to 15 min, foreground only as Health Connect requires) and "Sync now"; 30 days first time, then 7. Settings handles unsupported phones, install/update, permission request, revoked access and links to Health Connect's own access screen; required rationale activity + Android 14 permission-usage alias declared.
+- Pinned connect-client 1.1.0-beta01: 1.1.0 stable requires compileSdk 36, which needs a newer AGP than 8.7.3.
+- Tests: merge/sleep rules, Room sync with a fake source (first vs later window, manual entries kept, throttle), v5->v6 migration, walkthrough shows imported steps tagged and manual sleep kept. Gate: 124 tests pass, lint 0 errors, APK about 72.5 MB.
+- Not verified: real Health Connect reads and permission screens on a device.
+

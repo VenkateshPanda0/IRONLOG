@@ -76,7 +76,7 @@ fun DailySection(c: AppContainer, nav: Navigator) {
                 Column(Modifier.weight(1f)) {
                     Text(readiness.label.uppercase(), style = MaterialTheme.typography.titleLarge)
                     Text(readiness.advice, color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
-                    log.sleepHours?.let { Text("Slept ${formatKg(it)} h", style = MaterialTheme.typography.labelMedium) }
+                    log.sleepHours?.let { Text("Slept ${formatKg(it)} h" + if (log.sleepFromHealth) " · Health Connect" else "", style = MaterialTheme.typography.labelMedium) }
                 }
             }
         }
@@ -116,7 +116,11 @@ fun DailySection(c: AppContainer, nav: Navigator) {
                 trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
                 drawStopIndicator = {},
             )
-            Text("of %,d".format(g.stepGoal), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                "of %,d".format(g.stepGoal) + if (log.stepsFromHealth) " · Health Connect" else "",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             FilledTonalButton(onClick = { steps = true }, contentPadding = PaddingValues(horizontal = 10.dp)) { Text("Update") }
         }
     }

@@ -23,7 +23,7 @@ private val Context.preferences by preferencesDataStore(name = "ironlog_settings
 class AppContainer(context: Context) {
     private val appContext = context.applicationContext
     val db = Room.databaseBuilder(context, IronlogDatabase::class.java, "ironlog.db")
-            .addMigrations(IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3, IronlogDatabase.MIGRATION_3_4, IronlogDatabase.MIGRATION_4_5)
+            .addMigrations(IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3, IronlogDatabase.MIGRATION_3_4, IronlogDatabase.MIGRATION_4_5, IronlogDatabase.MIGRATION_5_6)
             .build()
     val workouts = WorkoutRepository(db)
     val nutrition = NutritionRepository(db.dao())
@@ -179,6 +179,40 @@ class AppContainer(context: Context) {
 
     suspend fun dismissReminderPrompt() {
         appContext.preferences.edit { it[reminderPromptKey] = true }
+    }
+
+    private val healthSyncKey = booleanPreferencesKey("health_sync")
+    private val healthSyncedAtKey = longPreferencesKey("health_synced_at")
+    val healthConnect = app.ironlog.personal.data.health.HealthConnect(appContext)
+
+    /** Replaced in tests, where Health Connect is not installed. */
+    var healthSource: app.ironlog.personal.data.health.HealthSource = healthConnect
+
+    val healthSyncEnabled = context.preferences.data.map { it[healthSyncKey] ?: false }
+    val healthSyncedAt = context.preferences.data.map { it[healthSyncedAtKey] }
+
+    suspend fun setHealthSync(on: Boolean) {
+        appContext.preferences.edit {
+            it[healthSyncKey] = on
+            if (!on) it.remove(healthSyncedAtKey)
+        }
+    }
+
+    /** Imports steps and sleep; 30 days the first time, then the last week to pick up late edits. */
+    suspend fun syncHealth(): app.ironlog.personal.data.health.SyncResult {
+        val first = healthSyncedAt.first() == null
+        val result = app.ironlog.personal.data.health.HealthSyncer(db, healthSource).sync(days = if (first) 30 else 7)
+        appContext.preferences.edit { it[healthSyncedAtKey] = System.currentTimeMillis() }
+        return result
+    }
+
+    /** Called when the app comes to the foreground; Health Connect only allows reads then. */
+    suspend fun syncHealthIfDue(minGapMs: Long = 15 * 60_000L) {
+        if (!healthSyncEnabled.first()) return
+        val last = healthSyncedAt.first() ?: 0L
+        if (System.currentTimeMillis() - last < minGapMs) return
+        if (healthSource === healthConnect && !healthConnect.hasPermissions()) return
+        runCatching { syncHealth() }
     }
 
     private val themeKey = stringPreferencesKey("theme")

@@ -657,7 +657,7 @@ interface IronlogDao {
             BodyMeasurementEntity::class,
             PhysiqueScanEntity::class,
         ],
-    version = 5,
+    version = 6,
     exportSchema = true,
 )
 abstract class IronlogDatabase : RoomDatabase() {
@@ -676,6 +676,15 @@ abstract class IronlogDatabase : RoomDatabase() {
                             "fileName TEXT NOT NULL, note TEXT NOT NULL, createdAt INTEGER NOT NULL)"
                     )
                     db.execSQL("CREATE INDEX IF NOT EXISTS index_progress_photo_date ON progress_photo (date)")
+                }
+            }
+
+        /** v6: marks steps and sleep imported from Health Connect, so manual entries are never overwritten. */
+        val MIGRATION_5_6 =
+            object : androidx.room.migration.Migration(5, 6) {
+                override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                    db.execSQL("ALTER TABLE daily_log ADD COLUMN stepsFromHealth INTEGER NOT NULL DEFAULT 0")
+                    db.execSQL("ALTER TABLE daily_log ADD COLUMN sleepFromHealth INTEGER NOT NULL DEFAULT 0")
                 }
             }
 

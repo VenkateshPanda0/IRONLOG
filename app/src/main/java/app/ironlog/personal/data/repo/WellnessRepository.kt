@@ -35,10 +35,10 @@ class WellnessRepository(private val db: IronlogDatabase) {
 
     suspend fun addWater(date: LocalDate, ml: Int) = updateDay(date) { it.copy(waterMl = (it.waterMl + ml).coerceIn(0, 20_000)) }
 
-    suspend fun setSteps(date: LocalDate, steps: Int?) = updateDay(date) { it.copy(steps = steps?.coerceIn(0, 200_000)) }
+    suspend fun setSteps(date: LocalDate, steps: Int?) = updateDay(date) { it.copy(steps = steps?.coerceIn(0, 200_000), stepsFromHealth = false) }
 
     suspend fun setSleep(date: LocalDate, hours: Double?, quality: Int?) =
-        updateDay(date) { it.copy(sleepHours = hours?.coerceIn(0.0, 24.0), sleepQuality = quality?.coerceIn(1, 5)) }
+        updateDay(date) { it.copy(sleepHours = hours?.coerceIn(0.0, 24.0), sleepQuality = quality?.coerceIn(1, 5), sleepFromHealth = false) }
 
     suspend fun checkIn(date: LocalDate, energy: Int, soreness: Int, stress: Int, mood: Int) =
         updateDay(date) { it.copy(energy = energy, soreness = soreness, stress = stress, mood = mood) }

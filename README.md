@@ -4,8 +4,8 @@ Ironlog is a local-first Android training app (Kotlin, Jetpack Compose, Room) in
 
 ## Status
 
-- `./gradlew assembleDebug` builds `app/build/outputs/apk/debug/app-debug.apk` (about 70 MB: exercise demo images plus ML Kit's on-device pose model).
-- `./gradlew testDebugUnitTest`: 117 tests pass, including a Robolectric + Roborazzi walkthrough that onboards, logs a workout, food, cardio, habits and measurements, runs a physique check, and screenshots every main screen into `app/build/screens/`.
+- `./gradlew assembleDebug` builds `app/build/outputs/apk/debug/app-debug.apk` (about 72 MB: exercise demo images plus ML Kit's on-device pose model).
+- `./gradlew testDebugUnitTest`: 124 tests pass, including a Robolectric + Roborazzi walkthrough that onboards, logs a workout, food, cardio, habits and measurements, runs a physique check, and screenshots every main screen into `app/build/screens/`.
 - `./gradlew lintDebug`: 0 errors.
 - Not verified: install and use on a physical device or emulator (none available in the build environment), live Open Food Facts requests from the app, the Google code scanner UI, notification delivery on a real device (the alarm-to-notification path is tested under Robolectric).
 
@@ -21,6 +21,7 @@ Ironlog is a local-first Android training app (Kotlin, Jetpack Compose, Room) in
 - **Progress**: weight trend with 7-day average and goal, measurements, strength, weekly volume and sets per muscle, cardio, daily trends, progress photos.
 - **Profile**: levels 1-50 (about two years for a dedicated athlete, checked by a simulation test), rank titles, lifetime stats and 183 achievements in Bronze, Silver, Gold, Platinum and Legend tiers, including physique-check medals (up to "Stage Ready": a 100% goal match held for a year) and collection medals up to "Completionist" (every other medal).
 - **Reminders**: a workout reminder on your training days at a time you pick (silent if you already trained, with the next program day in the text and a comeback message after a week off), and a streak saver that nudges in the evening only when today's workout decides your weekly goal. Turned on from a Home card or Settings, with a test notification; survives reboots and clock changes. Tapping a notification opens the app.
+- **Health Connect sync** (optional, read-only): daily steps and sleep from your phone, watch or other apps fill the daily log when the app opens (30 days the first time, then the last week), or on "Sync now". Sleep you typed in is never replaced; steps you typed in are only replaced by a higher measured count. Imported values are labelled "Health Connect".
 - **Optional Google sign-in** (Credential Manager): back up to and restore from your own Google Drive app folder, including straight from onboarding on a new phone. No Ironlog server; the app works fully signed out.
 - Backup and restore as JSON, to a file or Google Drive (progress and physique photos are not included).
 
@@ -35,6 +36,12 @@ Requires JDK 17+ and Android SDK platform 35. Set `sdk.dir` in `local.properties
 ```
 
 Install with `adb install -r app/build/outputs/apk/debug/app-debug.apk`.
+
+### Health Connect
+
+Works on Android 14+ (built in) and on Android 9-13 with the Health Connect app installed; Settings offers the install. Publishing on Google Play additionally requires the Health Connect declaration in the Play Console (data types: steps, sleep; read only). The in-app privacy explanation (`HealthPermissionsActivity`) is the screen Health Connect links to.
+
+The client library is pinned to `1.1.0-beta01`, the newest that builds with compileSdk 35 and AGP 8.7; `1.1.0` stable needs compileSdk 36 and a newer Android Gradle plugin.
 
 ### Enabling Google sign-in and Drive backup
 

@@ -17,6 +17,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
+    override fun onResume() {
+        super.onResume()
+        val container = (application as IronlogApp).container
+        lifecycleScope.launch { container.syncHealthIfDue() }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val container = (application as IronlogApp).container

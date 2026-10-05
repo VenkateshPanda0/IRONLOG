@@ -383,6 +383,9 @@ data class DailyLogEntity(
     val soreness: Int? = null,
     val stress: Int? = null,
     val mood: Int? = null,
+    /** True when [steps] / [sleepHours] came from Health Connect rather than manual entry. */
+    val stepsFromHealth: Boolean = false,
+    val sleepFromHealth: Boolean = false,
 )
 
 @Serializable
