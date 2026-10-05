@@ -3,6 +3,8 @@ name: Android CI
 on:
   push:
     branches: [main]
+    # The APK commit made by publish-apk must not start another build.
+    paths-ignore: ['apk/**']
   pull_request:
   workflow_dispatch:
 
@@ -20,7 +22,19 @@ jobs:
           distribution: temurin
           java-version: 21
       - uses: gradle/actions/setup-gradle@v4
+      - name: Signing key (optional, from repository secrets)
+        env:
+          KEYSTORE_BASE64: ${{ secrets.IRONLOG_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/ironlog.keystore"
+            echo "IRONLOG_KEYSTORE=$RUNNER_TEMP/ironlog.keystore" >> "$GITHUB_ENV"
+          fi
       - name: Build, test and lint
+        env:
+          IRONLOG_KEYSTORE_PASSWORD: ${{ secrets.IRONLOG_KEYSTORE_PASSWORD }}
+          IRONLOG_KEY_ALIAS: ${{ secrets.IRONLOG_KEY_ALIAS }}
+          IRONLOG_KEY_PASSWORD: ${{ secrets.IRONLOG_KEY_PASSWORD }}
         run: ./gradlew build --continue
       - name: Upload test reports
         if: always()
@@ -31,3 +45,42 @@ jobs:
             app/build/reports/
             app/build/screens/
           if-no-files-found: ignore
+      - name: Keep the APK for publishing
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 3
+
+  # Replaces apk/ironlog.apk on main with the APK that just passed every test and lint check.
+  publish-apk:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: publish-apk
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/download-artifact@v4
+        with:
+          name: apk
+          path: build-apk
+      - name: Commit the latest APK
+        run: |
+          mkdir -p apk
+          mv build-apk/app-debug.apk apk/ironlog.apk
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apk/ironlog.apk
+          git diff --cached --quiet && exit 0
+          git commit -m "Update apk/ironlog.apk to ${GITHUB_SHA::7}"
+          for attempt in 1 2 3; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep $((attempt * 5))
+          done
+          exit 1

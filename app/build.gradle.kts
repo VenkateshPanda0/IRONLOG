@@ -13,9 +13,22 @@ android {
         applicationId = "app.ironlog.personal"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        // CI builds number themselves so each published APK is newer than the last.
+        versionCode = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 1
+        versionName = "0.1." + (System.getenv("GITHUB_RUN_NUMBER") ?: "0")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+    signingConfigs {
+        // CI signs with a key from repository secrets when one is configured, so every published
+        // APK installs over the previous one. Without it the machine's own debug key is used.
+        getByName("debug") {
+            System.getenv("IRONLOG_KEYSTORE")?.takeIf { file(it).isFile }?.let {
+                storeFile = file(it)
+                storePassword = System.getenv("IRONLOG_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("IRONLOG_KEY_ALIAS")
+                keyPassword = System.getenv("IRONLOG_KEY_PASSWORD")
+            }
+        }
     }
     buildTypes {
         release {
