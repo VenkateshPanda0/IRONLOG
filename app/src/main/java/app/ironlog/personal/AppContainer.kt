@@ -22,7 +22,7 @@ private val Context.preferences by preferencesDataStore(name = "ironlog_settings
 class AppContainer(context: Context) {
     private val appContext = context.applicationContext
     val db = Room.databaseBuilder(context, IronlogDatabase::class.java, "ironlog.db")
-            .addMigrations(IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3, IronlogDatabase.MIGRATION_3_4, IronlogDatabase.MIGRATION_4_5, IronlogDatabase.MIGRATION_5_6, IronlogDatabase.MIGRATION_6_7, IronlogDatabase.MIGRATION_7_8)
+            .addMigrations(IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3, IronlogDatabase.MIGRATION_3_4, IronlogDatabase.MIGRATION_4_5, IronlogDatabase.MIGRATION_5_6, IronlogDatabase.MIGRATION_6_7, IronlogDatabase.MIGRATION_7_8, IronlogDatabase.MIGRATION_8_9)
             .build()
     val workouts = WorkoutRepository(db)
     val nutrition = NutritionRepository(db.dao())

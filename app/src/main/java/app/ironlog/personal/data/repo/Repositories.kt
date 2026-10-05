@@ -153,6 +153,48 @@ class WorkoutRepository(private val db: IronlogDatabase) {
 
     suspend fun removeSet(id: Long) = dao.removeSet(id)
 
+    /** Inserts warm-up sets before the first set of an exercise. */
+    suspend fun addWarmups(exerciseRowId: Long, warmups: List<app.ironlog.personal.domain.WarmupSet>) {
+        if (warmups.isEmpty()) return
+        db.withTransaction {
+            dao.shiftAllSets(exerciseRowId, warmups.size)
+            val first = dao.setsOnce(exerciseRowId).minOfOrNull { it.setIndex }?.minus(warmups.size) ?: 1
+            warmups.forEachIndexed { i, w ->
+                dao.addSet(SetLogEntity(sessionExerciseId = exerciseRowId, setIndex = first + i, type = "WARMUP", weightKg = w.weightKg, reps = w.reps))
+            }
+        }
+    }
+
+    suspend fun setRpe(setId: Long, rpe: Double?) = dao.setRpe(setId, rpe)
+
+    /** Applies the coach's weight to working sets that are not done yet. */
+    suspend fun applyWeight(exerciseRowId: Long, weightKg: Double) =
+        db.withTransaction {
+            dao.setsOnce(exerciseRowId).filter { it.type == "WORKING" && !it.isCompleted }.forEach { dao.updateSet(it.copy(weightKg = weightKg)) }
+        }
+
+    /**
+     * Links an exercise with the one after it. Joining an existing superset extends it, so three
+     * or more exercises make a giant set.
+     */
+    suspend fun supersetWithNext(row: SessionExerciseEntity) =
+        db.withTransaction {
+            val rows = dao.sessionExercisesOnce(row.sessionId).sortedBy { it.orderIndex }
+            val next = rows.getOrNull(rows.indexOfFirst { it.id == row.id } + 1) ?: return@withTransaction
+            val group = row.supersetGroup ?: next.supersetGroup ?: row.id
+            val members = rows.filter { it.id == row.id || it.id == next.id || (it.supersetGroup != null && (it.supersetGroup == row.supersetGroup || it.supersetGroup == next.supersetGroup)) }
+            dao.setSupersetGroup(members.map { it.id }, group)
+        }
+
+    /** Takes an exercise out of its superset; a group left with one exercise is dissolved. */
+    suspend fun leaveSuperset(row: SessionExerciseEntity) =
+        db.withTransaction {
+            val group = row.supersetGroup ?: return@withTransaction
+            dao.setSupersetGroup(listOf(row.id), null)
+            val rest = dao.sessionExercisesOnce(row.sessionId).filter { it.supersetGroup == group }
+            if (rest.size < 2) dao.setSupersetGroup(rest.map { it.id }, null)
+        }
+
     suspend fun addExercise(sessionId: Long, exercise: ExerciseEntity, sets: Int = 3) =
         dao.addExerciseToSession(sessionId, exercise.id, exercise.name, sets)
 

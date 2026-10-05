@@ -540,6 +540,13 @@ interface IronlogDao {
     @Query("UPDATE set_log SET setIndex = setIndex + 1 WHERE sessionExerciseId=:exerciseRowId AND setIndex > :after")
     suspend fun shiftSetsAfter(exerciseRowId: Long, after: Int)
 
+    @Query("UPDATE set_log SET setIndex = setIndex + :by WHERE sessionExerciseId=:exerciseRowId")
+    suspend fun shiftAllSets(exerciseRowId: Long, by: Int)
+
+    @Query("UPDATE set_log SET rpe=:rpe WHERE id=:id") suspend fun setRpe(id: Long, rpe: Double?)
+
+    @Query("UPDATE session_exercise SET supersetGroup=:group WHERE id IN (:ids)") suspend fun setSupersetGroup(ids: List<Long>, group: Long?)
+
     @Query("UPDATE set_log SET setIndex = setIndex - 1 WHERE sessionExerciseId=:exerciseRowId AND setIndex > :removed")
     suspend fun closeSetGap(exerciseRowId: Long, removed: Int)
 
@@ -674,7 +681,7 @@ interface IronlogDao {
             BodyMeasurementEntity::class,
             PhysiqueScanEntity::class,
         ],
-    version = 8,
+    version = 9,
     exportSchema = true,
 )
 abstract class IronlogDatabase : RoomDatabase() {
@@ -693,6 +700,14 @@ abstract class IronlogDatabase : RoomDatabase() {
                             "fileName TEXT NOT NULL, note TEXT NOT NULL, createdAt INTEGER NOT NULL)"
                     )
                     db.execSQL("CREATE INDEX IF NOT EXISTS index_progress_photo_date ON progress_photo (date)")
+                }
+            }
+
+        /** v9: supersets in workouts. */
+        val MIGRATION_8_9 =
+            object : androidx.room.migration.Migration(8, 9) {
+                override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                    db.execSQL("ALTER TABLE session_exercise ADD COLUMN supersetGroup INTEGER")
                 }
             }
 
@@ -786,4 +801,4 @@ abstract class IronlogDatabase : RoomDatabase() {
 private const val LOGGED_SET_COLUMNS =
     "SELECT s.id AS sessionId, s.startedAt AS startedAt, s.name AS sessionName, " +
         "e.exerciseId AS exerciseId, e.exerciseNameSnapshot AS exerciseName, l.setIndex AS setIndex, " +
-        "l.type AS type, l.weightKg AS weightKg, l.reps AS reps FROM set_log l "
+        "l.type AS type, l.weightKg AS weightKg, l.reps AS reps, l.rpe AS rpe FROM set_log l "

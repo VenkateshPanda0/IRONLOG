@@ -185,6 +185,8 @@ data class SessionExerciseEntity(
     /** Set when the exercise was swapped mid-workout so it can be reverted. */
     val originalExerciseId: String? = null,
     val originalNameSnapshot: String? = null,
+    /** Exercises sharing a group are done back to back, resting only after the last of them. */
+    val supersetGroup: Long? = null,
 )
 
 @Serializable
@@ -348,6 +350,8 @@ data class LoggedSet(
     val type: String,
     val weightKg: Double?,
     val reps: Int?,
+    /** Effort, 5 to 10 (10 = nothing left), when the user rated the set. */
+    val rpe: Double? = null,
 )
 
 /** Per-day nutrition sums for charts and the weekly balance. */

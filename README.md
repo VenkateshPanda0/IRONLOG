@@ -5,7 +5,7 @@ Ironlog is a local-first Android training app (Kotlin, Jetpack Compose, Room) in
 ## Status
 
 - `./gradlew assembleDebug` builds `app/build/outputs/apk/debug/app-debug.apk` (about 43 MB, mostly exercise demo photos).
-- `./gradlew testDebugUnitTest`: 134 tests pass, including a Robolectric + Roborazzi walkthrough that onboards, logs a workout, food, cardio, habits and measurements, runs a tape-measure physique check, and screenshots every main screen into `app/build/screens/`.
+- `./gradlew testDebugUnitTest`: 141 tests pass, including a Robolectric + Roborazzi walkthrough that onboards, logs a workout, food, cardio, habits and measurements, runs a tape-measure physique check, and screenshots every main screen into `app/build/screens/`.
 - `./gradlew lintDebug`: 0 errors.
 - Not verified: install and use on a physical device or emulator (none available in the build environment), live Open Food Facts requests from the app, the Google code scanner UI, notification delivery on a real device (the alarm-to-notification path is tested under Robolectric).
 
@@ -14,6 +14,8 @@ Ironlog is a local-first Android training app (Kotlin, Jetpack Compose, Room) in
 - **Units**: kg or lb for every weight (lifts, body weight, goals, records, volume, medal texts), and cm or inches for lengths (body and physique measurements, height in feet and inches, cardio distance in miles with pace per mile). Both switch in Settings or during onboarding and default to imperial in the US, Liberia and Myanmar. Data is always stored in kg, cm and km, so switching never changes logged numbers; drop sets round to 2.5 kg or 5 lb plates.
 - **Onboarding**: six steps (you, body, goal, goal physique, training days, plan) that create a program and nutrition targets.
 - **Train**: active program, program detail and builder (staple lifts, all 17 muscle groups trained each week), quick workouts by focus and time, mobility sessions, cardio entry, history.
+- **Coach**: on every exercise, today's suggestion from your last sessions (double progression: hit the top of the rep range on every set and it adds 2.5 kg / 5 lb, or double for lower-body lifts and easy sets; in range keeps the weight and asks for a rep more; two sessions short of the range deloads to 90%), with one tap to use it. Optional effort (RPE 6-10) per set refines it.
+- **Plates, warm-ups and supersets**: per-side plate calculator for kg or lb bars, generated warm-up ramps (bar, 40%, 60%, 80%), and supersets or giant sets where rest starts only after the last exercise of each round.
 - **Workout logger**: live timer with pause, last-time hints, warm-up / working / drop / rest-pause sets, insert drop or rest-pause sets mid-workout, swap exercise (with revert), reorder, notes, rest timer, summary with personal bests and shareable image cards.
 - **Library**: 876 exercises, search and filters, favourites, custom exercises, start/end photo demos for 873 exercises, plus optional animated stick figures for 565 strength exercises (25 movement patterns), history, records and estimated 1RM trend.
 - **Nutrition**: daily diary by meal, macro ring and bars, all 7,793 USDA SR Legacy foods offline, Open Food Facts search and barcode scanning, portions, recipes, copy day, weekly calorie balance, target presets.

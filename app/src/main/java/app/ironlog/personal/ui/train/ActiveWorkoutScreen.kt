@@ -36,6 +36,12 @@ import app.ironlog.personal.data.db.SessionExerciseEntity
 import app.ironlog.personal.data.db.SetLogEntity
 import app.ironlog.personal.data.db.WorkoutSessionEntity
 import app.ironlog.personal.data.db.primaryMuscleList
+import app.ironlog.personal.domain.Coach
+import app.ironlog.personal.domain.CoachKind
+import app.ironlog.personal.domain.CoachTip
+import app.ironlog.personal.domain.PastSet
+import app.ironlog.personal.domain.Plates
+import app.ironlog.personal.domain.Warmups
 import app.ironlog.personal.domain.WorkoutMath
 import app.ironlog.personal.ui.components.*
 import app.ironlog.personal.ui.library.ExerciseBrowser
@@ -160,7 +166,12 @@ fun ActiveWorkoutScreen(container: AppContainer, nav: Navigator, session: Workou
                     EmptyState(Icons.Filled.Add, "No exercises yet", "Add exercises from the library to start logging.")
                 }
             }
+            // Superset letters follow the order the groups first appear in.
+            val letters = exercises.mapNotNull { it.supersetGroup }.distinct().withIndex().associate { (i, g) -> g to ('A' + i).toString() }
             items(exercises, key = { it.id }) { row ->
+                val members = row.supersetGroup?.let { g -> exercises.filter { it.supersetGroup == g } }.orEmpty()
+                val restAfter = members.isEmpty() || members.last().id == row.id
+                val nextInRound = if (restAfter) null else members.getOrNull(members.indexOfFirst { it.id == row.id } + 1)
                 ExerciseCard(
                     container = container,
                     nav = nav,
@@ -172,7 +183,11 @@ fun ActiveWorkoutScreen(container: AppContainer, nav: Navigator, session: Workou
                         val muscle = library.firstOrNull { it.id == row.exerciseId }?.primaryMuscleList?.firstOrNull()
                         picker = Picker.Replace(row, muscle)
                     },
-                    onCompleted = { container.restTimer.start(session.id, row.restSeconds) },
+                    exercise = library.firstOrNull { it.id == row.exerciseId },
+                    superset = row.supersetGroup?.let { letters[it] },
+                    nextInRound = nextInRound?.exerciseNameSnapshot,
+                    // In a superset, go straight to the next exercise; rest after the round.
+                    onCompleted = { if (restAfter) container.restTimer.start(session.id, row.restSeconds) else container.restTimer.skip() },
                 )
             }
             item {
@@ -247,6 +262,9 @@ private fun ExerciseCard(
     isFirst: Boolean,
     isLast: Boolean,
     onReplace: () -> Unit,
+    exercise: ExerciseEntity?,
+    superset: String?,
+    nextInRound: String?,
     onCompleted: suspend () -> Unit,
 ) {
     val w = container.workouts
@@ -258,7 +276,18 @@ private fun ExerciseCard(
     var editingNotes by remember { mutableStateOf(false) }
     var showDemo by remember { mutableStateOf(false) }
     var notes by remember(row.id) { mutableStateOf(row.notes) }
+    var plates by remember { mutableStateOf<Double?>(null) }
     val skipped = row.status == "SKIPPED"
+    val unit = LocalWeightUnit.current
+    val barbell = exercise?.equipment.equals("barbell", ignoreCase = true) || row.exerciseNameSnapshot.contains("barbell", ignoreCase = true)
+    val weighted = barbell || exercise?.equipment?.lowercase() in setOf("dumbbell", "cable", "machine", "kettlebells", "e-z curl bar")
+    val tip =
+        remember(history, row.repMin, row.repMax, unit, exercise?.id) {
+            val sessions = history.filter { it.type == "WORKING" }.groupBy { it.sessionId }.values.map { list -> list.map { PastSet(it.weightKg, it.reps, it.rpe) } }
+            Coach.suggest(sessions, row.repMin, row.repMax, unit, Coach.isLowerBody(exercise?.primaryMuscleList.orEmpty(), exercise?.mechanic))
+        }
+    // Warm-ups ramp to today's heaviest working weight entered so far, else the coach's pick.
+    val workKg = sets.filter { it.type == "WORKING" }.mapNotNull { it.weightKg }.filter { it > 0 }.maxOrNull() ?: tip.weightKg
 
     IronCard(padding = 14.dp) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -277,6 +306,13 @@ private fun ExerciseCard(
                     color = if (skipped) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.clickable(onClickLabel = "Open exercise") { nav.open(Routes.exercise(row.exerciseId)) },
                 )
+                if (superset != null) {
+                    Text(
+                        "SUPERSET $superset" + (nextInRound?.let { " · then $it" } ?: " · rest after this"),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = IronTheme.colors.accent,
+                    )
+                }
                 Text(
                     "Target ${row.targetSets} × ${row.repMin}–${row.repMax} · rest ${row.restSeconds}s" +
                         (row.originalNameSnapshot?.let { " · swapped from $it" } ?: "") +
@@ -299,6 +335,15 @@ private fun ExerciseCard(
                         text = { Text(if (notes.isBlank()) "Add note" else "Edit note") },
                         onClick = { menu = false; editingNotes = true },
                     )
+                    if (!isLast) DropdownMenuItem(text = { Text(if (superset == null) "Superset with next" else "Add next to superset") }, onClick = { menu = false; scope.launch { w.supersetWithNext(row) } })
+                    if (superset != null) DropdownMenuItem(text = { Text("Leave superset") }, onClick = { menu = false; scope.launch { w.leaveSuperset(row) } })
+                    if (weighted && workKg != null && sets.none { it.type == "WARMUP" }) {
+                        DropdownMenuItem(
+                            text = { Text("Add warm-up sets") },
+                            onClick = { menu = false; scope.launch { w.addWarmups(row.id, Warmups.plan(workKg, unit, barbell)) } },
+                        )
+                    }
+                    if (barbell) DropdownMenuItem(text = { Text("Plate calculator") }, onClick = { menu = false; plates = workKg ?: Plates.barKg(unit) })
                     if (!isFirst) DropdownMenuItem(text = { Text("Move up") }, onClick = { menu = false; scope.launch { w.moveExercise(row.id, -1) } })
                     if (!isLast) DropdownMenuItem(text = { Text("Move down") }, onClick = { menu = false; scope.launch { w.moveExercise(row.id, 1) } })
                     DropdownMenuItem(
@@ -310,7 +355,6 @@ private fun ExerciseCard(
             }
         }
         if (showDemo) ExerciseDemo(row.exerciseId, row.exerciseNameSnapshot)
-        val unit = LocalWeightUnit.current
         if (previous.isNotEmpty()) {
             Text(
                 "Last time · " + previous.filter { it.type != "WARMUP" }.joinToString("  ") { "${unit.number(it.weightKg ?: 0.0)}×${it.reps ?: 0}" },
@@ -319,6 +363,7 @@ private fun ExerciseCard(
                 maxLines = 2,
             )
         }
+        if (!skipped) CoachRow(tip, unit, barbell, onUse = { kg -> scope.launch { w.applyWeight(row.id, kg) } }, onPlates = { plates = it })
         if (editingNotes) {
             Field("Note", notes, { notes = it })
             TextButton(onClick = { editingNotes = false; scope.launch { w.setExerciseNotes(row.id, notes) } }) { Text("SAVE NOTE") }
@@ -361,6 +406,7 @@ private fun ExerciseCard(
                     },
                     onType = { type -> scope.launch { w.setType(set.id, type) } },
                     onAddSub = { type -> scope.launch { w.addSubSet(set.id, type, unit.plateStepKg) } },
+                    onRpe = { rpe -> scope.launch { w.setRpe(set.id, rpe) } },
                     onDelete = { scope.launch { w.removeSet(set.id) } },
                 )
             }
@@ -371,6 +417,75 @@ private fun ExerciseCard(
             }
         }
     }
+    plates?.let { PlateDialog(it, unit) { plates = null } }
+}
+
+/** The coach's suggestion for today, with a one-tap "use" for the weight. */
+@Composable
+private fun CoachRow(tip: CoachTip, unit: app.ironlog.personal.domain.WeightUnit, barbell: Boolean, onUse: (Double) -> Unit, onPlates: (Double) -> Unit) {
+    Surface(color = IronTheme.colors.accent.copy(alpha = 0.08f), shape = MaterialTheme.shapes.small) {
+        Column(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    when (tip.kind) {
+                        CoachKind.INCREASE -> "COACH · GO UP"
+                        CoachKind.REPEAT -> "COACH · SAME WEIGHT"
+                        CoachKind.DELOAD -> "COACH · DELOAD"
+                        CoachKind.START -> "COACH"
+                    },
+                    style = MaterialTheme.typography.labelSmall,
+                    color = IronTheme.colors.accent,
+                    modifier = Modifier.weight(1f),
+                )
+                if (tip.kind != CoachKind.START) Text(Coach.label(tip, unit), style = MaterialTheme.typography.titleSmall)
+            }
+            Text(tip.reason, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            val kg = tip.weightKg
+            if (kg != null && tip.kind != CoachKind.START) {
+                Row {
+                    TextButton(onClick = { onUse(kg) }, contentPadding = PaddingValues(horizontal = 0.dp)) { Text("USE ${unit.format(kg).uppercase()}") }
+                    if (barbell) {
+                        Spacer(Modifier.width(12.dp))
+                        TextButton(onClick = { onPlates(kg) }, contentPadding = PaddingValues(horizontal = 0.dp)) { Text("PLATES") }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Which plates go on each side for a target weight, for the user's unit and bar. */
+@Composable
+private fun PlateDialog(initialKg: Double, unit: app.ironlog.personal.domain.WeightUnit, onDismiss: () -> Unit) {
+    var text by remember { mutableStateOf(unit.number(initialKg)) }
+    val bars = if (unit == app.ironlog.personal.domain.WeightUnit.KG) listOf(20.0, 15.0, 10.0) else listOf(45.0, 35.0, 25.0).map(unit::toKg)
+    var barKg by remember { mutableStateOf(bars.first()) }
+    val target = unit.parse(text)
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Plate calculator") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Field("Total (${unit.label})", text, { text = it }, number = true)
+                Eyebrow("Bar")
+                ChipRow(bars, barKg, { unit.format(it) }, { barKg = it })
+                when {
+                    target == null -> Text("Enter a weight.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    target < barKg -> Text("Lighter than the bar.", color = MaterialTheme.colorScheme.error)
+                    else -> {
+                        val load = Plates.load(target, unit, barKg)
+                        Eyebrow("Each side")
+                        if (load.perSide.isEmpty()) Text("Just the bar.")
+                        else Text(load.perSide.joinToString("  ·  ") { formatKg(it) } + " ${unit.label}", style = MaterialTheme.typography.titleLarge)
+                        if (load.shortByKg(target) > 0.01) {
+                            Text("Closest you can load: ${unit.format(load.loadedKg)}", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text("DONE") } },
+    )
 }
 
 @Composable
@@ -395,6 +510,7 @@ private fun SetRow(
     onToggle: () -> Unit,
     onType: (String) -> Unit,
     onAddSub: (String) -> Unit,
+    onRpe: (Double?) -> Unit,
     onDelete: () -> Unit,
 ) {
     val unit = LocalWeightUnit.current
@@ -420,15 +536,18 @@ private fun SetRow(
     ) {
         Box(Modifier.width(44.dp), contentAlignment = Alignment.Center) {
             TextButton(onClick = { menu = true }, contentPadding = PaddingValues(0.dp)) {
-                Text(
-                    label,
-                    style = MaterialTheme.typography.titleSmall,
-                    color = when (set.type) {
-                        "WARMUP" -> IronTheme.colors.carbs
-                        "DROP", "REST_PAUSE" -> IronTheme.colors.protein
-                        else -> MaterialTheme.colorScheme.onSurface
-                    },
-                )
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        label,
+                        style = MaterialTheme.typography.titleSmall,
+                        color = when (set.type) {
+                            "WARMUP" -> IronTheme.colors.carbs
+                            "DROP", "REST_PAUSE" -> IronTheme.colors.protein
+                            else -> MaterialTheme.colorScheme.onSurface
+                        },
+                    )
+                    set.rpe?.let { Text("@" + formatKg(it), style = MaterialTheme.typography.labelSmall, color = IronTheme.colors.accent) }
+                }
             }
             DropdownMenu(menu, { menu = false }) {
                 SET_TYPES.forEach { type ->
@@ -436,6 +555,20 @@ private fun SetRow(
                         text = { Text(typeLabel(type) + if (type == set.type) "  ✓" else "") },
                         onClick = { menu = false; onType(type) },
                     )
+                }
+                HorizontalDivider()
+                // Effort: RPE 10 = nothing left, 8 = two reps left. Feeds the coach.
+                Text("Effort (RPE)", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp))
+                Row(Modifier.padding(horizontal = 8.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    listOf(6.0, 7.0, 8.0, 9.0, 10.0).forEach { value ->
+                        val on = set.rpe == value
+                        Surface(
+                            onClick = { menu = false; onRpe(if (on) null else value) },
+                            shape = CircleShape,
+                            color = if (on) IronTheme.colors.accent else MaterialTheme.colorScheme.surfaceContainerHighest,
+                            contentColor = if (on) IronTheme.colors.onAccent else MaterialTheme.colorScheme.onSurface,
+                        ) { Text(formatKg(value), Modifier.padding(horizontal = 10.dp, vertical = 6.dp), style = MaterialTheme.typography.labelLarge) }
+                    }
                 }
                 HorizontalDivider()
                 DropdownMenuItem(text = { Text("Add drop set after") }, onClick = { menu = false; onAddSub("DROP") })

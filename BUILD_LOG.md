@@ -185,3 +185,12 @@ Each step was built, tested and pushed to `main` separately: redesign and naviga
 - Found by the tests: "71" was parsed as 7'1"; feet and inches now need a mark or a space between them, and plain numbers are inches (or feet below 9).
 - Gate: 134 tests pass, lint 0 errors. The walkthrough types 5'11, switches to cm (180.3), and at the end checks stored cm/km are unchanged after viewing in inches and miles.
 
+## 2026-10-05 · Coach, plates, warm-ups, supersets
+
+- Coach (`domain/Coaching.kt`): double progression from earlier sessions' working sets. All sets at the top of the range -> +1 plate step (2.5 kg / 5 lb; doubled for lower-body compounds, and doubled again when average RPE <= 7). In range -> same weight, weakest set + 1 rep. Below the range two sessions running -> deload to 90%. Bodyweight work progresses by reps. Shown on each exercise with "Use" (fills open working sets) and "Plates".
+- RPE 6-10 per set from the set menu (existing set_log.rpe column), shown as "@8" and carried into history (LoggedSet.rpe).
+- Plate calculator (kg plates 25-1.25, lb plates 45-2.5; 20/15/10 kg or 45/35/25 lb bars) and warm-up generation (bar x10, 40% x5, 60% x3, 80% x1, plate-rounded; dumbbell/machine 50% x8, 75% x3) inserted before the first set.
+- Supersets: schema v9 session_exercise.supersetGroup; "Superset with next" (extends into giant sets) and "Leave superset"; cards show "SUPERSET A · then X"; rest starts only after the last exercise of a round.
+- Fixed a long-standing walkthrough mistake: closing the demo tapped "Show demo" on the next card instead of "Hide demo".
+- Gate: 141 tests pass, lint 0 errors.
+

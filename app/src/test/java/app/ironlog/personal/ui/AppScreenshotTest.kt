@@ -226,7 +226,7 @@ class AppScreenshotTest {
         compose.onAllNodesWithContentDescription("Show demo")[0].performClick()
         compose.waitUntilAtLeastOneExists(hasText("START"), 5_000)
         shot("09_workout_demo")
-        compose.onAllNodesWithContentDescription("Show demo")[0].performClick()
+        compose.onAllNodesWithContentDescription("Hide demo")[0].performClick()
         compose.onAllNodes(hasSetTextAction())[0].performTextInput("70")
         compose.mainClock.advanceTimeBy(1_000)
         compose.waitForIdle()
@@ -243,6 +243,25 @@ class AppScreenshotTest {
         tap("Add drop set after")
         compose.waitUntilAtLeastOneExists(hasText("D"), 5_000)
         shot("10_drop_set_added")
+        // Coach, warm-ups, plates and supersets.
+        compose.waitUntilAtLeastOneExists(hasText("COACH", substring = true), 5_000)
+        compose.onAllNodesWithContentDescription("Exercise options")[0].performClick()
+        tap("Add warm-up sets")
+        compose.waitUntil(5_000) { compose.onAllNodes(hasText("W")).fetchSemanticsNodes().size >= 3 }
+        compose.onRoot().performTouchInput { swipeDown() }
+        shot("10_warmups_coach")
+        compose.onAllNodesWithContentDescription("Exercise options")[0].performClick()
+        compose.waitUntilAtLeastOneExists(hasText("Plate calculator"), 5_000)
+        compose.onNode(hasText("Plate calculator")).performClick()
+        inDialog {
+            com.github.takahirom.roborazzi.captureScreenRoboImage("build/screens/10_plates.png")
+            compose.onNode(hasText("DONE")).performClick()
+        }
+        compose.onAllNodesWithContentDescription("Exercise options")[0].performClick()
+        tap("Superset with next")
+        compose.waitUntilAtLeastOneExists(hasText("SUPERSET A", substring = true), 5_000)
+        compose.onNode(hasText("SUPERSET A", substring = true)).performScrollTo()
+        shot("10_superset")
         tap("Finish")
         compose.waitUntilAtLeastOneExists(hasText("Finish workout?"), 5_000)
         compose.onAllNodes(hasText("FINISH"))[1].performClick()
