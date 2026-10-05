@@ -30,6 +30,8 @@ class ReminderSchedulerTest {
 
     @Before
     fun grant() {
+        // Start-up re-books alarms from the saved settings; let it finish so it cannot undo a test's alarms.
+        runBlocking { app.startup.join() }
         shadowOf(app).grantPermissions(android.Manifest.permission.POST_NOTIFICATIONS)
     }
 

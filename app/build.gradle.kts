@@ -1,10 +1,73 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
+    alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.room)
 }
+
+// One codebase for Android and iOS: shared code lives in src/commonMain, platform code in
+// src/androidMain and src/iosMain. The iOS app (iosApp/) links the IronlogKit framework.
+kotlin {
+    androidTarget { compilerOptions { jvmTarget.set(JvmTarget.JVM_17) } }
+    listOf(iosArm64(), iosSimulatorArm64()).forEach { target ->
+        target.binaries.framework {
+            baseName = "IronlogKit"
+            isStatic = true
+        }
+    }
+    sourceSets {
+        commonMain.dependencies {
+            implementation(compose.runtime)
+            implementation(compose.foundation)
+            implementation(compose.material3)
+            implementation(compose.ui)
+            implementation(libs.mp.material.icons.extended)
+            implementation(libs.mp.navigation.compose)
+            implementation(libs.mp.lifecycle.viewmodel.compose)
+            implementation(libs.mp.lifecycle.runtime.compose)
+            implementation(libs.room.runtime)
+            implementation(libs.datastore.core)
+            implementation(libs.serialization.json)
+            implementation(libs.coroutines.core)
+            implementation(libs.datetime)
+        }
+        // Android has SQLite built in; iOS ships its own copy for Room.
+        iosMain.dependencies { implementation(libs.sqlite.bundled) }
+        androidMain.dependencies {
+            implementation(project.dependencies.platform(libs.androidx.compose.bom))
+            implementation(libs.compose.ui.tooling.preview)
+            implementation(libs.activity.compose)
+            implementation(libs.androidx.core)
+            implementation(libs.lifecycle.viewmodel.ktx)
+            implementation(libs.room.ktx)
+            implementation(libs.datastore)
+            implementation(libs.coroutines.android)
+            implementation(libs.code.scanner)
+            // The scanner brings an old Fragment; 1.3+ is required for registerForActivityResult.
+            implementation(libs.fragment)
+            // Reads steps and sleep from Health Connect (Android's on-device health data store).
+            implementation(libs.health.connect)
+        }
+        getByName("androidUnitTest").dependencies {
+            implementation(project.dependencies.platform(libs.androidx.compose.bom))
+            implementation(libs.compose.ui.test.junit4)
+            implementation(libs.roborazzi)
+            implementation(libs.roborazzi.compose)
+            implementation(libs.roborazzi.junit)
+            implementation(libs.junit)
+            implementation(libs.robolectric)
+            implementation(libs.room.testing)
+            implementation(libs.androidx.test.core)
+        }
+    }
+}
+
+room { schemaDirectory("$projectDir/schemas") }
 
 android {
     namespace = "app.ironlog.personal"
@@ -42,9 +105,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions { jvmTarget = "17" }
     buildFeatures { compose = true }
-    ksp { arg("room.schemaLocation", "$projectDir/schemas") }
     // Exported Room schemas are needed by MigrationTestHelper in Robolectric tests.
     sourceSets { getByName("debug").assets.srcDir("$projectDir/schemas") }
     testOptions {
@@ -64,34 +125,7 @@ androidComponents {
 }
 
 dependencies {
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.bundles.compose)
-    implementation(libs.activity.compose)
-    implementation(libs.androidx.core)
-    implementation(libs.navigation.compose)
-    implementation(libs.lifecycle.runtime.compose)
-    implementation(libs.lifecycle.viewmodel.compose)
-    implementation(libs.lifecycle.viewmodel.ktx)
-    implementation(libs.room.runtime)
-    implementation(libs.room.ktx)
-    implementation(libs.datastore)
-    implementation(libs.serialization.json)
-    implementation(libs.coroutines.android)
-    implementation(libs.code.scanner)
-    // The scanner brings an old Fragment; 1.3+ is required for registerForActivityResult.
-    implementation(libs.fragment)
-    // Reads steps and sleep from Health Connect (Android's on-device health data store).
-    implementation(libs.health.connect)
-    ksp(libs.room.compiler)
+    listOf("kspAndroid", "kspIosArm64", "kspIosSimulatorArm64").forEach { add(it, libs.room.compiler) }
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)
-    testImplementation(platform(libs.androidx.compose.bom))
-    testImplementation(libs.compose.ui.test.junit4)
-    testImplementation(libs.roborazzi)
-    testImplementation(libs.roborazzi.compose)
-    testImplementation(libs.roborazzi.junit)
-    testImplementation(libs.junit)
-    testImplementation(libs.robolectric)
-    testImplementation(libs.room.testing)
-    testImplementation(libs.androidx.test.core)
 }

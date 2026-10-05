@@ -10,12 +10,15 @@ import kotlinx.coroutines.launch
 class IronlogApp : Application() {
     lateinit var container: AppContainer
         private set
+    /** Start-up work (bundled data, reminder alarms); tests wait for it before they begin. */
+    lateinit var startup: kotlinx.coroutines.Job
+        private set
 
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
         container.workoutNotifier.start(container.appScope)
-        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+        startup = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             container.runSeeds()
             // Re-book reminder alarms in case they were lost (force stop, restore, clock change).
             runCatching { container.reminders.apply(container.reminderSettings.first()) }

@@ -1,16 +1,16 @@
 [versions]
 agp = "8.7.3"
-kotlin = "2.0.21"
-ksp = "2.0.21-1.0.28"
-compose-bom = "2024.12.01"
+kotlin = "2.1.21"
+ksp = "2.1.21-2.0.2"
+compose-bom = "2025.05.01"
 activity-compose = "1.9.3"
 core = "1.15.0"
 navigation-compose = "2.8.5"
 lifecycle = "2.8.7"
-room = "2.6.1"
-datastore = "1.1.1"
-serialization = "1.7.3"
-coroutines = "1.9.0"
+room = "2.7.2"
+datastore = "1.1.7"
+serialization = "1.8.1"
+coroutines = "1.10.2"
 junit = "4.13.2"
 robolectric = "4.14.1"
 code-scanner = "16.1.0"
@@ -19,9 +19,18 @@ roborazzi = "1.39.0"
 fragment = "1.8.5"
 health-connect = "1.1.0-beta01" # newest for compileSdk 35; 1.1.0 needs compileSdk 36 and a newer AGP
 
+compose-multiplatform = "1.8.2"
+navigation-multiplatform = "2.9.0-beta03"
+lifecycle-multiplatform = "2.9.1"
+material-icons-multiplatform = "1.7.3"
+sqlite = "2.5.2"
+datetime = "0.6.2"
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
+room = { id = "androidx.room", version.ref = "room" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
@@ -58,6 +67,16 @@ roborazzi-junit = { module = "io.github.takahirom.roborazzi:roborazzi-junit-rule
 fragment = { module = "androidx.fragment:fragment-ktx", version.ref = "fragment" }
 health-connect = { module = "androidx.health.connect:connect-client", version.ref = "health-connect" }
 code-scanner = { module = "com.google.android.gms:play-services-code-scanner", version.ref = "code-scanner" }
+
+# Multiplatform (Android + iOS) libraries used by shared code.
+mp-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation-multiplatform" }
+mp-lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle-multiplatform" }
+mp-lifecycle-runtime-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle-multiplatform" }
+mp-material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "material-icons-multiplatform" }
+sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
+datastore-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastore" }
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
 
 [bundles]
 compose = ["compose-ui", "compose-foundation", "compose-material3", "compose-icons-extended", "compose-ui-tooling-preview"]

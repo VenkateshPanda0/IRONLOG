@@ -13,7 +13,7 @@ import org.junit.Test
 /** Runs the recommender against the real bundled exercise library. */
 class RecommenderCoverageTest {
     private val library: List<ExerciseOption> by lazy {
-        Json.parseToJsonElement(File("src/main/assets/seed/exercises.json").readText())
+        Json.parseToJsonElement(File("src/androidMain/assets/seed/exercises.json").readText())
             .jsonArray
             .map { it.jsonObject }
             .filter { it["category"]?.jsonPrimitive?.contentOrNull == "strength" }

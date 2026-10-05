@@ -70,7 +70,17 @@ class AppScreenshotTest {
         compose.mainClock.autoAdvance = false
         try {
             compose.mainClock.advanceTimeBy(1_000)
-            block()
+            // Dialogs can open a few frames after the click: retry the step while the clock moves on.
+            var attempt = 0
+            while (true) {
+                try {
+                    block()
+                    break
+                } catch (notYet: AssertionError) {
+                    if (++attempt >= 20) throw notYet
+                    compose.mainClock.advanceTimeBy(250)
+                }
+            }
             compose.mainClock.advanceTimeBy(1_000)
         } finally {
             compose.mainClock.autoAdvance = true

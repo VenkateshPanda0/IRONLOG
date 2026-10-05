@@ -124,7 +124,7 @@ class MotionTest {
     @Test
     fun mostOfTheStrengthLibraryAndEveryStapleGetsAnAnimation() {
         val strength =
-            Json.parseToJsonElement(File("src/main/assets/seed/exercises.json").readText()).jsonArray.map { it.jsonObject }
+            Json.parseToJsonElement(File("src/androidMain/assets/seed/exercises.json").readText()).jsonArray.map { it.jsonObject }
                 .filter { it["category"]?.jsonPrimitive?.contentOrNull in setOf("strength", "powerlifting", "olympic weightlifting") }
         val mapped = strength.count { Motion.patternFor(it.getValue("name").jsonPrimitive.content) != null }
         println("MOTION coverage: $mapped / ${strength.size}")
