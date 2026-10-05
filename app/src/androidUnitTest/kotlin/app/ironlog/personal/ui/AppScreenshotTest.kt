@@ -1,5 +1,7 @@
 package app.ironlog.personal.ui
 
+import app.ironlog.personal.data.repo.addPhoto
+
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import app.ironlog.personal.time.ZoneId

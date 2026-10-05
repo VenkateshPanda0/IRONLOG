@@ -3,7 +3,7 @@ package app.ironlog.personal.data.repo
 import kotlinx.datetime.LocalDate
 import app.ironlog.personal.time.*
 
-import androidx.room.withTransaction
+import app.ironlog.personal.data.transaction
 import app.ironlog.personal.data.db.BodyMeasurementEntity
 import app.ironlog.personal.data.db.CardioSessionEntity
 import app.ironlog.personal.data.db.DailyLogEntity
@@ -38,7 +38,7 @@ class WellnessRepository(
 
     /** Read-modify-write of one day's row inside a transaction so quick taps never lose updates. */
     suspend fun updateDay(date: LocalDate, change: (DailyLogEntity) -> DailyLogEntity) =
-        db.withTransaction {
+        db.transaction {
             val current = dao.dailyLogOnce(date.toString()) ?: DailyLogEntity(date = date.toString())
             dao.saveDailyLog(change(current))
         }

@@ -1,7 +1,8 @@
 package app.ironlog.personal.data.seed
 
-import android.content.Context
-import androidx.room.withTransaction
+import app.ironlog.personal.platform.AssetReader
+
+import app.ironlog.personal.data.transaction
 import app.ironlog.personal.data.db.FoodEntity
 import app.ironlog.personal.data.db.FoodServingEntity
 import app.ironlog.personal.data.db.IronlogDatabase
@@ -21,10 +22,10 @@ private val BUNDLES =
 private val SEEDED_SOURCES = listOf("USDA", "INDB", "FNDDS")
 
 class FoodSeedLoader(
-    private val context: Context,
+    private val assets: AssetReader,
     private val database: IronlogDatabase,
 ) {
-    suspend fun load(): FoodSeedResult = database.withTransaction {
+    suspend fun load(): FoodSeedResult = database.transaction {
         val dao = database.dao()
         var insertedFoods = 0
         var insertedServings = 0
@@ -33,8 +34,8 @@ class FoodSeedLoader(
         dao.deleteSeededServings(SEEDED_SOURCES)
 
         BUNDLES.forEach { bundle ->
-            val foodCsv = context.assets.open(bundle.foods).bufferedReader().use { it.readText() }
-            val servingCsv = context.assets.open(bundle.servings).bufferedReader().use { it.readText() }
+            val foodCsv = assets.readText(bundle.foods)
+            val servingCsv = assets.readText(bundle.servings)
             val portions = FoodSeedCsvParser.parseServings(servingCsv).groupBy(FoodServingRecord::sourceRef)
             FoodSeedCsvParser.parseFoods(foodCsv).forEach { record ->
                 val source = record.source ?: bundle.defaultSource

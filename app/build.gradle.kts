@@ -35,6 +35,7 @@ kotlin {
             implementation(libs.serialization.json)
             implementation(libs.coroutines.core)
             implementation(libs.datetime)
+            implementation(libs.okio)
         }
         // Android has SQLite built in; iOS ships its own copy for Room.
         iosMain.dependencies { implementation(libs.sqlite.bundled) }

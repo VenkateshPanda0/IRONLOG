@@ -19,7 +19,7 @@ class ExerciseSeedLoaderTest {
                 .allowMainThreadQueries()
                 .build()
         try {
-            val loader = SeedLoader(context, database)
+            val loader = SeedLoader(app.ironlog.personal.platform.AndroidAssets(context), database)
 
             assertEquals(876, loader.load())
             assertEquals(0, loader.load())

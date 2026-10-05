@@ -1,7 +1,8 @@
 package app.ironlog.personal.data.seed
 
-import android.content.Context
-import androidx.room.withTransaction
+import app.ironlog.personal.platform.AssetReader
+
+import app.ironlog.personal.data.transaction
 import app.ironlog.personal.data.db.IronlogDatabase
 import app.ironlog.personal.data.db.ProgramDayEntity
 import app.ironlog.personal.data.db.ProgramDayExerciseEntity
@@ -11,11 +12,11 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 class ProgramSeedLoader(
-    private val context: Context,
+    private val assets: AssetReader,
     private val database: IronlogDatabase,
 ) {
-    suspend fun load(): Int = database.withTransaction {
-        val source = context.assets.open(PROGRAM_ASSET).bufferedReader().use { it.readText() }
+    suspend fun load(): Int = database.transaction {
+        val source = assets.readText(PROGRAM_ASSET)
         val programs = Json.decodeFromString<List<ProgramSeed>>(source)
         val dao = database.dao()
         val exerciseIds = dao.allExercises().mapTo(mutableSetOf()) { it.id }

@@ -21,7 +21,7 @@ class FoodSeedLoaderTest {
                 .allowMainThreadQueries()
                 .build()
         try {
-            val loader = FoodSeedLoader(context, database)
+            val loader = FoodSeedLoader(app.ironlog.personal.platform.AndroidAssets(context), database)
             val first = loader.load()
             val second = loader.load()
 

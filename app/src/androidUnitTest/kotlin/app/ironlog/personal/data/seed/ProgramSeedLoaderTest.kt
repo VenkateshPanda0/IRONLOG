@@ -23,8 +23,8 @@ class ProgramSeedLoaderTest {
                 .allowMainThreadQueries()
                 .build()
         try {
-            SeedLoader(context, database).load()
-            val loader = ProgramSeedLoader(context, database)
+            SeedLoader(app.ironlog.personal.platform.AndroidAssets(context), database).load()
+            val loader = ProgramSeedLoader(app.ironlog.personal.platform.AndroidAssets(context), database)
 
             assertEquals(3, loader.load())
             assertEquals(0, loader.load())
@@ -116,7 +116,7 @@ class ProgramSeedLoaderTest {
                 .build()
         try {
             try {
-                ProgramSeedLoader(context, database)
+                ProgramSeedLoader(app.ironlog.personal.platform.AndroidAssets(context), database)
                     .validate(
                         listOf(program),
                         exercises.mapTo(mutableSetOf()) { it.id },
@@ -140,7 +140,7 @@ class ProgramSeedLoaderTest {
                 .allowMainThreadQueries()
                 .build()
         try {
-            ProgramSeedLoader(context, database).validate(listOf(program), exerciseIds)
+            ProgramSeedLoader(app.ironlog.personal.platform.AndroidAssets(context), database).validate(listOf(program), exerciseIds)
         } finally {
             database.close()
         }

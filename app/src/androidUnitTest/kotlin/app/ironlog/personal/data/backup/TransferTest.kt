@@ -1,5 +1,7 @@
 package app.ironlog.personal.data.backup
 
+import app.ironlog.personal.data.repo.addPhoto
+
 import kotlinx.datetime.LocalDate
 import app.ironlog.personal.time.*
 
@@ -63,7 +65,7 @@ class TransferTest {
         assertEquals("Venkatesh", c.dao().profileOnce()!!.name)
         assertEquals(1, c.workouts.history.first().size)
         val photo = c.body.photos.first().single()
-        assertTrue(c.body.photoFile(photo).isFile)
+        assertTrue(c.body.photoFile(photo).toFile().isFile)
     }
 
     @Test
@@ -112,7 +114,7 @@ class TransferTest {
         assertEquals("Venkatesh", c.dao().profileOnce()!!.name)
         assertEquals(1, c.workouts.history.first().size)
         val photo = c.body.photos.first().single()
-        val restored = c.body.photoFile(photo)
+        val restored = c.body.photoFile(photo).toFile()
         assertTrue(restored.isFile)
         // The cloud copy is reduced to 1024 px on the long edge.
         val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }

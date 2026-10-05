@@ -1,6 +1,13 @@
 package app.ironlog.personal.data.provider
 
-import org.json.JSONObject
+import kotlinx.serialization.json.putJsonObject
+
+import kotlinx.serialization.json.put
+
+import kotlinx.serialization.json.buildJsonObject
+
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
@@ -9,6 +16,9 @@ import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class OpenFoodFactsParseTest {
+    @Suppress("TestFunctionName")
+    private fun JSONObject(text: String) = Json.parseToJsonElement(text).jsonObject
+
     @Test
     fun parsesSearchHitWithBrandArrayAndServing() {
         val hit =
@@ -39,7 +49,7 @@ class OpenFoodFactsParseTest {
     @Test
     fun hostileOrBrokenProductsAreRejectedOrTrimmed() {
         fun product(kcal: Double, protein: Double, name: String = "X") =
-            JSONObject().put("product_name", name).put("nutriments", JSONObject().put("energy-kcal_100g", kcal).put("proteins_100g", protein).put("carbohydrates_100g", 1).put("fat_100g", 1))
+            buildJsonObject { put("product_name", name); putJsonObject("nutriments") { put("energy-kcal_100g", kcal); put("proteins_100g", protein); put("carbohydrates_100g", 1); put("fat_100g", 1) } }
         assertNull(OpenFoodFactsProvider.parseProduct(product(90_000.0, 10.0), "off:1"))
         assertNull(OpenFoodFactsProvider.parseProduct(product(400.0, 250.0), "off:1"))
         assertEquals(120, OpenFoodFactsProvider.parseProduct(product(400.0, 10.0, "A".repeat(5_000)), "off:1")!!.name.length)

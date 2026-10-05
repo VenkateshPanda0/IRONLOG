@@ -3,19 +3,20 @@ package app.ironlog.personal.data.repo
 import kotlinx.datetime.LocalDate
 import app.ironlog.personal.time.*
 
-import androidx.room.withTransaction
+import app.ironlog.personal.data.transaction
 import app.ironlog.personal.data.db.BodyMeasurementEntity
 import app.ironlog.personal.data.db.IronlogDatabase
 import app.ironlog.personal.data.db.PhysiqueScanEntity
 import app.ironlog.personal.domain.BodyProportions
 import app.ironlog.personal.domain.PhysiqueType
-import java.io.File
-import kotlinx.coroutines.Dispatchers
+import okio.Path
+import app.ironlog.personal.platform.appFileSystem
+import app.ironlog.personal.platform.ioDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
 /** Physique goal and tape-measure checks against it. */
-class PhysiqueRepository(private val db: IronlogDatabase, private val legacyPhotoDir: File) {
+class PhysiqueRepository(private val db: IronlogDatabase, private val legacyPhotoDir: Path) {
     private val dao = db.dao()
 
     val scans: Flow<List<PhysiqueScanEntity>> = dao.physiqueScans()
@@ -27,7 +28,7 @@ class PhysiqueRepository(private val db: IronlogDatabase, private val legacyPhot
      * physique history never disagree.
      */
     suspend fun save(p: BodyProportions, goal: PhysiqueType, match: Int, date: LocalDate = LocalDate.now()) =
-        db.withTransaction {
+        db.transaction {
             dao.addMeasurement(BodyMeasurementEntity(date = date.toString(), shouldersCm = p.shouldersCm, waistCm = p.waistCm, hipsCm = p.hipsCm, thighCm = p.thighCm))
             dao.addPhysiqueScan(
                 PhysiqueScanEntity(
@@ -51,7 +52,7 @@ class PhysiqueRepository(private val db: IronlogDatabase, private val legacyPhot
     suspend fun deleteAll() {
         dao.deleteAllPhysiqueScans()
         // Photos from the earlier photo-based check, if any are left on the phone.
-        withContext(Dispatchers.IO) { legacyPhotoDir.deleteRecursively() }
+        withContext(ioDispatcher) { appFileSystem.deleteRecursively(legacyPhotoDir, mustExist = false) }
     }
 
     companion object {

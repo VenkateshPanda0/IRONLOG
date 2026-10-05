@@ -3,7 +3,7 @@ package app.ironlog.personal.data.repo
 import kotlinx.datetime.LocalDate
 import app.ironlog.personal.time.*
 
-import androidx.room.withTransaction
+import app.ironlog.personal.data.transaction
 import app.ironlog.personal.data.db.BackupSnapshot
 import app.ironlog.personal.data.db.IronlogDatabase
 import kotlinx.serialization.encodeToString
@@ -31,7 +31,7 @@ class BackupRepository(private val db: IronlogDatabase) {
             .getOrElse { throw IllegalArgumentException("Backup is invalid or unreadable", it) }
         require(backup.schemaVersion == 1) { "Unsupported backup schema ${backup.schemaVersion}" }
         validate(backup)
-        db.withTransaction {
+        db.transaction {
             val dao = db.dao()
             dao.deleteSets()
             dao.deleteSessionExercises()

@@ -1,5 +1,6 @@
 package app.ironlog.personal.ui.progress
 
+import app.ironlog.personal.data.repo.addPhoto
 import app.ironlog.personal.time.DateTimeFormatter
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
@@ -343,7 +344,7 @@ private fun PhotoSection(c: AppContainer) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf(photos.last(), photos.first()).forEach { photo ->
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        PhotoImage(c.body.photoFile(photo), Modifier.fillMaxWidth().aspectRatio(3f / 4f).clickable { viewing = photo })
+                        PhotoImage(c.body.photoFile(photo).toFile(), Modifier.fillMaxWidth().aspectRatio(3f / 4f).clickable { viewing = photo })
                         Text(LocalDate.parse(photo.date).format(LONG), style = MaterialTheme.typography.labelMedium)
                     }
                 }
@@ -354,7 +355,7 @@ private fun PhotoSection(c: AppContainer) {
     photos.chunked(3).forEach { row ->
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             row.forEach { photo ->
-                PhotoImage(c.body.photoFile(photo), Modifier.weight(1f).aspectRatio(3f / 4f).clickable { viewing = photo }, sample = 4)
+                PhotoImage(c.body.photoFile(photo).toFile(), Modifier.weight(1f).aspectRatio(3f / 4f).clickable { viewing = photo }, sample = 4)
             }
             repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
         }
@@ -371,7 +372,7 @@ private fun PhotoSection(c: AppContainer) {
                         }) { Icon(Icons.Filled.Delete, contentDescription = "Delete photo") }
                         IconButton(onClick = { viewing = null }) { Icon(Icons.Filled.Close, contentDescription = "Close") }
                     }
-                    PhotoImage(c.body.photoFile(photo), Modifier.fillMaxWidth().weight(1f), contentScale = ContentScale.Fit)
+                    PhotoImage(c.body.photoFile(photo).toFile(), Modifier.fillMaxWidth().weight(1f), contentScale = ContentScale.Fit)
                 }
             }
         }

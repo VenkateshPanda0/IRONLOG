@@ -1,9 +1,16 @@
 package app.ironlog.personal.data.repo
 
+
+
+import app.ironlog.personal.platform.appFileSystem
+import app.ironlog.personal.platform.ioDispatcher
+import kotlinx.coroutines.withContext
+import okio.Path
+
 import kotlinx.datetime.LocalDate
 import app.ironlog.personal.time.*
 
-import androidx.room.withTransaction
+import app.ironlog.personal.data.transaction
 import app.ironlog.personal.data.db.*
 import app.ironlog.personal.domain.Calculations
 import app.ironlog.personal.domain.WorkoutMath
@@ -29,7 +36,8 @@ class WorkoutRepository(private val db: IronlogDatabase) {
         dao.putExercise(ExerciseEntity(id = id, name = name, isCustom = true))
 
     suspend fun addCustomExercise(name: String, muscle: String, equipment: String?): String {
-        val id = "custom_${java.util.UUID.randomUUID()}"
+        @OptIn(kotlin.uuid.ExperimentalUuidApi::class)
+        val id = "custom_${kotlin.uuid.Uuid.random()}"
         dao.putExercise(
             ExerciseEntity(
                 id = id,
@@ -56,7 +64,7 @@ class WorkoutRepository(private val db: IronlogDatabase) {
         rows: List<Triple<String, String, Int>>,
         programId: Long? = null,
         day: String? = null,
-    ) = db.withTransaction {
+    ) = db.transaction {
         dao.startWorkout(
             name,
             programId,
@@ -158,7 +166,7 @@ class WorkoutRepository(private val db: IronlogDatabase) {
     /** Inserts warm-up sets before the first set of an exercise. */
     suspend fun addWarmups(exerciseRowId: Long, warmups: List<app.ironlog.personal.domain.WarmupSet>) {
         if (warmups.isEmpty()) return
-        db.withTransaction {
+        db.transaction {
             dao.shiftAllSets(exerciseRowId, warmups.size)
             val first = dao.setsOnce(exerciseRowId).minOfOrNull { it.setIndex }?.minus(warmups.size) ?: 1
             warmups.forEachIndexed { i, w ->
@@ -171,7 +179,7 @@ class WorkoutRepository(private val db: IronlogDatabase) {
 
     /** Applies the coach's weight to working sets that are not done yet. */
     suspend fun applyWeight(exerciseRowId: Long, weightKg: Double) =
-        db.withTransaction {
+        db.transaction {
             dao.setsOnce(exerciseRowId).filter { it.type == "WORKING" && !it.isCompleted }.forEach { dao.updateSet(it.copy(weightKg = weightKg)) }
         }
 
@@ -180,9 +188,9 @@ class WorkoutRepository(private val db: IronlogDatabase) {
      * or more exercises make a giant set.
      */
     suspend fun supersetWithNext(row: SessionExerciseEntity) =
-        db.withTransaction {
+        db.transaction {
             val rows = dao.sessionExercisesOnce(row.sessionId).sortedBy { it.orderIndex }
-            val next = rows.getOrNull(rows.indexOfFirst { it.id == row.id } + 1) ?: return@withTransaction
+            val next = rows.getOrNull(rows.indexOfFirst { it.id == row.id } + 1) ?: return@transaction
             val group = row.supersetGroup ?: next.supersetGroup ?: row.id
             val members = rows.filter { it.id == row.id || it.id == next.id || (it.supersetGroup != null && (it.supersetGroup == row.supersetGroup || it.supersetGroup == next.supersetGroup)) }
             dao.setSupersetGroup(members.map { it.id }, group)
@@ -190,8 +198,8 @@ class WorkoutRepository(private val db: IronlogDatabase) {
 
     /** Takes an exercise out of its superset; a group left with one exercise is dissolved. */
     suspend fun leaveSuperset(row: SessionExerciseEntity) =
-        db.withTransaction {
-            val group = row.supersetGroup ?: return@withTransaction
+        db.transaction {
+            val group = row.supersetGroup ?: return@transaction
             dao.setSupersetGroup(listOf(row.id), null)
             val rest = dao.sessionExercisesOnce(row.sessionId).filter { it.supersetGroup == group }
             if (rest.size < 2) dao.setSupersetGroup(rest.map { it.id }, null)
@@ -475,7 +483,7 @@ class NutritionRepository(private val dao: IronlogDao) {
 
 class BodyRepository(
     private val dao: IronlogDao,
-    private val photoDir: java.io.File,
+    private val photoDir: Path,
     /** Told about each deleted weigh-in, so the deletion can reach Health Connect. */
     private val onWeightDeleted: suspend (BodyWeightEntity) -> Unit = {},
 ) {
@@ -492,37 +500,29 @@ class BodyRepository(
     }
 
     /** Never resolves outside the photo folder, whatever the stored name is. */
-    fun photoFile(photo: ProgressPhotoEntity) = java.io.File(photoDir, app.ironlog.personal.data.safeFileName(photo.fileName) ?: "invalid-name")
+    fun photoFile(photo: ProgressPhotoEntity): Path = photoDir / (app.ironlog.personal.data.safeFileName(photo.fileName) ?: "invalid-name")
 
     /**
-     * Copies the picked image into app-private storage, scaled so the long edge is at most 1600 px.
-     * The original in the user's gallery is not touched.
+     * Stores an already scaled JPEG in app-private storage (each platform decodes and scales the
+     * picked image first). The original in the user's gallery is not touched.
      */
-    suspend fun addPhoto(resolver: android.content.ContentResolver, uri: android.net.Uri, date: LocalDate) =
-        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-            val bounds = android.graphics.BitmapFactory.Options().apply { inJustDecodeBounds = true }
-            resolver.openInputStream(uri)?.use { android.graphics.BitmapFactory.decodeStream(it, null, bounds) }
-            var sample = 1
-            while (maxOf(bounds.outWidth, bounds.outHeight) / (sample * 2) >= 1600) sample *= 2
-            val bitmap =
-                resolver.openInputStream(uri)?.use {
-                    android.graphics.BitmapFactory.decodeStream(it, null, android.graphics.BitmapFactory.Options().apply { inSampleSize = sample })
-                } ?: error("Could not read the selected image")
-            photoDir.mkdirs()
-            val name = "photo_${java.util.UUID.randomUUID()}.jpg"
-            java.io.File(photoDir, name).outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 88, it) }
-            bitmap.recycle()
+    @OptIn(kotlin.uuid.ExperimentalUuidApi::class)
+    suspend fun addPhotoJpeg(jpeg: ByteArray, date: LocalDate) =
+        withContext(ioDispatcher) {
+            appFileSystem.createDirectories(photoDir)
+            val name = "photo_${kotlin.uuid.Uuid.random()}.jpg"
+            appFileSystem.write(photoDir / name) { write(jpeg) }
             dao.addPhoto(ProgressPhotoEntity(date = date.toString(), fileName = name))
         }
 
     suspend fun deletePhoto(photo: ProgressPhotoEntity) {
         dao.deletePhoto(photo.id)
-        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { photoFile(photo).delete() }
+        withContext(ioDispatcher) { appFileSystem.delete(photoFile(photo), mustExist = false) }
     }
 
     suspend fun deleteAllPhotos() {
         dao.deleteAllPhotos()
-        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { photoDir.deleteRecursively() }
+        withContext(ioDispatcher) { appFileSystem.deleteRecursively(photoDir, mustExist = false) }
     }
 }
 
@@ -581,7 +581,7 @@ class ProgramRepository(private val db: IronlogDatabase) {
         description: String,
         daysPerWeek: Int,
         days: List<Pair<String, List<ProgramDayExerciseEntity>>>,
-    ): Long = db.withTransaction {
+    ): Long = db.transaction {
         val programName = "$name (Recommended)"
         val existing = dao.programByName(programName)
         val programId =
@@ -630,7 +630,7 @@ class ProgramRepository(private val db: IronlogDatabase) {
                 val ex = dao.exercise(p.exerciseId)
                 Triple(p.exerciseId, ex?.name ?: p.exerciseId, p)
             }
-        return db.withTransaction {
+        return db.transaction {
             val sessionId =
                 dao.startWorkout(
                     // Day first so the workout header reads "Push · PPL" rather than the program.

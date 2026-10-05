@@ -16,7 +16,7 @@ import org.robolectric.RuntimeEnvironment
 @RunWith(RobolectricTestRunner::class)
 class MigrationTest {
     private val name = "migration-test.db"
-    private val all = arrayOf(IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3, IronlogDatabase.MIGRATION_3_4, IronlogDatabase.MIGRATION_4_5, IronlogDatabase.MIGRATION_5_6, IronlogDatabase.MIGRATION_6_7, IronlogDatabase.MIGRATION_7_8, IronlogDatabase.MIGRATION_8_9)
+    private val all = arrayOf(app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_1_2, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_2_3, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_3_4, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_4_5, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_5_6, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_6_7, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_7_8, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_8_9)
 
     @get:Rule
     val helper = MigrationTestHelper(InstrumentationRegistry.getInstrumentation(), IronlogDatabase::class.java)
@@ -88,7 +88,7 @@ class MigrationTest {
             execSQL("INSERT INTO user_profile (id, name, sex, age, heightCm, weightKg, activity, goal, daysPerWeek, equipment, experience, sessionMinutes, avoidList, trainingWeekdays) VALUES (1, 'Ravi', 'MALE', 28, 175.0, 72.0, 1.5, 'GAIN', 4, 'GYM', 'INTERMEDIATE', 60, '', 'MON,TUE,THU,FRI')")
             close()
         }
-        helper.runMigrationsAndValidate(v4, 9, true, IronlogDatabase.MIGRATION_4_5, IronlogDatabase.MIGRATION_5_6, IronlogDatabase.MIGRATION_6_7, IronlogDatabase.MIGRATION_7_8, IronlogDatabase.MIGRATION_8_9).close()
+        helper.runMigrationsAndValidate(v4, 9, true, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_4_5, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_5_6, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_6_7, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_7_8, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_8_9).close()
         val db =
             Room.databaseBuilder(RuntimeEnvironment.getApplication(), IronlogDatabase::class.java, v4)
                 .addMigrations(*all)
@@ -116,7 +116,7 @@ class MigrationTest {
             execSQL("INSERT INTO daily_log (date, steps, waterMl, sleepHours) VALUES ('2026-10-01', 7000, 1500, 7.5)")
             close()
         }
-        helper.runMigrationsAndValidate(v5, 9, true, IronlogDatabase.MIGRATION_5_6, IronlogDatabase.MIGRATION_6_7, IronlogDatabase.MIGRATION_7_8, IronlogDatabase.MIGRATION_8_9).close()
+        helper.runMigrationsAndValidate(v5, 9, true, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_5_6, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_6_7, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_7_8, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_8_9).close()
         val db = Room.databaseBuilder(RuntimeEnvironment.getApplication(), IronlogDatabase::class.java, v5).addMigrations(*all).allowMainThreadQueries().build()
         try {
             runBlocking {

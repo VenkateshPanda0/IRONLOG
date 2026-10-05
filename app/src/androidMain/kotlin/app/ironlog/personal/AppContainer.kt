@@ -1,12 +1,13 @@
 package app.ironlog.personal
 
+import android.content.Context
 import app.ironlog.personal.time.*
 
-import android.content.Context
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
-import androidx.room.withTransaction
+import okio.Path.Companion.toOkioPath
+import app.ironlog.personal.data.transaction
 import app.ironlog.personal.data.db.IronlogDatabase
 import app.ironlog.personal.data.provider.OpenFoodFactsProvider
 import app.ironlog.personal.data.repo.*
@@ -24,15 +25,15 @@ private val Context.preferences by preferencesDataStore(name = "ironlog_settings
 class AppContainer(context: Context) {
     private val appContext = context.applicationContext
     val db = Room.databaseBuilder(context, IronlogDatabase::class.java, "ironlog.db")
-            .addMigrations(IronlogDatabase.MIGRATION_1_2, IronlogDatabase.MIGRATION_2_3, IronlogDatabase.MIGRATION_3_4, IronlogDatabase.MIGRATION_4_5, IronlogDatabase.MIGRATION_5_6, IronlogDatabase.MIGRATION_6_7, IronlogDatabase.MIGRATION_7_8, IronlogDatabase.MIGRATION_8_9)
+            .addMigrations(app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_1_2, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_2_3, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_3_4, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_4_5, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_5_6, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_6_7, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_7_8, app.ironlog.personal.data.db.IronlogMigrations.MIGRATION_8_9)
             .build()
     val workouts = WorkoutRepository(db)
     val nutrition = NutritionRepository(db.dao())
-    val body = BodyRepository(db.dao(), java.io.File(context.filesDir, "photos")) { healthDeleted(it.healthId, "weight:" + app.ironlog.personal.data.health.HealthIds.weight(it.id)) }
+    val body = BodyRepository(db.dao(), java.io.File(context.filesDir, "photos").toOkioPath()) { healthDeleted(it.healthId, "weight:" + app.ironlog.personal.data.health.HealthIds.weight(it.id)) }
     val goals = GoalRepository(db.dao())
     val engagement = EngagementRepository(db.dao())
     val wellness = WellnessRepository(db) { healthDeleted(it.healthId, "session:" + app.ironlog.personal.data.health.HealthIds.cardio(it.id)) }
-    val physique = PhysiqueRepository(db, java.io.File(context.filesDir, "physique"))
+    val physique = PhysiqueRepository(db, java.io.File(context.filesDir, "physique").toOkioPath())
     val backup = BackupRepository(db)
     private val photoDir = java.io.File(context.filesDir, "photos")
     val archive = app.ironlog.personal.data.backup.BackupArchive(backup, photoDir)
@@ -68,9 +69,10 @@ class AppContainer(context: Context) {
         runCatching { autoBackup.write() }.onFailure { dataChanged = true }
     }
     val programs = ProgramRepository(db)
-    val seed = SeedLoader(context, db)
-    val foodSeed = FoodSeedLoader(context, db)
-    val programSeed = ProgramSeedLoader(context, db)
+    private val assets = app.ironlog.personal.platform.AndroidAssets(context)
+    val seed = SeedLoader(assets, db)
+    val foodSeed = FoodSeedLoader(assets, db)
+    val programSeed = ProgramSeedLoader(assets, db)
     val openFoodFacts = OpenFoodFactsProvider(db.dao())
     val restTimer = RestTimerController(context, db.dao())
     /** Workout to open when the app is launched from the live workout notification. */
@@ -90,7 +92,7 @@ class AppContainer(context: Context) {
         db.dao().saveProfile(value)
 
     suspend fun clearPersonalData() {
-        db.withTransaction {
+        db.transaction {
             val dao = db.dao()
             dao.deleteSets()
             dao.deleteSessionExercises()

@@ -1,5 +1,7 @@
 package app.ironlog.personal.data.repo
 
+import okio.Path.Companion.toPath
+
 import androidx.room.Room
 import app.ironlog.personal.data.db.IronlogDatabase
 import app.ironlog.personal.data.db.UserProfileEntity
@@ -97,9 +99,9 @@ class BackupRepositoryTest {
 
     @Test
     fun storedPhotoNamesCannotReachOtherFiles() {
-        val repo = BodyRepository(db.dao(), java.io.File("/data/photos"))
+        val repo = BodyRepository(db.dao(), "/data/photos".toPath())
         val photo = app.ironlog.personal.data.db.ProgressPhotoEntity(date = "2026-10-01", fileName = "../databases/ironlog.db")
-        assertEquals("/data/photos/invalid-name", repo.photoFile(photo).path)
-        assertEquals("/data/photos/photo_1.jpg", repo.photoFile(photo.copy(fileName = "photo_1.jpg")).path)
+        assertEquals("/data/photos/invalid-name", repo.photoFile(photo).toString())
+        assertEquals("/data/photos/photo_1.jpg", repo.photoFile(photo.copy(fileName = "photo_1.jpg")).toString())
     }
 }
