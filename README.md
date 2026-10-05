@@ -5,9 +5,9 @@ Ironlog is a local-first Android training app (Kotlin, Jetpack Compose, Room) in
 ## Status
 
 - `./gradlew assembleDebug` builds `app/build/outputs/apk/debug/app-debug.apk` (about 70 MB: exercise demo images plus ML Kit's on-device pose model).
-- `./gradlew testDebugUnitTest`: 109 tests pass, including a Robolectric + Roborazzi walkthrough that onboards, logs a workout, food, cardio, habits and measurements, runs a physique check, and screenshots every main screen into `app/build/screens/`.
+- `./gradlew testDebugUnitTest`: 117 tests pass, including a Robolectric + Roborazzi walkthrough that onboards, logs a workout, food, cardio, habits and measurements, runs a physique check, and screenshots every main screen into `app/build/screens/`.
 - `./gradlew lintDebug`: 0 errors.
-- Not verified: install and use on a physical device or emulator (none available in the build environment), live Open Food Facts requests from the app, the Google code scanner UI, notifications.
+- Not verified: install and use on a physical device or emulator (none available in the build environment), live Open Food Facts requests from the app, the Google code scanner UI, notification delivery on a real device (the alarm-to-notification path is tested under Robolectric).
 
 ## Features
 
@@ -20,6 +20,7 @@ Ironlog is a local-first Android training app (Kotlin, Jetpack Compose, Room) in
 - **Physique check**: pick one of ten popular physique goals (Classic, Men's Physique, Bodybuilder, Athletic, Powerlifter, Lean; Bikini, Wellness, Figure, Athletic), then check a front photo. On-device pose detection and segmentation (ML Kit, bundled models, no network, no language model) measure shoulder, waist, hip and thigh widths; rule-based coaching compares the ratios with the goal and gives a match score, findings, muscles to prioritise and a calorie direction. The program builder can add extra volume for those muscles. Checks are saved as history.
 - **Progress**: weight trend with 7-day average and goal, measurements, strength, weekly volume and sets per muscle, cardio, daily trends, progress photos.
 - **Profile**: levels 1-50 (about two years for a dedicated athlete, checked by a simulation test), rank titles, lifetime stats and 183 achievements in Bronze, Silver, Gold, Platinum and Legend tiers, including physique-check medals (up to "Stage Ready": a 100% goal match held for a year) and collection medals up to "Completionist" (every other medal).
+- **Reminders**: a workout reminder on your training days at a time you pick (silent if you already trained, with the next program day in the text and a comeback message after a week off), and a streak saver that nudges in the evening only when today's workout decides your weekly goal. Turned on from a Home card or Settings, with a test notification; survives reboots and clock changes. Tapping a notification opens the app.
 - **Optional Google sign-in** (Credential Manager): back up to and restore from your own Google Drive app folder, including straight from onboarding on a new phone. No Ironlog server; the app works fully signed out.
 - Backup and restore as JSON, to a file or Google Drive (progress and physique photos are not included).
 

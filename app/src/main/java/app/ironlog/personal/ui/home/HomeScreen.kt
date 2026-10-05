@@ -146,6 +146,8 @@ fun HomeScreen(c: AppContainer, nav: Navigator) {
 
         WeekStrip(strip)
 
+        app.ironlog.personal.ui.reminders.ReminderPromptCard(c)
+
         app.ironlog.personal.ui.wellness.DailySection(c, nav)
 
         app.ironlog.personal.ui.physique.PhysiqueCard(c, nav)

@@ -56,15 +56,15 @@ fun SettingsScreen(
         }
     var targetProtein by
         remember(nutritionGoal) {
-            mutableStateOf(nutritionGoal?.proteinG?.toString() ?: "120")
+            mutableStateOf(nutritionGoal?.proteinG?.let { "%.0f".format(it) } ?: "120")
         }
     var targetCarbs by
         remember(nutritionGoal) {
-            mutableStateOf(nutritionGoal?.carbsG?.toString() ?: "220")
+            mutableStateOf(nutritionGoal?.carbsG?.let { "%.0f".format(it) } ?: "220")
         }
     var targetFat by
         remember(nutritionGoal) {
-            mutableStateOf(nutritionGoal?.fatG?.toString() ?: "65")
+            mutableStateOf(nutritionGoal?.fatG?.let { "%.0f".format(it) } ?: "65")
         }
     Page("Settings", onBack = onBack) {
         app.ironlog.personal.ui.account.AccountSection(c)
@@ -192,6 +192,7 @@ fun SettingsScreen(
                 }
             },
         )
+        app.ironlog.personal.ui.reminders.ReminderSection(c)
         SectionHeader("Daily goals")
         DailyGoals(c, nutritionGoal)
         SectionHeader("Data sources")

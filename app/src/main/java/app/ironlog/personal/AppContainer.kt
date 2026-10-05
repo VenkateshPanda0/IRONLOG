@@ -145,6 +145,42 @@ class AppContainer(context: Context) {
         appContext.preferences.edit { it[driveBackupKey] = at }
     }
 
+    private val reminderWorkoutKey = booleanPreferencesKey("reminder_workout")
+    private val reminderWorkoutTimeKey = intPreferencesKey("reminder_workout_minutes")
+    private val reminderStreakKey = booleanPreferencesKey("reminder_streak")
+    private val reminderStreakTimeKey = intPreferencesKey("reminder_streak_minutes")
+    private val reminderPromptKey = booleanPreferencesKey("reminder_prompt_dismissed")
+    val reminders = app.ironlog.personal.reminders.ReminderScheduler(appContext)
+
+    val reminderSettings =
+        context.preferences.data.map { p ->
+            val d = app.ironlog.personal.domain.ReminderSettings()
+            app.ironlog.personal.domain.ReminderSettings(
+                workout = p[reminderWorkoutKey] ?: d.workout,
+                workoutMinutes = p[reminderWorkoutTimeKey] ?: d.workoutMinutes,
+                streak = p[reminderStreakKey] ?: d.streak,
+                streakMinutes = p[reminderStreakTimeKey] ?: d.streakMinutes,
+            )
+        }
+
+    /** True once the Home card offering reminders was answered either way. */
+    val reminderPromptDismissed = context.preferences.data.map { it[reminderPromptKey] ?: false }
+
+    suspend fun saveReminderSettings(value: app.ironlog.personal.domain.ReminderSettings) {
+        appContext.preferences.edit {
+            it[reminderWorkoutKey] = value.workout
+            it[reminderWorkoutTimeKey] = value.workoutMinutes
+            it[reminderStreakKey] = value.streak
+            it[reminderStreakTimeKey] = value.streakMinutes
+            it[reminderPromptKey] = true
+        }
+        reminders.apply(value)
+    }
+
+    suspend fun dismissReminderPrompt() {
+        appContext.preferences.edit { it[reminderPromptKey] = true }
+    }
+
     private val themeKey = stringPreferencesKey("theme")
     private val seedVersionKey = intPreferencesKey("seed_version")
     val theme = context.preferences.data.map { it[themeKey] ?: "DARK" }

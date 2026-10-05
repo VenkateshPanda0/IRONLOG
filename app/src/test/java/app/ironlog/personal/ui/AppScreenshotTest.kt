@@ -123,6 +123,8 @@ class AppScreenshotTest {
         // The next workout card must show the real prescription count, not the empty default.
         compose.waitUntilDoesNotExist(hasText("0 exercises · 0 sets", substring = true), 10_000)
         shot("01_home")
+        tap("Turn on")
+        compose.waitUntilDoesNotExist(hasText("Never miss a training day", ignoreCase = true), 10_000)
 
         // Daily section: check in, water, habits.
         compose.onRoot().performTouchInput { swipeUp() }
@@ -174,6 +176,11 @@ class AppScreenshotTest {
         shot("06_settings_account")
         tap("Sign out")
         compose.waitUntilAtLeastOneExists(hasText("Sign in with Google", ignoreCase = true), 10_000)
+        compose.onNode(hasText("Streak saver", ignoreCase = true)).performScrollTo()
+        compose.waitUntilAtLeastOneExists(hasText("18:00"), 10_000)
+        compose.onAllNodesWithContentDescription("15 minutes later")[0].performClick()
+        compose.waitUntilAtLeastOneExists(hasText("18:15"), 10_000)
+        shot("06_settings_reminders")
         back()
         back()
 

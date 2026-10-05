@@ -126,3 +126,11 @@ Each step was built, tested and pushed to `main` separately: redesign and naviga
 - Visual review via `MotionGalleryTest` (build/screens/18_motion_gallery.png); fixed fly hands passing through the floor and the hip-thrust bar position.
 - Gate: 109 tests pass, lint 0 errors, APK about 70 MB.
 
+## 2026-10-05 · Workout reminders and notifications
+
+- Workout reminder on training days at a chosen time (15-minute steps), quiet on rest days, after a workout or during one; names the next program day; comeback wording after 7+ days off.
+- Streak saver: evening nudge only when the sessions still needed this week equal the days left, so today decides the weekly goal.
+- One inexact, Doze-safe daily alarm per reminder (no exact-alarm permission); each firing books the next day first. Re-booked on app start, BOOT_COMPLETED, MY_PACKAGE_REPLACED, TIME_SET and TIMEZONE_CHANGED (exported receiver checks the action).
+- Found and fixed: the app never requested POST_NOTIFICATIONS, so notifications (including the rest timer) were blocked on Android 13+. Notifications now open the app when tapped. Settings nutrition targets showed raw decimals (75.83333333333333); now rounded.
+- Tests: rule tests, Robolectric alarm/receiver/notification tests (training day, rest day, blocked permission, reboot, spoofed intent). Gate: 117 tests pass, lint 0 errors.
+

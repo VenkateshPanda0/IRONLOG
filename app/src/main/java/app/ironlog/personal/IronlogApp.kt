@@ -4,6 +4,7 @@ import android.app.Application
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class IronlogApp : Application() {
@@ -13,6 +14,10 @@ class IronlogApp : Application() {
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
-        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch { container.runSeeds() }
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            container.runSeeds()
+            // Re-book reminder alarms in case they were lost (force stop, restore, clock change).
+            runCatching { container.reminders.apply(container.reminderSettings.first()) }
+        }
     }
 }
