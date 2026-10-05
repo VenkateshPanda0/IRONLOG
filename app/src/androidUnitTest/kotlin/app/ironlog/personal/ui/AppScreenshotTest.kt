@@ -1,5 +1,10 @@
 package app.ironlog.personal.ui
 
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import app.ironlog.personal.time.ZoneId
+import app.ironlog.personal.time.*
+
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
@@ -95,9 +100,9 @@ class AppScreenshotTest {
     @Test
     fun walkMainScreens() {
         // Let the bundled data finish seeding before the first screen is composed.
-        val deadline = System.currentTimeMillis() + 120_000
+        val deadline = nowMillis() + 120_000
         while (container.seedState.value !is SeedState.Ready) {
-            check(System.currentTimeMillis() < deadline) { "Seeding did not finish: ${container.seedState.value}" }
+            check(nowMillis() < deadline) { "Seeding did not finish: ${container.seedState.value}" }
             org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
             Thread.sleep(100)
         }
@@ -167,8 +172,8 @@ class AppScreenshotTest {
         shot("01_home_daily")
         // The check-in dialog's taps are covered by CheckInDialogTest; record it directly here.
         runBlocking {
-            container.wellness.setSleep(java.time.LocalDate.now(), 7.5, 4)
-            container.wellness.checkIn(java.time.LocalDate.now(), 4, 2, 2, 4)
+            container.wellness.setSleep(LocalDate.now(), 7.5, 4)
+            container.wellness.checkIn(LocalDate.now(), 4, 2, 2, 4)
         }
         compose.waitUntilAtLeastOneExists(hasText("Slept", substring = true), 10_000)
         tap("Add habits")
@@ -357,7 +362,7 @@ class AppScreenshotTest {
 
         // Test-only sample weigh-ins: a gentle downward trend over six weeks.
         runBlocking {
-            val today = java.time.LocalDate.now()
+            val today = LocalDate.now()
             for (day in 42 downTo 1 step 2) container.body.log(today.minusDays(day.toLong()), 84.0 - (42 - day) * 0.05 + (day % 3) * 0.2)
             listOf(android.graphics.Color.DKGRAY, android.graphics.Color.GRAY).forEachIndexed { i, color ->
                 val file = java.io.File(activity.cacheDir, "sample$i.png")

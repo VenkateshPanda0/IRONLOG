@@ -1,6 +1,8 @@
 package app.ironlog.personal.domain
 
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
+import app.ironlog.personal.time.*
+
 
 data class Ingredient(val grams: Double, val kcalPer100g: Double, val proteinPer100g: Double, val carbsPer100g: Double, val fatPer100g: Double)
 

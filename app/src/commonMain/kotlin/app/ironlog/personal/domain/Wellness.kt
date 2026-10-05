@@ -1,6 +1,9 @@
 package app.ironlog.personal.domain
 
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
+import app.ironlog.personal.time.*
+import app.ironlog.personal.text.format
+
 
 enum class CardioType(val label: String, val met: Double, val hasDistance: Boolean) {
     RUN("Run", 9.8, true),

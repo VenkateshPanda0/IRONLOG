@@ -1,6 +1,8 @@
 package app.ironlog.personal.domain
 
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
+import app.ironlog.personal.time.*
+
 
 /** Builds [EngagementReplay] inputs from raw history so XP is always derived, never stored. */
 object EngagementInputs {

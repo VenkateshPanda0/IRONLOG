@@ -1,5 +1,7 @@
 package app.ironlog.personal.data.repo
 
+import app.ironlog.personal.time.*
+
 import app.ironlog.personal.AppContainer
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -36,9 +38,9 @@ class FoodSearchPerfTest {
                 "milk" to { name: String -> name.startsWith("Milk") },
             )
         for ((query, expected) in cases) {
-            val start = System.currentTimeMillis()
+            val start = nowMillis()
             val results = c.nutrition.foods(query).first()
-            val took = System.currentTimeMillis() - start
+            val took = nowMillis() - start
             assertTrue("$query -> ${results.firstOrNull()?.name}", results.isNotEmpty() && expected(results.first().name))
             assertTrue("$query took $took ms", took < 2_000)
             println("SEARCH '$query' -> " + results.take(3).joinToString(" | ") { "${it.name} [${it.source}]" })

@@ -1,5 +1,11 @@
 package app.ironlog.personal.reminders
 
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
+import app.ironlog.personal.time.ZoneId
+import app.ironlog.personal.time.*
+
 import android.app.AlarmManager
 import android.app.NotificationManager
 import android.content.Context
@@ -9,9 +15,6 @@ import app.ironlog.personal.IronlogApp
 import app.ironlog.personal.data.db.UserProfileEntity
 import app.ironlog.personal.domain.ReminderKind
 import app.ironlog.personal.domain.ReminderSettings
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -51,7 +54,7 @@ class ReminderSchedulerTest {
 
     @Test
     fun enabledRemindersBookTheNextDailyTimeAndDisablingCancels() {
-        val now = LocalDateTime.of(today, java.time.LocalTime.of(9, 0))
+        val now = LocalDateTime.of(today, LocalTime.of(9, 0))
         ReminderScheduler(app).apply(ReminderSettings(workout = true, workoutMinutes = 18 * 60, streak = false), now)
         val booked = alarms.scheduledAlarms.single()
         assertEquals(now.withHour(18).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(), booked.triggerAtTime)

@@ -1,5 +1,7 @@
 package app.ironlog.personal.data.db
 
+import app.ironlog.personal.time.*
+
 import androidx.room.*
 import kotlinx.serialization.Serializable
 
@@ -20,7 +22,7 @@ data class ExerciseEntity(
     val isCustom: Boolean = false,
     val isFavorite: Boolean = false,
     val lastUsedAt: Long? = null,
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = nowMillis(),
 )
 
 @Serializable
@@ -31,7 +33,7 @@ data class ProgramEntity(
     val description: String = "",
     val daysPerWeek: Int = 3,
     val isBuiltIn: Boolean = false,
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = nowMillis(),
 )
 
 @Serializable
@@ -115,7 +117,7 @@ data class SkippedProgramDayEntity(
     val programId: Long,
     val date: String,
     val dayNameSnapshot: String,
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = nowMillis(),
 )
 
 @Serializable
@@ -143,7 +145,7 @@ data class UserProfileEntity(
 @Entity(tableName = "workout_session", indices = [Index("startedAt"), Index("status")])
 data class WorkoutSessionEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val startedAt: Long = System.currentTimeMillis(),
+    val startedAt: Long = nowMillis(),
     val endedAt: Long? = null,
     val status: String = "IN_PROGRESS",
     val programId: Long? = null,
@@ -152,7 +154,7 @@ data class WorkoutSessionEntity(
     val notes: String = "",
     val totalPausedMs: Long = 0,
     val pausedAt: Long? = null,
-    val lastActiveAt: Long = System.currentTimeMillis(),
+    val lastActiveAt: Long = nowMillis(),
 )
 
 @Serializable
@@ -239,7 +241,7 @@ data class FoodEntity(
     val fatPer100g: Double,
     val fiberPer100g: Double? = null,
     val isFavorite: Boolean = false,
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = nowMillis(),
     val confidence: String = "USER",
     /** "Indian", "Indian (packaged)", "Italian", "Ingredient"... null for user foods. */
     val cuisine: String? = null,
@@ -294,7 +296,7 @@ data class MealEntryEntity(
     val carbs: Double,
     val fat: Double,
     val fiber: Double? = null,
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = nowMillis(),
 )
 
 @Serializable
@@ -307,7 +309,7 @@ data class BodyWeightEntity(
     val date: String,
     val weightKg: Double,
     val note: String? = null,
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = nowMillis(),
     val source: String = "MANUAL",
     /** Health Connect record ID when this weigh-in was imported from another app. */
     val healthId: String? = null,
@@ -336,7 +338,7 @@ data class ProgressPhotoEntity(
     val date: String,
     val fileName: String,
     val note: String = "",
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = nowMillis(),
 )
 
 /** A completed set joined with its session, used for exercise history and records. */
@@ -373,7 +375,7 @@ data class CardioSessionEntity(
     val calories: Int? = null,
     val avgHeartRate: Int? = null,
     val notes: String = "",
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = nowMillis(),
     /** Health Connect record ID when this session was imported from another app or a watch. */
     val healthId: String? = null,
 )
@@ -402,7 +404,7 @@ data class HabitEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val name: String,
     val isActive: Boolean = true,
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = nowMillis(),
 )
 
 @Serializable
@@ -428,7 +430,7 @@ data class BodyMeasurementEntity(
     val hipsCm: Double? = null,
     val neckCm: Double? = null,
     val bodyFatPct: Double? = null,
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = nowMillis(),
 )
 
 /**
@@ -450,5 +452,5 @@ data class PhysiqueScanEntity(
     val height: Double,
     val legToTorso: Double,
     val matchScore: Int,
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = nowMillis(),
 )

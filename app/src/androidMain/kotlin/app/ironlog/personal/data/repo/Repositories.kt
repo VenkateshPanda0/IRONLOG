@@ -1,10 +1,12 @@
 package app.ironlog.personal.data.repo
 
+import kotlinx.datetime.LocalDate
+import app.ironlog.personal.time.*
+
 import androidx.room.withTransaction
 import app.ironlog.personal.data.db.*
 import app.ironlog.personal.domain.Calculations
 import app.ironlog.personal.domain.WorkoutMath
-import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
@@ -84,7 +86,7 @@ class WorkoutRepository(private val db: IronlogDatabase) {
                     weightKg = weightKg,
                     reps = reps,
                     isCompleted = true,
-                    completedAt = System.currentTimeMillis(),
+                    completedAt = nowMillis(),
                 )
             )
         }
@@ -99,18 +101,18 @@ class WorkoutRepository(private val db: IronlogDatabase) {
             dao.updateSet(
                 it.copy(
                     isCompleted = completed,
-                    completedAt = if (completed) System.currentTimeMillis() else null,
+                    completedAt = if (completed) nowMillis() else null,
                 )
             )
         }
     }
 
     suspend fun finish(id: Long) =
-        dao.finishWorkoutAndAdvanceProgram(id, System.currentTimeMillis())
+        dao.finishWorkoutAndAdvanceProgram(id, nowMillis())
 
-    suspend fun pause(id: Long) = dao.pauseSession(id, System.currentTimeMillis())
+    suspend fun pause(id: Long) = dao.pauseSession(id, nowMillis())
 
-    suspend fun resume(id: Long) = dao.resumeSession(id, System.currentTimeMillis())
+    suspend fun resume(id: Long) = dao.resumeSession(id, nowMillis())
 
     suspend fun skipExercise(id: Long) = dao.setExerciseStatus(id, "SKIPPED")
 
@@ -130,7 +132,7 @@ class WorkoutRepository(private val db: IronlogDatabase) {
                 weightKg = row.weightKg ?: fallbackWeight,
                 reps = row.reps ?: fallbackReps,
                 isCompleted = true,
-                completedAt = System.currentTimeMillis(),
+                completedAt = nowMillis(),
             )
         )
     }
@@ -466,7 +468,7 @@ class NutritionRepository(private val dao: IronlogDao) {
     suspend fun copyDay(from: LocalDate, to: LocalDate) =
         dao.mealsOnce(from.toString()).forEach {
             dao.addMeal(
-                it.copy(id = 0, date = to.toString(), createdAt = System.currentTimeMillis())
+                it.copy(id = 0, date = to.toString(), createdAt = nowMillis())
             )
         }
 }

@@ -1,5 +1,7 @@
 package app.ironlog.personal.timer
 
+import app.ironlog.personal.time.*
+
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -130,7 +132,7 @@ class WorkoutNotifier(private val context: Context, private val dao: IronlogDao,
             }
         )
         if (!ReminderScheduler.canNotify(context)) return
-        val now = System.currentTimeMillis()
+        val now = nowMillis()
         val paused = s.session.status == "PAUSED"
         val restEnd = s.rest?.takeIf { it.isRunning && it.sessionId == s.session.id && it.endAtEpochMs > now }?.endAtEpochMs
         val next = WorkoutFlow.next(s.rows, s.sets)?.let { (row, set) -> WorkoutFlow.resolve(dao, row, set, s.sets.filter { it.sessionExerciseId == row.id }) }

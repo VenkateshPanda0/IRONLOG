@@ -1,5 +1,10 @@
 package app.ironlog.personal.ui.nutrition
 
+import app.ironlog.personal.time.DateTimeFormatter
+import kotlinx.datetime.LocalDate
+import app.ironlog.personal.time.*
+import app.ironlog.personal.text.format
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -23,8 +28,6 @@ import app.ironlog.personal.ui.library.formatKg
 import app.ironlog.personal.ui.nav.Navigator
 import app.ironlog.personal.ui.nav.Routes
 import app.ironlog.personal.ui.theme.IronTheme
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.launch
 
 val MEALS = listOf("BREAKFAST" to "Breakfast", "LUNCH" to "Lunch", "DINNER" to "Dinner", "SNACK" to "Snacks")

@@ -1,8 +1,14 @@
 package app.ironlog.personal.domain
 
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.temporal.TemporalAdjusters
+import app.ironlog.personal.time.ChronoUnit
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import app.ironlog.personal.time.TemporalAdjusters
+import app.ironlog.personal.time.YearMonth
+import app.ironlog.personal.time.*
+import app.ironlog.personal.text.format
+
 
 /** Difficulty, from first-week wins to feats only elite lifters reach. */
 enum class Tier(val label: String) {
@@ -369,7 +375,7 @@ object Achievements {
         // Consistency
         count("workouts", workoutDates)
         val perWeek = input.plannedPerWeek.coerceAtLeast(1)
-        val byWeek = workoutDates.groupingBy { it.with(TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY)) }.eachCount().toSortedMap()
+        val byWeek = workoutDates.groupingBy { it.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)) }.eachCount().toSortedMap()
         var run = 0
         var bestRun = 0
         var previous: LocalDate? = null
@@ -385,14 +391,14 @@ object Achievements {
         ALL.filter { it.id.startsWith("streak_") }.forEach { results[it.id] = streakReached[it.id] to bestRun.toDouble() }
         // Tenure: earned by the first workout at least N days after the first one.
         workoutDates.firstOrNull()?.let { first ->
-            val span = java.time.temporal.ChronoUnit.DAYS.between(first, workoutDates.last()).toDouble()
+            val span = ChronoUnit.DAYS.between(first, workoutDates.last()).toDouble()
             ALL.filter { it.id.startsWith("tenure_") }.forEach { def ->
-                results[def.id] = workoutDates.firstOrNull { java.time.temporal.ChronoUnit.DAYS.between(first, it) >= def.target } to span
+                results[def.id] = workoutDates.firstOrNull { ChronoUnit.DAYS.between(first, it) >= def.target } to span
             }
         }
         // Consecutive calendar months with at least 8 workouts.
         run {
-            val months = workoutDates.groupingBy { java.time.YearMonth.from(it) }.eachCount().filterValues { it >= 8 }.keys.sorted()
+            val months = workoutDates.groupingBy { YearMonth.from(it) }.eachCount().filterValues { it >= 8 }.keys.sorted()
             var length = 0
             var best = 0
             val reached = mutableMapOf<String, LocalDate>()
@@ -542,16 +548,16 @@ object Achievements {
             ids.forEach { results[it.id] = reached[it.id] to best }
         }
         // One check per calendar month counts, so the ladder rewards years of tracking.
-        val months = sorted.distinctBy { java.time.YearMonth.from(it.date) }.map { it.date }
+        val months = sorted.distinctBy { YearMonth.from(it.date) }.map { it.date }
         defs("physique_checks").forEach { results[it.id] = months.getOrNull(it.target.toInt() - 1) to months.size.toDouble() }
         peak(defs("physique_match"), sorted.map { it.date to it.match.toDouble() })
         peak(defs("vtaper"), sorted.map { it.date to it.vTaper })
         sorted.firstOrNull()?.let { first -> peak(defs("physique_gain"), sorted.map { it.date to (it.match - first.match).toDouble() }) }
         val perfect = sorted.filter { it.match >= 100 }
         val firstPerfect = perfect.firstOrNull()
-        val held = firstPerfect?.let { f -> perfect.firstOrNull { java.time.temporal.ChronoUnit.DAYS.between(f.date, it.date) >= 365 } }
+        val held = firstPerfect?.let { f -> perfect.firstOrNull { ChronoUnit.DAYS.between(f.date, it.date) >= 365 } }
         results["stage_ready"] =
-            held?.date to (firstPerfect?.let { java.time.temporal.ChronoUnit.DAYS.between(it.date, perfect.last().date).toDouble() } ?: 0.0)
+            held?.date to (firstPerfect?.let { ChronoUnit.DAYS.between(it.date, perfect.last().date).toDouble() } ?: 0.0)
     }
 
     private fun evaluateWellness(w: WellnessInput, results: MutableMap<String, Pair<LocalDate?, Double>>) {

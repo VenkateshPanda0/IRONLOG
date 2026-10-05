@@ -1,5 +1,10 @@
 package app.ironlog.personal.data.repo
 
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import app.ironlog.personal.time.ZoneId
+import app.ironlog.personal.time.*
+
 import app.ironlog.personal.data.db.IronlogDao
 import app.ironlog.personal.data.db.primaryMuscleList
 import app.ironlog.personal.domain.Achievement
@@ -17,9 +22,6 @@ import app.ironlog.personal.domain.DayRecord
 import app.ironlog.personal.domain.WellnessInput
 import app.ironlog.personal.domain.WellnessXp
 import app.ironlog.personal.domain.Training
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -50,7 +52,7 @@ data class Engagement(
 }
 
 /** Live XP, level, streak and achievements, replayed from history whenever it changes. */
-class EngagementRepository(private val dao: IronlogDao, private val zone: ZoneId = ZoneId.systemDefault()) {
+class EngagementRepository(private val dao: IronlogDao, private val zone: kotlinx.datetime.TimeZone = ZoneId.systemDefault()) {
     private val training = combine(dao.allLoggedSets(), dao.history(), dao.exercises()) { sets, sessions, exercises -> Triple(sets, sessions, exercises) }
     private val body = combine(dao.foodDays(), dao.photos(), dao.weights()) { food, photos, weights -> Triple(food, photos, weights) }
     private val settings = combine(dao.profile(), dao.goal(), dao.physiqueScans()) { profile, goal, scans -> Triple(profile, goal, scans) }

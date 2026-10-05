@@ -1,6 +1,8 @@
 package app.ironlog.personal.domain
 
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
+import app.ironlog.personal.time.*
+
 
 object ProgressMath {
     /** Trailing 7-day mean for every logged day that has at least 3 readings in its window. */

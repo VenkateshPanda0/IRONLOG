@@ -1,5 +1,7 @@
 package app.ironlog.personal.domain
 
+import app.ironlog.personal.text.format
+
 import kotlin.math.abs
 import kotlin.math.roundToInt
 

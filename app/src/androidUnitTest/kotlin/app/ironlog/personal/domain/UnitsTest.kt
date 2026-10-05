@@ -32,9 +32,9 @@ class UnitsTest {
         assertEquals("Bench press 331 lb", WeightUnit.LB.localize("Bench press 150 kg"))
         assertEquals("Lift 220,462 lb in total", WeightUnit.LB.localize("Lift 100,000 kg in total"))
         assertEquals("Bench press 150 kg", WeightUnit.KG.localize("Bench press 150 kg"))
-        assertEquals(WeightUnit.LB, WeightUnit.defaultFor(Locale.US))
-        assertEquals(WeightUnit.KG, WeightUnit.defaultFor(Locale("en", "IN")))
-        assertEquals(WeightUnit.KG, WeightUnit.defaultFor(Locale.UK))
+        assertEquals(WeightUnit.LB, WeightUnit.defaultFor(Locale.US.country))
+        assertEquals(WeightUnit.KG, WeightUnit.defaultFor(Locale("en", "IN").country))
+        assertEquals(WeightUnit.KG, WeightUnit.defaultFor(Locale.UK.country))
     }
 }
 
@@ -63,7 +63,7 @@ class LengthUnitTest {
         assertEquals("Cover 311 mi in total", LengthUnit.IN.localize("Cover 500 km in total"))
         assertEquals("Run 26.2 mi in one session", LengthUnit.IN.localize("Run 42.2 km in one session"))
         assertEquals("Run 5 km in one session", LengthUnit.CM.localize("Run 5 km in one session"))
-        assertEquals(LengthUnit.IN, LengthUnit.defaultFor(Locale.US))
-        assertEquals(LengthUnit.CM, LengthUnit.defaultFor(Locale("en", "IN")))
+        assertEquals(LengthUnit.IN, LengthUnit.defaultFor(Locale.US.country))
+        assertEquals(LengthUnit.CM, LengthUnit.defaultFor(Locale("en", "IN").country))
     }
 }

@@ -1,5 +1,7 @@
 package app.ironlog.personal.data.health
 
+import kotlinx.datetime.toKotlinLocalDate
+
 import androidx.test.core.app.ApplicationProvider
 import app.ironlog.personal.IronlogApp
 import java.time.LocalDate
@@ -32,7 +34,7 @@ class HealthSyncerTest {
     @Test
     fun firstSyncImportsAMonthThenAWeekAndManualEntriesSurvive() = runBlocking {
         val c = app.container
-        c.wellness.setSleep(today, 8.0, 4) // typed in by hand
+        c.wellness.setSleep(today.toKotlinLocalDate(), 8.0, 4) // typed in by hand
         val fake = Fake((0L..40L).map { HealthDay(today.minusDays(it), 5000 + it.toInt(), 7.0) })
         c.healthSource = fake
         c.setHealthSync(true)
@@ -50,7 +52,7 @@ class HealthSyncerTest {
         assertEquals(today.minusDays(6) to today, fake.asked)
         assertEquals(0, second.daysUpdated)
         // A manual edit takes the value back from Health Connect.
-        c.wellness.setSteps(today, 12000)
+        c.wellness.setSteps(today.toKotlinLocalDate(), 12000)
         assertEquals(false, c.dao().dailyLogOnce(today.toString())!!.stepsFromHealth)
         assertTrue(c.healthSyncedAt.first() != null)
     }

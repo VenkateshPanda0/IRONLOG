@@ -1,6 +1,8 @@
 package app.ironlog.personal.domain
 
-import java.util.Locale
+import app.ironlog.personal.platform.deviceCountry
+import app.ironlog.personal.text.format
+
 import kotlin.math.roundToLong
 
 /**
@@ -46,12 +48,12 @@ enum class WeightUnit(val label: String, private val perKg: Double, /** Smallest
 
     companion object {
         private fun trim(v: Double): String {
-            val rounded = Math.round(v * 10) / 10.0
+            val rounded = (v * 10).roundToLong() / 10.0
             return if (rounded % 1.0 == 0.0) "%.0f".format(rounded) else "%.1f".format(rounded)
         }
 
         /** Pounds where they are the everyday unit (United States, Liberia, Myanmar); kg elsewhere. */
-        fun defaultFor(locale: Locale = Locale.getDefault()): WeightUnit = if (locale.country in setOf("US", "LR", "MM")) LB else KG
+        fun defaultFor(country: String = deviceCountry()): WeightUnit = if (country.uppercase() in IMPERIAL_COUNTRIES) LB else KG
 
         fun of(name: String?): WeightUnit? = entries.firstOrNull { it.name == name }
     }
@@ -81,7 +83,7 @@ enum class LengthUnit(val label: String, val distanceLabel: String, private val 
     fun height(cm: Double): String =
         if (this == CM) trim1(cm)
         else {
-            val inches = Math.round(cm / 2.54).toInt()
+            val inches = (cm / 2.54).roundToLong().toInt()
             "${inches / 12}'${inches % 12}\""
         }
 
@@ -116,7 +118,7 @@ enum class LengthUnit(val label: String, val distanceLabel: String, private val 
     /** Pace from minutes per km: "4:48 /km" or "7:43 /mi". */
     fun pace(minPerKm: Double): String {
         val perUnit = minPerKm / perKm
-        val total = Math.round(perUnit * 60).toInt()
+        val total = (perUnit * 60).roundToLong().toInt()
         return "%d:%02d /%s".format(total / 60, total % 60, distanceLabel)
     }
 
@@ -134,22 +136,25 @@ enum class LengthUnit(val label: String, val distanceLabel: String, private val 
 
     companion object {
         /** Inches, feet and miles where they are the everyday units (United States, Liberia, Myanmar). */
-        fun defaultFor(locale: Locale = Locale.getDefault()): LengthUnit = if (locale.country in setOf("US", "LR", "MM")) IN else CM
+        fun defaultFor(country: String = deviceCountry()): LengthUnit = if (country.uppercase() in IMPERIAL_COUNTRIES) IN else CM
 
         fun of(name: String?): LengthUnit? = entries.firstOrNull { it.name == name }
     }
 }
 
 private fun trim1(v: Double): String {
-    val r = Math.round(v * 10) / 10.0
+    val r = (v * 10).roundToLong() / 10.0
     return if (r % 1.0 == 0.0) "%.0f".format(r) else "%.1f".format(r)
 }
 
 private fun trim2(v: Double): String {
-    val r = Math.round(v * 100) / 100.0
+    val r = (v * 100).roundToLong() / 100.0
     return when {
         r % 1.0 == 0.0 -> "%.0f".format(r)
         (r * 10) % 1.0 == 0.0 -> "%.1f".format(r)
         else -> "%.2f".format(r)
     }
 }
+
+/** Countries that use pounds and inches by default. */
+private val IMPERIAL_COUNTRIES = setOf("US", "LR", "MM")

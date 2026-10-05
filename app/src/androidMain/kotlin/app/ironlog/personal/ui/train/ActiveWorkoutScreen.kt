@@ -1,5 +1,8 @@
 package app.ironlog.personal.ui.train
 
+import app.ironlog.personal.time.*
+import app.ironlog.personal.text.format
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -87,7 +90,7 @@ fun ActiveWorkoutScreen(container: AppContainer, nav: Navigator, session: Workou
     val sets by remember(session.id) { w.sessionSets(session.id) }.collectAsState(initial = emptyList())
     val library by w.exercises.collectAsState(initial = emptyList())
     val scope = rememberCoroutineScope()
-    var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var now by remember { mutableLongStateOf(nowMillis()) }
     var restMs by remember { mutableLongStateOf(0L) }
     var picker by remember { mutableStateOf<Picker?>(null) }
     var confirmFinish by remember { mutableStateOf(false) }
@@ -105,7 +108,7 @@ fun ActiveWorkoutScreen(container: AppContainer, nav: Navigator, session: Workou
     }
     LaunchedEffect(session.id) {
         while (true) {
-            now = System.currentTimeMillis()
+            now = nowMillis()
             restMs = container.restTimer.remainingMs()
             delay(1_000)
         }

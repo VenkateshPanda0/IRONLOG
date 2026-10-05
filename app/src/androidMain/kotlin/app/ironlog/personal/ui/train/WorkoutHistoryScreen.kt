@@ -1,5 +1,11 @@
 package app.ironlog.personal.ui.train
 
+import app.ironlog.personal.time.DateTimeFormatter
+import kotlinx.datetime.Instant
+import app.ironlog.personal.time.ZoneId
+import app.ironlog.personal.time.*
+import app.ironlog.personal.text.format
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -27,9 +33,6 @@ import app.ironlog.personal.ui.library.formatSet
 import app.ironlog.personal.ui.nav.Navigator
 import app.ironlog.personal.ui.nav.Routes
 import app.ironlog.personal.ui.theme.IronTheme
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.launch
 
 private fun LoggedSet.toExerciseSet() = ExerciseSet(sessionId, startedAt, exerciseId, exerciseName, type, weightKg, reps)
@@ -85,9 +88,9 @@ fun WorkoutSummaryScreen(container: AppContainer, nav: Navigator, sessionId: Lon
     }
     var notes by remember(current.id) { mutableStateOf(current.notes) }
     val summary = remember(allSets, sessionId) { WorkoutMath.summarize(sessionId, allSets.map { it.toExerciseSet() }) }
-    val duration = WorkoutMath.elapsedMs(current.startedAt, current.endedAt, current.totalPausedMs, null, current.endedAt ?: System.currentTimeMillis())
+    val duration = WorkoutMath.elapsedMs(current.startedAt, current.endedAt, current.totalPausedMs, null, current.endedAt ?: nowMillis())
     val date = DateTimeFormatter.ofPattern("EEEE d MMMM yyyy").withZone(ZoneId.systemDefault()).format(Instant.ofEpochMilli(current.startedAt))
-    val justFinished = current.endedAt != null && System.currentTimeMillis() - current.endedAt < 30 * 60_000
+    val justFinished = current.endedAt != null && nowMillis() - current.endedAt < 30 * 60_000
 
     val card = remember(summary, template, current.name, duration, unit) {
         renderShareCard(

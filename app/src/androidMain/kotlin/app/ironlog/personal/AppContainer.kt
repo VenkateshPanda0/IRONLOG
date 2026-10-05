@@ -1,5 +1,7 @@
 package app.ironlog.personal
 
+import app.ironlog.personal.time.*
+
 import android.content.Context
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
@@ -233,7 +235,7 @@ class AppContainer(context: Context) {
     suspend fun syncHealth(): app.ironlog.personal.data.health.SyncResult {
         val first = healthSyncedAt.first() == null
         val result = app.ironlog.personal.data.health.HealthSyncer(db, healthSource, tombstones).sync(days = if (first) 30 else 7)
-        appContext.preferences.edit { it[healthSyncedAtKey] = System.currentTimeMillis() }
+        appContext.preferences.edit { it[healthSyncedAtKey] = nowMillis() }
         return result
     }
 
@@ -241,7 +243,7 @@ class AppContainer(context: Context) {
     suspend fun syncHealthIfDue(minGapMs: Long = 15 * 60_000L) {
         if (!healthSyncEnabled.first()) return
         val last = healthSyncedAt.first() ?: 0L
-        if (System.currentTimeMillis() - last < minGapMs) return
+        if (nowMillis() - last < minGapMs) return
         if (healthSource === healthConnect && !healthConnect.hasPermissions()) return
         runCatching { syncHealth() }
     }

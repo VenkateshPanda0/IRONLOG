@@ -1,5 +1,10 @@
 package app.ironlog.personal.ui.wellness
 
+import app.ironlog.personal.time.DateTimeFormatter
+import kotlinx.datetime.LocalDate
+import app.ironlog.personal.time.*
+import app.ironlog.personal.text.format
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -36,8 +41,6 @@ import app.ironlog.personal.ui.nav.Navigator
 import app.ironlog.personal.ui.nav.Routes
 import app.ironlog.personal.ui.theme.IronTheme
 import app.ironlog.personal.ui.train.formatDuration
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -253,10 +256,10 @@ fun CardioScreen(c: AppContainer, nav: Navigator) {
     var startedAt by rememberSaveable { mutableStateOf<Long?>(null) }
     var pausedMs by rememberSaveable { mutableLongStateOf(0L) }
     var pausedAt by rememberSaveable { mutableStateOf<Long?>(null) }
-    var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var now by remember { mutableLongStateOf(nowMillis()) }
     LaunchedEffect(startedAt) {
         while (startedAt != null) {
-            now = System.currentTimeMillis()
+            now = nowMillis()
             delay(1_000)
         }
     }
@@ -273,12 +276,12 @@ fun CardioScreen(c: AppContainer, nav: Navigator) {
             Text(formatDuration(elapsedMs), style = MaterialTheme.typography.displayMedium)
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (startedAt == null) {
-                    PrimaryButton("Start ${type.label}", { startedAt = System.currentTimeMillis(); pausedMs = 0; pausedAt = null }, Modifier.weight(1f), icon = Icons.Filled.PlayArrow)
+                    PrimaryButton("Start ${type.label}", { startedAt = nowMillis(); pausedMs = 0; pausedAt = null }, Modifier.weight(1f), icon = Icons.Filled.PlayArrow)
                 } else {
                     SecondaryButton(
                         if (pausedAt != null) "Resume" else "Pause",
                         {
-                            val t = System.currentTimeMillis()
+                            val t = nowMillis()
                             pausedAt?.let { pausedMs += t - it; pausedAt = null } ?: run { pausedAt = t }
                         },
                         Modifier.weight(1f),

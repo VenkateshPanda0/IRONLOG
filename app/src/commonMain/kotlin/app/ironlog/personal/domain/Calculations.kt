@@ -1,6 +1,8 @@
 package app.ironlog.personal.domain
 
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
+import app.ironlog.personal.time.*
+
 
 object Calculations {
     const val KG_TO_LB = 2.2046226218

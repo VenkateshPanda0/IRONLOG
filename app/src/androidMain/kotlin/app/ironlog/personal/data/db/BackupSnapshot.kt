@@ -1,11 +1,13 @@
 package app.ironlog.personal.data.db
 
+import app.ironlog.personal.time.*
+
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class BackupSnapshot(
     val schemaVersion: Int = 1,
-    val exportedAt: Long = System.currentTimeMillis(),
+    val exportedAt: Long = nowMillis(),
     val exercises: List<ExerciseEntity> = emptyList(),
     val programs: List<ProgramEntity> = emptyList(),
     val programDays: List<ProgramDayEntity> = emptyList(),

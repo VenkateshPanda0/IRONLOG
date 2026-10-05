@@ -1,5 +1,7 @@
 package app.ironlog.personal.domain
 
+import app.ironlog.personal.text.format
+
 import kotlin.math.roundToInt
 
 /** Plates on each side of the bar, heaviest first, in the unit's own numbers (kg or lb). */

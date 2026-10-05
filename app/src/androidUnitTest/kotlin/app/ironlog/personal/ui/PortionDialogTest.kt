@@ -1,5 +1,8 @@
 package app.ironlog.personal.ui
 
+import kotlinx.datetime.LocalDate
+import app.ironlog.personal.time.*
+
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.performClick
@@ -46,7 +49,7 @@ class PortionDialogTest {
             IronlogTheme {
                 val controller = androidx.navigation.compose.rememberNavController()
                 app.ironlog.personal.ui.nutrition.FoodSearchScreen(
-                    c, app.ironlog.personal.ui.nav.Navigator(controller), "BREAKFAST", java.time.LocalDate.now()
+                    c, app.ironlog.personal.ui.nav.Navigator(controller), "BREAKFAST", LocalDate.now()
                 )
             }
         }
@@ -77,7 +80,7 @@ class PortionDialogTest {
             IronlogTheme {
                 val controller = androidx.navigation.compose.rememberNavController()
                 app.ironlog.personal.ui.nutrition.FoodSearchScreen(
-                    c, app.ironlog.personal.ui.nav.Navigator(controller), "BREAKFAST", java.time.LocalDate.now()
+                    c, app.ironlog.personal.ui.nav.Navigator(controller), "BREAKFAST", LocalDate.now()
                 )
             }
         }

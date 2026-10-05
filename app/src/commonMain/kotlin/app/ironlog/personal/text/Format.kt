@@ -86,8 +86,8 @@ private fun decimal(value: Double, precision: Int, grouping: Boolean, plus: Bool
     var intPart = all.dropLast(precision).trimStart('0').ifEmpty { "0" }
     val fracPart = all.takeLast(precision)
     if (grouping) intPart = group(intPart)
-    val zero = intPart.all { it == '0' || it == ',' } && fracPart.all { it == '0' }
-    val sign = if (negative && !zero) "-" else if (plus) "+" else ""
+    // Like java.util.Formatter, a negative value keeps its sign even when it rounds to zero.
+    val sign = if (negative) "-" else if (plus) "+" else ""
     return sign + intPart + if (precision > 0) ".$fracPart" else ""
 }
 

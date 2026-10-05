@@ -1,9 +1,13 @@
 package app.ironlog.personal.domain
 
+import app.ironlog.personal.time.ChronoUnit
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import app.ironlog.personal.time.*
+import app.ironlog.personal.text.format
+
 import app.ironlog.personal.data.repo.Engagement
-import java.time.DayOfWeek
-import java.time.LocalDate
-import java.time.temporal.ChronoUnit
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -48,7 +52,7 @@ class GrindSimulationTest {
 
     private fun simulate(p: Profile, years: Int = 3): Outcome {
         val sets = mutableListOf<ExerciseSet>()
-        val starts = mutableMapOf<Long, java.time.LocalDateTime>()
+        val starts = mutableMapOf<Long, LocalDateTime>()
         val foodDays = mutableListOf<LocalDate>()
         var session = 0L
         val totalDays = 365L * years

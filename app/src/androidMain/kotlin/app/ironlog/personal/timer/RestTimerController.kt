@@ -1,5 +1,7 @@
 package app.ironlog.personal.timer
 
+import app.ironlog.personal.time.*
+
 import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -19,7 +21,7 @@ import kotlinx.coroutines.withContext
 class RestTimerController(private val context: Context, private val dao: IronlogDao) {
     suspend fun start(sessionId: Long, durationSec: Int = 90) =
         withContext(Dispatchers.IO) {
-            val end = System.currentTimeMillis() + durationSec.coerceAtLeast(1) * 1000L
+            val end = nowMillis() + durationSec.coerceAtLeast(1) * 1000L
             dao.saveRestTimer(
                 RestTimerEntity(
                     sessionId = sessionId,
@@ -35,7 +37,7 @@ class RestTimerController(private val context: Context, private val dao: Ironlog
         withContext(Dispatchers.IO) {
             val timer = dao.restTimer() ?: return@withContext
             val end = timer.endAtEpochMs + seconds * 1000L
-            if (end <= System.currentTimeMillis()) skip()
+            if (end <= nowMillis()) skip()
             else {
                 dao.saveRestTimer(timer.copy(endAtEpochMs = end))
                 schedule(end)
@@ -50,7 +52,7 @@ class RestTimerController(private val context: Context, private val dao: Ironlog
 
     suspend fun remainingMs(): Long =
         withContext(Dispatchers.IO) {
-            ((dao.restTimer()?.endAtEpochMs ?: 0L) - System.currentTimeMillis()).coerceAtLeast(0L)
+            ((dao.restTimer()?.endAtEpochMs ?: 0L) - nowMillis()).coerceAtLeast(0L)
         }
 
     private fun schedule(endAt: Long) {
@@ -84,7 +86,7 @@ class RestTimerReceiver : BroadcastReceiver() {
             val pending = goAsync()
             c.appScope.launch {
                 try {
-                    c.dao().restTimer()?.takeIf { it.endAtEpochMs <= System.currentTimeMillis() + 1_000 }?.let { c.dao().clearRestTimer() }
+                    c.dao().restTimer()?.takeIf { it.endAtEpochMs <= nowMillis() + 1_000 }?.let { c.dao().clearRestTimer() }
                 } finally {
                     pending.finish()
                 }

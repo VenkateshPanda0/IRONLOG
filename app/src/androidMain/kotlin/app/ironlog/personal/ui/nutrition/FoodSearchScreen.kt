@@ -1,5 +1,9 @@
 package app.ironlog.personal.ui.nutrition
 
+import kotlinx.datetime.LocalDate
+import app.ironlog.personal.time.*
+import app.ironlog.personal.text.format
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -31,7 +35,6 @@ import app.ironlog.personal.ui.theme.IronTheme
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
-import java.time.LocalDate
 import kotlinx.coroutines.launch
 
 private fun FoodEntity.subtitle() =

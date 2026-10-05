@@ -1,5 +1,12 @@
 package app.ironlog.personal.ui.onboarding
 
+import app.ironlog.personal.time.DateTimeFormatter
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import app.ironlog.personal.time.ZoneId
+import app.ironlog.personal.time.*
+import app.ironlog.personal.text.format
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -28,7 +35,6 @@ import app.ironlog.personal.domain.Recommender
 import app.ironlog.personal.domain.TrainingProfile
 import app.ironlog.personal.ui.components.*
 import app.ironlog.personal.ui.theme.IronTheme
-import java.time.LocalDate
 import kotlinx.coroutines.launch
 
 private const val STEPS = 6
@@ -403,9 +409,9 @@ private fun RestoreOptions(c: AppContainer, onImport: () -> Unit) {
         IronCard {
             Eyebrow("Backup found")
             Text(if (s.name.isBlank()) "WELCOME BACK" else "WELCOME BACK, ${s.name.uppercase()}", style = MaterialTheme.typography.titleLarge)
-            val date = java.time.Instant.ofEpochMilli(s.exportedAt).atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+            val date = Instant.ofEpochMilli(s.exportedAt).atZone(ZoneId.systemDefault()).toLocalDate()
             Text(
-                "Your progress from ${date.format(java.time.format.DateTimeFormatter.ofPattern("d MMM yyyy"))}: " +
+                "Your progress from ${date.format(DateTimeFormatter.ofPattern("d MMM yyyy"))}: " +
                     "${s.workouts} workout${if (s.workouts == 1) "" else "s"}" + (if (s.photos > 0) " and ${s.photos} progress photo${if (s.photos == 1) "" else "s"}" else "") +
                     ", with your program, food log, levels and medals.",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,

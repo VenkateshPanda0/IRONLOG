@@ -1,10 +1,13 @@
 package app.ironlog.personal.domain
 
-import java.time.DayOfWeek
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.temporal.ChronoUnit
+import app.ironlog.personal.time.ChronoUnit
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
+import app.ironlog.personal.time.*
+import app.ironlog.personal.text.format
+
 
 /** What the user turned on. Times are minutes after midnight, local time. */
 data class ReminderSettings(

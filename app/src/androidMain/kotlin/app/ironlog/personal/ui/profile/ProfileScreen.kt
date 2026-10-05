@@ -1,5 +1,9 @@
 package app.ironlog.personal.ui.profile
 
+import app.ironlog.personal.time.DateTimeFormatter
+import app.ironlog.personal.time.*
+import app.ironlog.personal.text.format
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -27,7 +31,6 @@ import app.ironlog.personal.ui.nav.Navigator
 import app.ironlog.personal.ui.nav.Routes
 import app.ironlog.personal.ui.theme.IronTheme
 import app.ironlog.personal.ui.train.formatVolume
-import java.time.format.DateTimeFormatter
 
 private val EARNED = DateTimeFormatter.ofPattern("d MMM yyyy")
 

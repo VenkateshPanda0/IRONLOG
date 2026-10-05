@@ -87,6 +87,9 @@ object ChronoUnit {
     object DAYS {
         fun between(start: LocalDate, end: LocalDate): Long = start.daysUntil(end).toLong()
     }
+    object WEEKS {
+        fun between(start: LocalDate, end: LocalDate): Long = start.daysUntil(end).toLong() / 7
+    }
 }
 
 object TemporalAdjusters {
@@ -97,6 +100,10 @@ object TemporalAdjusters {
 
 data class YearMonth(val year: Int, val month: Int) : Comparable<YearMonth> {
     fun atDay(day: Int): LocalDate = LocalDate(year, month, day)
+    fun plusMonths(months: Int): YearMonth = from(atDay(1).plusMonths(months))
+    fun plusMonths(months: Long): YearMonth = plusMonths(months.toInt())
+    fun minusMonths(months: Int): YearMonth = plusMonths(-months)
+    fun minusMonths(months: Long): YearMonth = plusMonths(-months.toInt())
     override fun compareTo(other: YearMonth): Int = compareValuesBy(this, other, { it.year }, { it.month })
     companion object {
         fun from(date: LocalDate): YearMonth = YearMonth(date.year, date.monthNumber)
@@ -107,7 +114,9 @@ data class YearMonth(val year: Int, val month: Int) : Comparable<YearMonth> {
  * English date formatting for the patterns the app uses: EEEE EEE d dd M MM MMM MMMM yy yyyy
  * H HH h hh mm a, with quoted text and other characters copied as they are.
  */
-class DateTimeFormatter private constructor(private val pattern: String) {
+class DateTimeFormatter private constructor(private val pattern: String, private val zone: TimeZone? = null) {
+    fun withZone(zone: TimeZone): DateTimeFormatter = DateTimeFormatter(pattern, zone)
+    fun format(instant: Instant): String = format(instant.toLocalDateTime(zone ?: error("Formatting an Instant needs withZone")))
     fun format(date: LocalDate): String = render(date, null)
     fun format(dateTime: LocalDateTime): String = render(dateTime.date, dateTime.time)
     fun format(zoned: ZonedDateTime): String = format(zoned.toLocalDateTime())
@@ -154,3 +163,29 @@ class DateTimeFormatter private constructor(private val pattern: String) {
         fun ofPattern(pattern: String): DateTimeFormatter = DateTimeFormatter(pattern)
     }
 }
+
+fun LocalDateTime.toLocalDate(): LocalDate = date
+fun LocalDateTime.toLocalTime(): LocalTime = time
+fun YearMonth.atEndOfMonth(): LocalDate = atDay(1).lengthOfMonth().let { atDay(it) }
+
+/** java.util's toSortedMap: the same entries in key order (a map that keeps insertion order). */
+fun <K : Comparable<K>, V> Map<out K, V>.toSortedMap(): Map<K, V> =
+    entries.sortedBy { it.key }.associate { it.key to it.value }
+
+fun LocalDate.atTime(time: LocalTime): LocalDateTime = LocalDateTime(this, time)
+fun LocalDateTime.isAfter(other: LocalDateTime): Boolean = this > other
+fun LocalDateTime.isBefore(other: LocalDateTime): Boolean = this < other
+fun LocalDateTime.plusDays(days: Long): LocalDateTime = LocalDateTime(date.plusDays(days), time)
+fun LocalDateTime.plusDays(days: Int): LocalDateTime = LocalDateTime(date.plusDays(days), time)
+fun LocalDateTime.minusDays(days: Long): LocalDateTime = LocalDateTime(date.minusDays(days), time)
+fun LocalDateTime.minusDays(days: Int): LocalDateTime = LocalDateTime(date.minusDays(days), time)
+fun LocalDateTime.withHour(hour: Int): LocalDateTime = LocalDateTime(date, LocalTime(hour, time.minute, time.second, time.nanosecond))
+fun LocalDateTime.withMinute(minute: Int): LocalDateTime = LocalDateTime(date, LocalTime(time.hour, minute, time.second, time.nanosecond))
+fun LocalDateTime.Companion.of(date: LocalDate, time: LocalTime): LocalDateTime = LocalDateTime(date, time)
+fun ZonedDateTime.format(formatter: DateTimeFormatter): String = formatter.format(this)
+fun LocalDate.Companion.now(zone: TimeZone): LocalDate = Clock.System.todayIn(zone)
+/** Accepts null like a failed java.time parse would: throws, for callers wrapping it in runCatching. */
+fun LocalDate.Companion.parse(text: String?): LocalDate = LocalDate.parse(text ?: throw IllegalArgumentException("No date"))
+fun LocalDate.atTime(hour: Int, minute: Int): LocalDateTime = LocalDateTime(this, LocalTime(hour, minute))
+fun LocalDate.plusYears(years: Int): LocalDate = plus(DatePeriod(years = years))
+fun LocalDate.plusYears(years: Long): LocalDate = plus(DatePeriod(years = years.toInt()))

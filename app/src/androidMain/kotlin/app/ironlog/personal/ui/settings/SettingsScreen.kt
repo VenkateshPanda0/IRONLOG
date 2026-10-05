@@ -1,5 +1,11 @@
 package app.ironlog.personal.ui.settings
 
+import app.ironlog.personal.time.DateTimeFormatter
+import kotlinx.datetime.Instant
+import app.ironlog.personal.time.ZoneId
+import app.ironlog.personal.time.*
+import app.ironlog.personal.text.format
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -245,7 +251,7 @@ fun SettingsScreen(
         )
         lastSnapshot?.let {
             Text(
-                "Latest snapshot: " + java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneId.systemDefault()).format(java.time.format.DateTimeFormatter.ofPattern("d MMM, HH:mm")),
+                "Latest snapshot: " + Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("d MMM, HH:mm")),
                 style = MaterialTheme.typography.bodySmall,
                 color = app.ironlog.personal.ui.theme.IronTheme.colors.success,
             )

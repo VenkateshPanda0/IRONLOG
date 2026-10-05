@@ -1,5 +1,8 @@
 package app.ironlog.personal.ui.nav
 
+import kotlinx.datetime.LocalDate
+import app.ironlog.personal.time.*
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -78,7 +81,7 @@ object Routes {
 
     fun summary(id: Long) = "summary/$id"
 
-    fun food(meal: String, date: java.time.LocalDate) = "food/$meal/$date"
+    fun food(meal: String, date: LocalDate) = "food/$meal/$date"
 
     fun exercise(id: String) = "exercise/${android.net.Uri.encode(id)}"
 }
@@ -280,7 +283,7 @@ private fun IronlogNavHost(
                 container,
                 nav,
                 it.arguments?.getString("meal") ?: "SNACK",
-                runCatching { java.time.LocalDate.parse(it.arguments?.getString("date")) }.getOrDefault(java.time.LocalDate.now()),
+                runCatching { LocalDate.parse(it.arguments?.getString("date")) }.getOrDefault(LocalDate.now()),
             )
         }
         composable(Routes.RECIPE) { RecipeScreen(container, nav) }

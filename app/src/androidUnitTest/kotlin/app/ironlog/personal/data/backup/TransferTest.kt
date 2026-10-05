@@ -1,5 +1,8 @@
 package app.ironlog.personal.data.backup
 
+import kotlinx.datetime.LocalDate
+import app.ironlog.personal.time.*
+
 import androidx.test.core.app.ApplicationProvider
 import app.ironlog.personal.IronlogApp
 import app.ironlog.personal.SeedState
@@ -7,7 +10,6 @@ import app.ironlog.personal.data.db.UserProfileEntity
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.time.LocalDate
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlinx.coroutines.flow.first
@@ -30,9 +32,9 @@ class TransferTest {
 
     @Before
     fun seeded() {
-        val deadline = System.currentTimeMillis() + 120_000
+        val deadline = nowMillis() + 120_000
         while (c.seedState.value !is SeedState.Ready) {
-            check(System.currentTimeMillis() < deadline)
+            check(nowMillis() < deadline)
             org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idle()
             Thread.sleep(50)
         }

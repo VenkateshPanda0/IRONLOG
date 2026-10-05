@@ -1,5 +1,13 @@
 package app.ironlog.personal.ui.home
 
+import app.ironlog.personal.time.DateTimeFormatter
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
+import app.ironlog.personal.time.ZoneId
+import app.ironlog.personal.time.*
+import app.ironlog.personal.text.format
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -26,12 +34,6 @@ import app.ironlog.personal.ui.tour.tourAnchor
 import app.ironlog.personal.ui.nav.Navigator
 import app.ironlog.personal.ui.nav.Routes
 import app.ironlog.personal.ui.theme.IronTheme
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.time.format.TextStyle
-import java.util.Locale
 import kotlinx.coroutines.launch
 
 @Composable
@@ -222,7 +224,7 @@ fun HomeScreen(c: AppContainer, nav: Navigator) {
 }
 
 private fun greeting(name: String?): String {
-    val hour = java.time.LocalTime.now().hour
+    val hour = LocalTime.now().hour
     val part =
         when (hour) {
             in 5..11 -> "Good morning"
@@ -242,7 +244,7 @@ private fun WeekStrip(days: List<WeekDay>) {
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Text(
-                    day.date.dayOfWeek.getDisplayName(TextStyle.NARROW, Locale.getDefault()),
+                    day.date.dayOfWeek.name.take(1),
                     style = MaterialTheme.typography.labelMedium,
                     color =
                         if (day.isToday) MaterialTheme.colorScheme.onSurface

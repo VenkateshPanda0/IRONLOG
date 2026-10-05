@@ -1,5 +1,7 @@
 package app.ironlog.personal.data.health
 
+import kotlinx.datetime.toKotlinLocalDate
+
 import androidx.test.core.app.ApplicationProvider
 import app.ironlog.personal.IronlogApp
 import app.ironlog.personal.data.db.CardioSessionEntity
@@ -67,7 +69,7 @@ class HealthTwoWayTest {
         val fake = FakeHealth()
         c.healthSource = fake
         c.setHealthSync(true)
-        c.body.log(today.minusDays(1), 80.0) // typed in by hand
+        c.body.log(today.minusDays(1).toKotlinLocalDate(), 80.0) // typed in by hand
         fake.weights += HealthWeight("scale-1", at(1, 7), 79.2) // same day: ignored
         fake.weights += HealthWeight("scale-2", at(2, 7), 79.6)
         fake.weights += HealthWeight("scale-3", at(2, 9), 79.4) // later the same day wins
@@ -137,7 +139,7 @@ class HealthTwoWayTest {
         c.healthSource = fake
         c.setHealthSync(true)
         fake.sessions += HealthSession("ride", at(0, 7), at(0, 8), CardioType.CYCLE, null, 20.0)
-        c.body.log(today, 81.0)
+        c.body.log(today.toKotlinLocalDate(), 81.0)
         val result = c.syncHealth()
         assertEquals(1, result.sessionsIn)
         assertNull(c.dao().cardioByHealthId("ride")!!.distanceKm) // no distance access

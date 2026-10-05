@@ -1,7 +1,9 @@
 package app.ironlog.personal.domain
 
-import java.time.LocalDate
-import java.time.temporal.ChronoUnit
+import app.ironlog.personal.time.ChronoUnit
+import kotlinx.datetime.LocalDate
+import app.ironlog.personal.time.*
+
 
 enum class GoalStatus {
     AHEAD,

@@ -1,7 +1,9 @@
 package app.ironlog.personal.domain
 
-import java.time.DayOfWeek
-import java.time.LocalDate
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import app.ironlog.personal.time.*
+
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

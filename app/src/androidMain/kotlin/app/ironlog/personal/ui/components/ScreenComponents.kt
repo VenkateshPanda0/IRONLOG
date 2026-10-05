@@ -1,5 +1,7 @@
 package app.ironlog.personal.ui.components
 
+import app.ironlog.personal.text.format
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
