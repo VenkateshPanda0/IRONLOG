@@ -201,7 +201,7 @@ fun IronlogRoot(
                 is SeedState.Ready ->
                     when {
                         !profileLoaded -> Loading(null)
-                        profile == null -> OnboardingScreen(container)
+                        profile == null -> OnboardingScreen(container, onImport)
                         else -> IronlogNavHost(container, controller, nav, onTheme, onExport, onImport)
                     }
             }

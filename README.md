@@ -5,7 +5,7 @@ Ironlog is a local-first Android training app (Kotlin, Jetpack Compose, Room) in
 ## Status
 
 - `./gradlew assembleDebug` builds `app/build/outputs/apk/debug/app-debug.apk` (about 43 MB, mostly exercise demo photos).
-- `./gradlew testDebugUnitTest`: 126 tests pass, including a Robolectric + Roborazzi walkthrough that onboards, logs a workout, food, cardio, habits and measurements, runs a tape-measure physique check, and screenshots every main screen into `app/build/screens/`.
+- `./gradlew testDebugUnitTest`: 129 tests pass, including a Robolectric + Roborazzi walkthrough that onboards, logs a workout, food, cardio, habits and measurements, runs a tape-measure physique check, and screenshots every main screen into `app/build/screens/`.
 - `./gradlew lintDebug`: 0 errors.
 - Not verified: install and use on a physical device or emulator (none available in the build environment), live Open Food Facts requests from the app, the Google code scanner UI, notification delivery on a real device (the alarm-to-notification path is tested under Robolectric).
 
@@ -22,8 +22,7 @@ Ironlog is a local-first Android training app (Kotlin, Jetpack Compose, Room) in
 - **Profile**: levels 1-50 (about two years for a dedicated athlete, checked by a simulation test), rank titles, lifetime stats and 183 achievements in Bronze, Silver, Gold, Platinum and Legend tiers, including physique-check medals (up to "Stage Ready": a 100% goal match held for a year) and collection medals up to "Completionist" (every other medal).
 - **Reminders**: a workout reminder on your training days at a time you pick (silent if you already trained, with the next program day in the text and a comeback message after a week off), and a streak saver that nudges in the evening only when today's workout decides your weekly goal. Turned on from a Home card or Settings, with a test notification; survives reboots and clock changes. Tapping a notification opens the app.
 - **Health Connect sync** (optional): steps and sleep in; weigh-ins both ways (scale readings fill days you didn't log, your weigh-ins are shared); workouts both ways (finished strength workouts and logged cardio go out as exercise sessions, runs/rides/walks/swims/sports/yoga from a watch or other apps come in as cardio with distance). Syncs when the app opens and on "Sync now"; each data type follows its own permission. Your own entries are never overwritten, nothing is imported twice, and deleting an imported entry keeps it from coming back. Imported entries are labelled "Health Connect".
-- **Optional Google sign-in** (Credential Manager): back up to and restore from your own Google Drive app folder, including straight from onboarding on a new phone. No Ironlog server; the app works fully signed out.
-- Backup and restore as JSON, to a file or Google Drive (progress and physique photos are not included).
+- **Backup and new phone**: Android's Auto Backup copies a compressed snapshot of all data (about 1 MB) plus progress photos reduced to 1024 px (up to 15 MB) to the user's Google account. On a new phone with the same account, installing Ironlog shows "Welcome back" on the first screen and restores everything in one tap. Phone-to-phone transfer during setup copies everything at full size. Manually: "Export everything" makes one .zip (data + photos) that imports on any phone, from Settings or the first onboarding screen.
 
 ## Build
 
@@ -43,23 +42,14 @@ Works on Android 14+ (built in) and on Android 9-13 with the Health Connect app 
 
 The client library is pinned to `1.1.0-beta01`, the newest that builds with compileSdk 35 and AGP 8.7; `1.1.0` stable needs compileSdk 36 and a newer Android Gradle plugin.
 
-### Enabling Google sign-in and Drive backup
+### Restoring on a new phone
 
-Without these steps the app builds and works normally; the sign-in button explains that it is not set up.
-
-1. In the [Google Cloud console](https://console.cloud.google.com/), create a project (or reuse one) and enable the **Google Drive API**.
-2. Configure the **OAuth consent screen** (External, app name "Ironlog") and add the scope `https://www.googleapis.com/auth/drive.appdata`. While the app is in Testing mode, add your Google account as a test user.
-3. Create an **OAuth client ID** of type **Android**: package `app.ironlog.personal` and the SHA-1 of your signing key (`./gradlew signingReport`, debug variant for debug builds).
-4. Create an **OAuth client ID** of type **Web application**. Copy its client ID.
-5. Add it to `local.properties` (not committed): `googleWebClientId=1234567890-abc.apps.googleusercontent.com`, then rebuild.
-
-The Web client ID is used as the server client ID that Credential Manager requires; the Android client ID (matched by package and SHA-1) authorises the app. Drive access is requested only when you first back up or restore.
+Auto Backup needs the phone's Google backup switched on (Settings › Google › Backup, on by default on most phones) and runs about once a day while charging on Wi-Fi; Ironlog refreshes its snapshot whenever you leave the app after a change. Restore happens when Ironlog is installed from Google Play on a phone signed in to the same account (during setup or later). Sideloaded installs only get restores during device setup; use the .zip export there.
 
 ## Data and attribution
 
 - Exercises and demo images: free-exercise-db by yuhonas (from wrkout/exercises.json), public domain under the Unlicense. Rebuild images with `tools/build_exercise_media.py`.
 - Generic foods: USDA FoodData Central SR Legacy (public domain). Rebuild with `tools/build_food_subset.py`.
-- Google sign-in: AndroidX Credential Manager with Sign in with Google; Drive access via Google Identity authorization (drive.appdata scope only).
 - Packaged foods: Open Food Facts contributors, ODbL 1.0, fetched only when you search or scan.
 - Ironlog is independent and not affiliated with STNDRD, its coaches or any fitness brand. It contains no STNDRD content.
 

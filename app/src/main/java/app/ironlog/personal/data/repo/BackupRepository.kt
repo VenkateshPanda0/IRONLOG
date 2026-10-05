@@ -15,7 +15,14 @@ class BackupRepository(private val db: IronlogDatabase) {
 
     suspend fun exportJson(): String = json.encodeToString(db.dao().backupSnapshot())
 
-    suspend fun importJson(text: String) {
+    /** Reads a backup without importing it, e.g. to show what a restore would bring back. */
+    fun peek(text: String): BackupSnapshot = json.decodeFromString(text)
+
+    /**
+     * Replaces all data with [text]. [hasPhoto] says whether a photo's image file is available;
+     * rows without one are skipped so no broken photos appear.
+     */
+    suspend fun importJson(text: String, hasPhoto: (String) -> Boolean = { true }) {
         val backup = runCatching {
             json.decodeFromString<BackupSnapshot>(text)
         }
@@ -45,6 +52,7 @@ class BackupRepository(private val db: IronlogDatabase) {
             dao.deleteAllHabits()
             dao.deleteAllMeasurements()
             dao.deleteAllPhysiqueScans()
+            dao.deleteAllPhotos()
             dao.restoreExercises(backup.exercises)
             dao.restorePrograms(backup.programs)
             dao.restoreProgramDays(backup.programDays)
@@ -66,6 +74,7 @@ class BackupRepository(private val db: IronlogDatabase) {
             dao.restoreHabitChecks(backup.habitChecks)
             dao.restoreMeasurements(backup.measurements)
             dao.restorePhysiqueScans(backup.physiqueScans)
+            dao.restorePhotos(backup.photos.filter { hasPhoto(it.fileName) })
         }
     }
 

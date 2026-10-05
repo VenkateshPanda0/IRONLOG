@@ -17,6 +17,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
+    override fun onStop() {
+        super.onStop()
+        // Leaving the app is the moment to refresh what Android backs up.
+        val container = (application as IronlogApp).container
+        container.appScope.launch { container.backupIfChanged() }
+    }
+
     override fun onResume() {
         super.onResume()
         val container = (application as IronlogApp).container
@@ -27,15 +34,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val container = (application as IronlogApp).container
         val export =
-            registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) {
+            registerForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) {
                 uri ->
                 if (uri != null)
                     lifecycleScope.launch {
                         runCatching {
-                            val text = withContext(Dispatchers.IO) { container.backup.exportJson() }
-                            contentResolver.openOutputStream(uri)?.bufferedWriter()?.use {
-                                it.write(text)
-                            } ?: throw IOException("Could not open destination")
+                            withContext(Dispatchers.IO) {
+                                contentResolver.openOutputStream(uri)?.use { container.archive.export(it) }
+                                    ?: throw IOException("Could not open destination")
+                            }
                         }
                             .onFailure {
                                 Toast.makeText(
@@ -60,13 +67,10 @@ class MainActivity : ComponentActivity() {
                 if (uri != null)
                     lifecycleScope.launch {
                         runCatching {
-                            val text =
-                                withContext(Dispatchers.IO) {
-                                    contentResolver.openInputStream(uri)?.bufferedReader()?.use {
-                                        it.readText()
-                                    } ?: throw IOException("Could not open backup")
-                                }
-                            container.backup.importJson(text)
+                            withContext(Dispatchers.IO) {
+                                contentResolver.openInputStream(uri)?.use { container.archive.import(it) }
+                                    ?: throw IOException("Could not open backup")
+                            }
                         }
                             .onFailure {
                                 Toast.makeText(
@@ -94,8 +98,8 @@ class MainActivity : ComponentActivity() {
                     onTheme = { value ->
                         lifecycleScope.launch { container.setTheme(if (value) "LIGHT" else "DARK") }
                     },
-                    onExport = { export.launch("ironlog_backup.json") },
-                    onImport = { import.launch(arrayOf("application/json", "text/*")) },
+                    onExport = { export.launch("ironlog_backup_${java.time.LocalDate.now()}.zip") },
+                    onImport = { import.launch(arrayOf("application/zip", "application/json", "application/octet-stream", "text/*")) },
                 )
             }
         }

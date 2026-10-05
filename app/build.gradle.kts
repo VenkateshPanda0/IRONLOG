@@ -1,5 +1,3 @@
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -18,21 +16,13 @@ android {
         versionCode = 1
         versionName = "0.1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        // Google sign-in needs the OAuth "Web application" client ID of your Google Cloud project.
-        // Set googleWebClientId in local.properties (not committed) or as a Gradle property.
-        val localProps = Properties().apply { rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) } }
-        val webClientId = (localProps.getProperty("googleWebClientId") ?: providers.gradleProperty("googleWebClientId").orNull).orEmpty()
-        buildConfigField("String", "GOOGLE_WEB_CLIENT_ID", "\"$webClientId\"")
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions { jvmTarget = "17" }
-    buildFeatures {
-        compose = true
-        buildConfig = true
-    }
+    buildFeatures { compose = true }
     ksp { arg("room.schemaLocation", "$projectDir/schemas") }
     // Exported Room schemas are needed by MigrationTestHelper in Robolectric tests.
     sourceSets { getByName("debug").assets.srcDir("$projectDir/schemas") }
@@ -62,11 +52,6 @@ dependencies {
     implementation(libs.code.scanner)
     // The scanner brings an old Fragment; 1.3+ is required for registerForActivityResult.
     implementation(libs.fragment)
-    // Optional Google sign-in (Credential Manager) and Drive app-folder backup.
-    implementation(libs.credentials)
-    implementation(libs.credentials.play.services)
-    implementation(libs.googleid)
-    implementation(libs.play.services.auth)
     // Reads steps and sleep from Health Connect (Android's on-device health data store).
     implementation(libs.health.connect)
     ksp(libs.room.compiler)

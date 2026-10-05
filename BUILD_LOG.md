@@ -158,3 +158,13 @@ Each step was built, tested and pushed to `main` separately: redesign and naviga
 - Physique check now uses tape-measure circumferences (shoulders, waist, hips, thigh; schema v8 adds shouldersCm) instead of widths estimated from a photo with ML Kit. Targets retuned for circumferences; waist-to-height now comes from the measured waist and profile height. Score falls to 0 five tolerances from target (was three) so progress shows. Saving a check also logs a body measurement. ML Kit removed: APK 72.5 MB -> 43.4 MB. Old photo-based checks remain in history marked "photo estimate".
 - Gate: 126 tests pass, lint 0 errors.
 
+## 2026-10-05 · New-phone restore replaces Google sign-in
+
+- Removed Google sign-in and Drive backup: they could not work for anyone without a developer-configured Google Cloud OAuth client, and duplicated the file export.
+- Android Auto Backup on: cloud backup holds only files/backup (snapshot.json.gz, about 1 MB with all seed data, and progress photos at 1024 px within a 15 MB budget: the first photo always, then newest first), well inside the 25 MB limit; device-to-device transfer copies database, files and settings at full size.
+- The snapshot is rewritten when the app goes to the background and Room's invalidation tracker saw a change; never while no profile exists, so a fresh install cannot overwrite the restored snapshot. "Delete personal data" removes it.
+- Onboarding's first screen offers "Welcome back, <name>" with what the snapshot holds, and "Restore from a backup file". Export is now one .zip (JSON + photos); import accepts .zip and older .json. Photo names in archives are restricted to plain file names (zip-slip safe); photo rows without an image are skipped.
+- Backups now include progress photo rows.
+- Tests: zip round trip with photos, hostile zip entries, legacy JSON, snapshot restore with reduced photos, change detection, and an onboarding UI test of the welcome-back restore. Gate: 129 tests pass, lint 0 errors, APK 43.4 MB.
+- Not verified: an actual Google Auto Backup / restore cycle on devices (can be exercised with `adb shell bmgr backupnow app.ironlog.personal` and `adb shell bmgr restore`).
+

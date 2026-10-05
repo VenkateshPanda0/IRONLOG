@@ -95,9 +95,6 @@ class AppScreenshotTest {
         scenario.onActivity { activity = it }
         compose.waitUntilAtLeastOneExists(hasText("IRONLOG"), 30_000)
         type("What should we call you?", "Alex Doe")
-        // Test builds have no Google client ID, so sign-in explains how to enable it.
-        tap("Sign in with Google")
-        compose.waitUntilAtLeastOneExists(hasText("not set up", substring = true), 10_000)
         shot("00_onboarding_welcome")
         tap("Continue")
         type("Age", "29")
@@ -169,13 +166,8 @@ class AppScreenshotTest {
         compose.waitUntilAtLeastOneExists(hasText("Achievements", substring = true, ignoreCase = true), 10_000)
         shot("06_profile_new")
         compose.onNodeWithContentDescription("Settings").performClick()
-        compose.waitUntilAtLeastOneExists(hasText("Your data", ignoreCase = true), 10_000)
+        compose.waitUntilAtLeastOneExists(hasText("Backup and new phone", ignoreCase = true), 10_000)
         shot("06_settings")
-        runBlocking { container.saveAccount(app.ironlog.personal.data.cloud.GoogleAccount("alex.doe@gmail.com", "Alex Doe", null)) }
-        compose.waitUntilAtLeastOneExists(hasText("Back up to Google Drive", ignoreCase = true), 10_000)
-        shot("06_settings_account")
-        tap("Sign out")
-        compose.waitUntilAtLeastOneExists(hasText("Sign in with Google", ignoreCase = true), 10_000)
         compose.onNode(hasText("Streak saver", ignoreCase = true)).performScrollTo()
         compose.waitUntilAtLeastOneExists(hasText("18:00"), 10_000)
         compose.onAllNodesWithContentDescription("15 minutes later")[0].performClick()

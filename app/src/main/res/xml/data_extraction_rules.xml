@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12+.
+  Cloud backup (to the user's Google account, 25 MB limit): only files/backup, which holds a
+  compressed snapshot of all data and reduced progress photos, kept fresh by AutoBackup. The live
+  database is left out: it is rebuilt from the snapshot after a restore, which avoids copying a
+  database that is in use.
+  Device-to-device transfer has no size limit, so it copies everything, full-size photos included.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <include domain="file" path="backup/" />
+    </cloud-backup>
+    <device-transfer>
+        <include domain="database" path="." />
+        <include domain="file" path="." />
+        <include domain="sharedpref" path="." />
+        <exclude domain="file" path="photos-import/" />
+    </device-transfer>
+</data-extraction-rules>

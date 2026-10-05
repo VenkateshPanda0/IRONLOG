@@ -67,7 +67,6 @@ fun SettingsScreen(
             mutableStateOf(nutritionGoal?.fatG?.let { "%.0f".format(it) } ?: "65")
         }
     Page("Settings", onBack = onBack) {
-        app.ironlog.personal.ui.account.AccountSection(c)
         profile?.let { savedProfile ->
             SectionHeader("Profile")
             Field("Name", editName, { editName = it })
@@ -205,9 +204,27 @@ fun SettingsScreen(
         Text(
             "Exercise data and demo images: free-exercise-db by yuhonas (from wrkout/exercises.json), released into the public domain under the Unlicense.\nNutrition data: FoodData Central SR Legacy and FNDDS, U.S. Department of Agriculture (public domain).\nIndian dishes: Indian Nutrient Databank (INDB), Vijayakumar A. et al., Curr Dev Nutr 2024, derived from ICMR-NIN Indian Food Composition Tables 2017.\nPackaged-food data (online lookups and the bundled Indian brands list): Open Food Facts contributors, ODbL 1.0, world.openfoodfacts.org/terms-of-use.\nIronlog is independent and not affiliated with any fitness brand."
         )
-        SectionHeader("Your data")
-        PrimaryButton("Export backup", onExport)
-        SecondaryButton("Import backup", { confirmImport = true })
+        SectionHeader("Backup and new phone")
+        val lastSnapshot = remember { c.autoBackup.lastWritten() }
+        Text(
+            "Automatic: Android backs up Ironlog to your Google account (Settings › Google › Backup on your phone). " +
+                "On a new phone signed in to the same account, install Ironlog and tap Restore on the first screen. " +
+                "Phone-to-phone transfer during setup copies everything, full-size photos included.",
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        lastSnapshot?.let {
+            Text(
+                "Latest snapshot: " + java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneId.systemDefault()).format(java.time.format.DateTimeFormatter.ofPattern("d MMM, HH:mm")),
+                style = MaterialTheme.typography.bodySmall,
+                color = app.ironlog.personal.ui.theme.IronTheme.colors.success,
+            )
+        }
+        Text(
+            "Manual: export one .zip with all your data and photos, keep it anywhere (Drive, email, a computer) and import it on any phone.",
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        PrimaryButton("Export everything (.zip)", onExport)
+        SecondaryButton("Import a backup", { confirmImport = true })
         SecondaryButton("Delete personal data", { confirmDelete = true })
     }
     if (confirmImport)
@@ -216,7 +233,7 @@ fun SettingsScreen(
             title = { Text("Import will replace personal data") },
             text = {
                 Text(
-                    "Select a backup JSON file. This replaces the current profile, workouts, meals, foods, weights and wellness data."
+                    "Choose an Ironlog backup (.zip, or .json from older versions). It replaces everything on this phone: profile, program, workouts, food log, body data and photos."
                 )
             },
             confirmButton = {
@@ -237,7 +254,7 @@ fun SettingsScreen(
             title = { Text("Delete all app data?") },
             text = {
                 Text(
-                    "This erases the local profile, workouts, meals, foods and body data. Export a backup first if you want to keep it."
+                    "This erases the local profile, workouts, meals, foods and body data. Export a backup first if you want to keep it. The automatic snapshot is deleted too."
                 )
             },
             confirmButton = {

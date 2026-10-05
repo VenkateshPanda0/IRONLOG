@@ -32,6 +32,39 @@ class AppContainer(context: Context) {
     val wellness = WellnessRepository(db) { healthDeleted(it.healthId, "session:" + app.ironlog.personal.data.health.HealthIds.cardio(it.id)) }
     val physique = PhysiqueRepository(db, java.io.File(context.filesDir, "physique"))
     val backup = BackupRepository(db)
+    private val photoDir = java.io.File(context.filesDir, "photos")
+    val archive = app.ironlog.personal.data.backup.BackupArchive(backup, photoDir)
+    val autoBackup = app.ironlog.personal.data.backup.AutoBackup(backup, java.io.File(context.filesDir, "backup"), photoDir)
+    /** Background work that must outlive a screen, such as writing the backup snapshot. */
+    val appScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
+    @Volatile private var dataChanged = autoBackup.lastWritten() == null
+
+    init {
+        // Any write to the user's data marks the snapshot stale; the rest timer is not data.
+        db.invalidationTracker.addObserver(
+            object : androidx.room.InvalidationTracker.Observer(
+                arrayOf(
+                    "exercise", "program", "program_day", "program_day_exercise", "active_program", "skipped_program_day", "user_profile",
+                    "workout_session", "session_exercise", "set_log", "food", "food_serving", "meal_entry", "body_weight", "goal",
+                    "progress_photo", "cardio_session", "daily_log", "habit", "habit_check", "body_measurement", "physique_scan",
+                )
+            ) {
+                override fun onInvalidated(tables: Set<String>) {
+                    dataChanged = true
+                }
+            }
+        )
+    }
+
+    /**
+     * Refreshes the snapshot Android backs up, when anything changed. Never before onboarding is
+     * done: on a new phone that would overwrite the restored snapshot with an empty one.
+     */
+    suspend fun backupIfChanged() {
+        if (!dataChanged || db.dao().profileOnce() == null) return
+        dataChanged = false
+        runCatching { autoBackup.write() }.onFailure { dataChanged = true }
+    }
     val programs = ProgramRepository(db)
     val seed = SeedLoader(context, db)
     val foodSeed = FoodSeedLoader(context, db)
@@ -78,6 +111,9 @@ class AppContainer(context: Context) {
         }
         physique.deleteAll()
         body.deleteAllPhotos()
+        // The snapshot would otherwise offer the deleted data back on the next onboarding.
+        autoBackup.clear()
+        dataChanged = false
         // The wipe also removes bundled library rows; restore them so the app stays usable.
         setSeedVersion(0)
         runSeeds()
@@ -107,40 +143,6 @@ class AppContainer(context: Context) {
             .onFailure { error ->
                 updateSeedState(SeedState.Failed(error.message ?: "Seed setup failed"))
             }
-    }
-
-    private val accountEmailKey = stringPreferencesKey("google_email")
-    private val accountNameKey = stringPreferencesKey("google_name")
-    private val accountPhotoKey = stringPreferencesKey("google_photo")
-    private val driveBackupKey = longPreferencesKey("drive_backup_at")
-    val drive = app.ironlog.personal.data.cloud.DriveBackup()
-
-    /** The optional Google account; null when signed out. */
-    val account =
-        context.preferences.data.map { p ->
-            p[accountEmailKey]?.let { app.ironlog.personal.data.cloud.GoogleAccount(it, p[accountNameKey].orEmpty(), p[accountPhotoKey]) }
-        }
-
-    /** When this phone last backed up to Google Drive (epoch ms), if ever. */
-    val lastDriveBackup = context.preferences.data.map { it[driveBackupKey] }
-
-    suspend fun saveAccount(value: app.ironlog.personal.data.cloud.GoogleAccount?) {
-        appContext.preferences.edit {
-            if (value == null) {
-                it.remove(accountEmailKey)
-                it.remove(accountNameKey)
-                it.remove(accountPhotoKey)
-                it.remove(driveBackupKey)
-            } else {
-                it[accountEmailKey] = value.email
-                it[accountNameKey] = value.name
-                if (value.photoUrl != null) it[accountPhotoKey] = value.photoUrl else it.remove(accountPhotoKey)
-            }
-        }
-    }
-
-    suspend fun setLastDriveBackup(at: Long) {
-        appContext.preferences.edit { it[driveBackupKey] = at }
     }
 
     private val reminderWorkoutKey = booleanPreferencesKey("reminder_workout")

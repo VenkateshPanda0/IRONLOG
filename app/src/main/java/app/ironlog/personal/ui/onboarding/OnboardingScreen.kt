@@ -52,7 +52,7 @@ private val ACTIVITY =
 private data class Choice(val key: String, val title: String, val body: String)
 
 @Composable
-fun OnboardingScreen(c: AppContainer) {
+fun OnboardingScreen(c: AppContainer, onImport: () -> Unit = {}) {
     val scope = rememberCoroutineScope()
     var step by rememberSaveable { mutableIntStateOf(0) }
     var name by rememberSaveable { mutableStateOf("") }
@@ -147,38 +147,13 @@ fun OnboardingScreen(c: AppContainer) {
                     Spacer(Modifier.height(24.dp))
                     Text("IRONLOG", style = MaterialTheme.typography.displayMedium)
                     Text(
-                        "Train with a plan. Log every set. Track what you eat. Your data stays on this phone unless you choose to back it up.",
+                        "Train with a plan. Log every set. Track what you eat. Your data stays on this phone and in your own phone backup.",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Spacer(Modifier.height(12.dp))
                     Field("What should we call you?", name, { name = it })
-                    val account by c.account.collectAsState(initial = null)
-                    var signInMessage by remember { mutableStateOf<String?>(null) }
-                    val signedIn = account
-                    if (signedIn == null) {
-                        app.ironlog.personal.ui.account.GoogleSignInButton(
-                            c,
-                            onSignedIn = { if (name.isBlank()) name = it.name },
-                            onMessage = { signInMessage = it },
-                        )
-                        Text(
-                            "Optional: sign in to back up to your Google Drive. Everything works without it.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    } else {
-                        // Moving to a new phone: restoring brings back the profile, which ends onboarding.
-                        val drive = app.ironlog.personal.ui.account.rememberDriveActions(c)
-                        Text("Signed in as ${signedIn.email}", color = IronTheme.colors.accent)
-                        SecondaryButton(
-                            if (drive.busy.value) "Restoring…" else "Restore my data from Google Drive",
-                            enabled = !drive.busy.value,
-                            onClick = { drive.restore() },
-                        )
-                        app.ironlog.personal.ui.account.AccountMessage(drive.message.value)
-                    }
-                    signInMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
+                    RestoreOptions(c, onImport)
                 }
                 1 -> {
                     StepTitle("About you", "Used for calorie and macro estimates.")
@@ -395,3 +370,44 @@ private val GYM_EQUIPMENT =
         "medicine ball",
         "other",
     )
+
+/**
+ * New phone? Android restores Ironlog's snapshot from the user's Google account on install, so a
+ * "welcome back" card can bring everything back in one tap. A backup file works anywhere.
+ */
+@Composable
+private fun RestoreOptions(c: AppContainer, onImport: () -> Unit) {
+    val scope = rememberCoroutineScope()
+    val snapshot by rememberLoaded<app.ironlog.personal.data.backup.SnapshotInfo?>(null, c) { c.autoBackup.available() }
+    var restoring by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+    snapshot?.let { s ->
+        IronCard {
+            Eyebrow("Backup found")
+            Text(if (s.name.isBlank()) "WELCOME BACK" else "WELCOME BACK, ${s.name.uppercase()}", style = MaterialTheme.typography.titleLarge)
+            val date = java.time.Instant.ofEpochMilli(s.exportedAt).atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+            Text(
+                "Your progress from ${date.format(java.time.format.DateTimeFormatter.ofPattern("d MMM yyyy"))}: " +
+                    "${s.workouts} workout${if (s.workouts == 1) "" else "s"}" + (if (s.photos > 0) " and ${s.photos} progress photo${if (s.photos == 1) "" else "s"}" else "") +
+                    ", with your program, food log, levels and medals.",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            PrimaryButton(
+                if (restoring) "Restoring…" else "Restore my progress",
+                enabled = !restoring,
+                onClick = {
+                    restoring = true
+                    scope.launch {
+                        // Restoring brings back the profile, which ends onboarding.
+                        runCatching { c.autoBackup.restore() }.onFailure {
+                            error = "Restore failed: ${it.message ?: "the backup could not be read"}"
+                            restoring = false
+                        }
+                    }
+                },
+            )
+        }
+    }
+    TextButton(onClick = onImport, contentPadding = PaddingValues(0.dp)) { Text("RESTORE FROM A BACKUP FILE") }
+    error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+}

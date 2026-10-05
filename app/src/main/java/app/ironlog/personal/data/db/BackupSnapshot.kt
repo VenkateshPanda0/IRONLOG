@@ -28,4 +28,6 @@ data class BackupSnapshot(
     val habitChecks: List<HabitCheckEntity> = emptyList(),
     val measurements: List<BodyMeasurementEntity> = emptyList(),
     val physiqueScans: List<PhysiqueScanEntity> = emptyList(),
+    /** Progress photo rows; the image files travel next to the JSON in a .zip or the auto backup. */
+    val photos: List<ProgressPhotoEntity> = emptyList(),
 )

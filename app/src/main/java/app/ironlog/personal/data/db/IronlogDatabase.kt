@@ -74,7 +74,10 @@ interface IronlogDao {
             habitChecks = allHabitChecks(),
             measurements = allMeasurements(),
             physiqueScans = allPhysiqueScans(),
+            photos = allPhotos(),
         )
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun restorePhotos(rows: List<ProgressPhotoEntity>)
 
     @Query("SELECT * FROM cardio_session") suspend fun allCardio(): List<CardioSessionEntity>
 
