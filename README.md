@@ -2,7 +2,7 @@
 
 <h1 align="center">Ironlog</h1>
 
-**A strength-training and fitness app for Android that plans your workouts, coaches your progression, tracks what you eat and keeps everything on your phone.**
+**A strength-training and fitness app for Android and iPhone that plans your workouts, coaches your progression, tracks what you eat and keeps everything on your phone.**
 
 Built by **Venkatesh** ([@VenkateshPanda0](https://github.com/VenkateshPanda0)).
 
@@ -24,7 +24,7 @@ Built by **Venkatesh** ([@VenkateshPanda0](https://github.com/VenkateshPanda0)).
 
 | 💪 Training | 🍛 Nutrition | 🏆 Motivation | 🛠️ Engineering |
 |---|---|---|---|
-| **17** muscle groups trained every week | **15,800** foods offline | **183** achievements in 5 tiers | **148** automated tests |
+| **17** muscle groups trained every week | **15,800** foods offline | **183** achievements in 5 tiers | **151** automated tests |
 | **876** exercises | **1,014** Indian dishes | **50** levels (about 2 years of training) | **0** lint errors |
 | **873** with photo demos | **1,583** Indian packaged products | **10** goal physiques to compare against | **~23 MB** release APK (R8) |
 | **565** animated stick-figure demos | **5,431** world dishes | Streaks for training weeks, food logging and habits | Room schema **v9**, every migration tested |
@@ -162,21 +162,23 @@ Built by **Venkatesh** ([@VenkateshPanda0](https://github.com/VenkateshPanda0)).
 
 | Area | Choice |
 |---|---|
-| Language | Kotlin 2.0, coroutines and Flow |
-| UI | Jetpack Compose, Material 3, Navigation |
-| Storage | Room (SQLite, schema v9 with tested migrations), DataStore |
-| Health | Health Connect |
-| Background | AlarmManager reminders, broadcast receivers, an ongoing workout notification |
-| Build | Android Gradle Plugin 8.7, KSP, R8 shrinking for release |
+| Language | Kotlin 2.1 Multiplatform (one codebase for Android and iOS), coroutines and Flow |
+| UI | Compose Multiplatform (Jetpack Compose on Android), Material 3, Navigation |
+| Storage | Room KMP (SQLite, schema v9 with tested migrations), DataStore, Okio |
+| Health | Health Connect (Android) |
+| Background | AlarmManager reminders and an ongoing workout notification on Android; local notifications on iOS |
+| Build | Android Gradle Plugin 8.7, KSP, R8 shrinking; Xcode via XcodeGen for iOS; GitHub Actions for both |
 | Tests | JUnit, Robolectric, Compose UI tests, Roborazzi screenshots |
 
 ```
-app/src/main/java/app/ironlog/personal/
-├── domain/      Pure Kotlin rules: training, coach, nutrition, achievements, physique, units
-├── data/        Room database, repositories, backup, Health Connect, Open Food Facts, seeds
-├── ui/          Compose screens by feature (home, train, library, nutrition, progress, ...)
-├── reminders/   Reminder alarms and notifications
-└── timer/       Rest timer and the live workout notification
+app/src/
+├── commonMain/   Shared by Android and iOS (about 90% of the code)
+│   ├── domain/   Pure Kotlin rules: training, coach, nutrition, achievements, physique, units
+│   ├── data/     Room database, repositories, seeds, Open Food Facts
+│   └── ui/       Compose screens by feature (home, train, library, nutrition, progress, ...)
+├── androidMain/  Health Connect, backups, alarms, notifications, the Android PlatformUi
+└── iosMain/      Notifications, photo picker, sharing, storage, the iOS PlatformUi
+iosApp/           SwiftUI entry point, app icon and XcodeGen project for the iPhone app
 ```
 
 ## Build and run
@@ -191,6 +193,8 @@ echo "sdk.dir=/path/to/Android/sdk" > local.properties
 ./gradlew installDebug         # install on a connected device or emulator
 ```
 
+**iPhone** (needs a Mac with Xcode): `brew install xcodegen`, then `cd iosApp && xcodegen generate` and open `Ironlog.xcodeproj`. Xcode compiles the shared Kotlin code itself. GitHub Actions builds an unsigned `.ipa` on every change ([install steps](apk/README.md)).
+
 To publish on Google Play you also need:
 - a signing key,
 - a privacy policy,
@@ -200,7 +204,7 @@ To publish on Google Play you also need:
 ## Testing
 
 ```bash
-./gradlew testDebugUnitTest    # 148 tests: domain rules, database, migrations, backup, sync, UI
+./gradlew testDebugUnitTest    # 151 tests: domain rules, database, migrations, backup, sync, UI
 ./gradlew lintDebug            # 0 errors
 ```
 
@@ -219,11 +223,11 @@ Details: [`docs/SEED_DATA.md`](docs/SEED_DATA.md), [`docs/STATE.md`](docs/STATE.
 
 ## Project status
 
-The app builds, its 148 automated tests pass and lint shows 0 errors. It has not yet been tested on physical phones, so the next steps are:
+Both apps build on every change: the Android app passes 151 automated tests and lint with 0 errors, and the iPhone app compiles and packages on macOS. Neither has been tested much on physical phones yet. On iPhone, the barcode scanner, Apple Health sync and .zip export are not available yet (type barcodes into search; iCloud backup covers moving to a new iPhone). Next steps:
 
 1. Test on real devices, especially notifications, Health Connect and backup restore.
-2. Upgrade to Android SDK 36, which allows the stable Health Connect library.
-3. Set up signing and publish on Google Play.
+2. Add the barcode scanner and Apple Health on iPhone.
+3. Set up signing and publish on Google Play and the App Store (TestFlight first).
 
 ---
 

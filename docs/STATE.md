@@ -1,6 +1,8 @@
 # Ironlog build state
 
-## Current (2026-10-05, main @ security audit and README)
+## Current (2026-10-05, main @ iPhone version)
+
+- Kotlin Multiplatform: shared code in app/src/commonMain, Android in androidMain, iOS in iosMain plus iosApp/ (XcodeGen). Both apps are built by GitHub Actions and published to apk/ (ironlog-android.apk, ironlog-ios.ipa). See BUILD_LOG for details and what iOS does not have yet.
 
 - PASS: `./gradlew clean build` (assembleDebug, assembleRelease with R8, testDebugUnitTest 148 tests, lint 0 errors) in the Linux cloud session (JDK 21, Android SDK 35 at /opt/android-sdk).
 - Room schema v9 with tested migrations 1->2->3->4->5->6->7->8->9 (v6: daily_log stepsFromHealth/sleepFromHealth; v7: healthId on body_weight and cardio_session; v8: body_measurement shouldersCm; v9: session_exercise supersetGroup) (v4: food cuisine/popularity; v5: profile physique goal and physique_scan table).

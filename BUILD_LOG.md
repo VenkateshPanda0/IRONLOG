@@ -217,3 +217,13 @@ Each step was built, tested and pushed to `main` separately: redesign and naviga
 - Release: R8 minify + resource shrinking with proguard rules for kotlinx serialization (APK 43 MB -> 23 MB); themed (monochrome) launcher icon on Android 13+; release-variant unit tests disabled (debug-only schemas and test manifest).
 - README rewritten with an at-a-glance stats table and 22 screenshots from the walkthrough test (`docs/screenshots/`).
 - Gate: `./gradlew clean build` PASS: 148 tests, lint 0 errors, debug and release APKs built.
+
+## 2026-10-05 · iPhone version (Kotlin Multiplatform)
+
+- The app module is now Kotlin Multiplatform with Compose Multiplatform 1.8.2 (Kotlin 2.1.21, Room 2.7 KMP, DataStore 1.1.7, kotlinx-datetime, Okio). About 90% of the code (domain, data, every screen) lives in commonMain.
+- java.time and printf formatting are rebuilt for shared code (time/JavaTime.kt, text/Format.kt) and checked against java.time and java.util.Formatter by SharedFormattingTest.
+- PlatformUi isolates images, photo picker, share card, notifications, barcode scanner, health section and backup texts; AndroidAppContainer adds Health Connect, backups and the live workout notification.
+- iOS: Room with the bundled SQLite driver in Application Support (included in iCloud backups), local notifications for the rest timer and a week of planned reminders, PHPicker photos, Skia share card, UIActivityViewController sharing. Not yet on iOS: barcode scanner, Apple Health, .zip export/import.
+- CI: android.yml publishes apk/ironlog-android.apk after build, tests and lint; ios.yml builds an unsigned Release app on macos-15 with XcodeGen and publishes apk/ironlog-ios.ipa.
+- Found in CI: KSP for iOS ran before the Kotlin/Native distribution was downloaded (MissingType on a fresh runner); fixed by depending on commonizeNativeDistribution, reproduced with an empty KONAN_DATA_DIR.
+- Gate: Android 151 tests pass, lint 0 errors, release APK 23 MB; iOS framework links and the IPA (37 MB, arm64, iOS 15+) builds on GitHub's macOS runner. Not run on a real iPhone yet.
