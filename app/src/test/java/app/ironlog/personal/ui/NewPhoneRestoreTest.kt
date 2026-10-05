@@ -38,7 +38,7 @@ class NewPhoneRestoreTest {
             Thread.sleep(50)
         }
         runBlocking {
-            c.saveProfile(UserProfileEntity(name = "Arjun"))
+            c.saveProfile(UserProfileEntity(name = "Venkatesh"))
             repeat(3) { c.workouts.finish(c.workouts.start("Workout ${it + 1}", emptyList())) }
             c.backupIfChanged()
             // Android restores only files/backup onto the new phone's fresh install.
@@ -49,11 +49,11 @@ class NewPhoneRestoreTest {
             cloud.copyRecursively(dir, overwrite = true)
         }
         compose.setContent { IronlogTheme { androidx.compose.material3.Surface { OnboardingScreen(c) } } }
-        compose.waitUntilAtLeastOneExists(hasText("Welcome back, Arjun", ignoreCase = true), 10_000)
+        compose.waitUntilAtLeastOneExists(hasText("Welcome back, Venkatesh", ignoreCase = true), 10_000)
         compose.waitUntilAtLeastOneExists(hasText("3 workouts", substring = true), 10_000)
         compose.onRoot().captureRoboImage("build/screens/00_onboarding_welcome_back.png")
         compose.onNode(hasText("Restore my progress", ignoreCase = true)).performClick()
         compose.waitUntil(10_000) { runBlocking { c.dao().profileOnce() } != null }
-        assertEquals("Arjun", runBlocking { c.dao().profileOnce() }!!.name)
+        assertEquals("Venkatesh", runBlocking { c.dao().profileOnce() }!!.name)
     }
 }

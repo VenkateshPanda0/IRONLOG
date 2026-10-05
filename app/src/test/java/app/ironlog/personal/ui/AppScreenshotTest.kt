@@ -94,7 +94,7 @@ class AppScreenshotTest {
         scenario = androidx.test.core.app.ActivityScenario.launch(MainActivity::class.java)
         scenario.onActivity { activity = it }
         compose.waitUntilAtLeastOneExists(hasText("IRONLOG"), 30_000)
-        type("What should we call you?", "Alex Doe")
+        type("What should we call you?", "Venkatesh")
         shot("00_onboarding_welcome")
         tap("Continue")
         type("Age", "29")
@@ -140,7 +140,7 @@ class AppScreenshotTest {
         shot("01_tour_profile")
         tap("Next")
         tap("Let's go")
-        compose.waitUntilDoesNotExist(hasText("Take the tour", ignoreCase = true), 10_000)
+        compose.waitUntilDoesNotExist(hasText("You're all set", ignoreCase = true), 10_000)
 
         compose.waitUntilAtLeastOneExists(hasText("Good", substring = true, ignoreCase = true), 20_000)
         // The next workout card must show the real prescription count, not the empty default.

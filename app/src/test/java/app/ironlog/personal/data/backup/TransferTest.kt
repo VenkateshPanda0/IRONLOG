@@ -40,7 +40,7 @@ class TransferTest {
 
     /** A profile, one finished workout and one progress photo. */
     private fun grind() = runBlocking {
-        c.saveProfile(UserProfileEntity(name = "Arjun", weightKg = 78.0))
+        c.saveProfile(UserProfileEntity(name = "Venkatesh", weightKg = 78.0))
         val id = c.workouts.start("Push", emptyList())
         c.workouts.finish(id)
         val image = File(app.cacheDir, "pic.png")
@@ -58,7 +58,7 @@ class TransferTest {
         assertNull(c.dao().profileOnce())
         assertFalse(photos.exists() && photos.list().orEmpty().isNotEmpty())
         c.archive.import(ByteArrayInputStream(zip))
-        assertEquals("Arjun", c.dao().profileOnce()!!.name)
+        assertEquals("Venkatesh", c.dao().profileOnce()!!.name)
         assertEquals(1, c.workouts.history.first().size)
         val photo = c.body.photos.first().single()
         assertTrue(c.body.photoFile(photo).isFile)
@@ -77,11 +77,11 @@ class TransferTest {
         c.archive.import(ByteArrayInputStream(evil.toByteArray()))
         assertFalse(File(app.filesDir.parentFile, "shared_prefs/evil.xml").exists())
         assertFalse(File(app.filesDir.parentFile, "escape.txt").exists())
-        assertEquals("Arjun", c.dao().profileOnce()!!.name)
+        assertEquals("Venkatesh", c.dao().profileOnce()!!.name)
         // A plain .json from older versions imports too.
         c.saveProfile(c.dao().profileOnce()!!.copy(name = "Changed"))
         c.archive.import(ByteArrayInputStream(json.toByteArray()))
-        assertEquals("Arjun", c.dao().profileOnce()!!.name)
+        assertEquals("Venkatesh", c.dao().profileOnce()!!.name)
     }
 
     @Test
@@ -103,11 +103,11 @@ class TransferTest {
         saved.copyRecursively(dir, overwrite = true)
         val info = c.autoBackup.available()
         assertNotNull(info)
-        assertEquals("Arjun", info!!.name)
+        assertEquals("Venkatesh", info!!.name)
         assertEquals(1, info.workouts)
         assertEquals(1, info.photos)
         c.autoBackup.restore()
-        assertEquals("Arjun", c.dao().profileOnce()!!.name)
+        assertEquals("Venkatesh", c.dao().profileOnce()!!.name)
         assertEquals(1, c.workouts.history.first().size)
         val photo = c.body.photos.first().single()
         val restored = c.body.photoFile(photo)
@@ -122,6 +122,8 @@ class TransferTest {
     fun unchangedDataIsNotRewrittenAndDeletingDataDropsTheSnapshot() = runBlocking {
         grind()
         c.backupIfChanged()
+        // Let Room's asynchronous change notifications from grind() arrive and be written first.
+        repeat(5) { Thread.sleep(100); c.backupIfChanged() }
         val snapshot = File(app.filesDir, "backup/snapshot.json.gz")
         snapshot.setLastModified(1_000)
         c.backupIfChanged() // nothing changed since
