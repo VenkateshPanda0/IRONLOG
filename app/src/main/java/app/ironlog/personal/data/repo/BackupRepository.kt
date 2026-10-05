@@ -144,6 +144,15 @@ class BackupRepository(private val db: IronlogDatabase) {
         ) {
             "Backup contains invalid body or cardio data"
         }
+        require(
+            value.goals.all { g ->
+                g.kcalTarget in 0..20_000 && g.stepGoal in 1..200_000 && g.waterGoalMl in 1..20_000 &&
+                    g.sleepGoalHours.isFinite() && g.sleepGoalHours in 1.0..24.0 &&
+                    listOf(g.proteinG, g.carbsG, g.fatG).all { it.isFinite() && it >= 0 }
+            } && value.profile.all { p -> p.weightKg.isFinite() && p.weightKg > 0 && p.heightCm.isFinite() && p.heightCm > 0 && p.daysPerWeek in 1..7 }
+        ) {
+            "Backup contains invalid goals or profile"
+        }
         // Photo names become file paths; anything but a plain file name is refused.
         require(value.photos.all { app.ironlog.personal.data.safeFileName(it.fileName) != null }) {
             "Backup contains an unsafe photo file name"

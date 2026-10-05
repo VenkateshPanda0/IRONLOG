@@ -404,11 +404,13 @@ private fun ExerciseCard(
                     hintWeight = hintWeight,
                     hintReps = hintReps,
                     onDraft = { weight, reps -> scope.launch { w.saveSetDraft(set.id, weight, reps) } },
-                    onToggle = {
+                    onToggle = { typedWeight, typedReps ->
                         scope.launch {
                             if (set.isCompleted) w.setCompleted(set.id, false)
                             else {
-                                w.completeWithFallback(set.id, hintWeight, hintReps)
+                                // What is in the boxes right now wins, even if the debounced
+                                // draft has not been saved yet; blanks fall back to the hints.
+                                w.completeSet(set.id, typedWeight ?: hintWeight, typedReps ?: hintReps)
                                 onCompleted()
                             }
                         }
@@ -468,7 +470,7 @@ private fun CoachRow(tip: CoachTip, unit: app.ironlog.personal.domain.WeightUnit
 private fun PlateDialog(initialKg: Double, unit: app.ironlog.personal.domain.WeightUnit, onDismiss: () -> Unit) {
     var text by remember { mutableStateOf(unit.number(initialKg)) }
     val bars = if (unit == app.ironlog.personal.domain.WeightUnit.KG) listOf(20.0, 15.0, 10.0) else listOf(45.0, 35.0, 25.0).map(unit::toKg)
-    var barKg by remember { mutableStateOf(bars.first()) }
+    var barKg by remember { mutableDoubleStateOf(bars.first()) }
     val target = unit.parse(text)
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -516,7 +518,8 @@ private fun SetRow(
     hintWeight: Double?,
     hintReps: Int?,
     onDraft: (Double?, Int?) -> Unit,
-    onToggle: () -> Unit,
+    /** Called with the weight (kg) and reps currently typed, null where a box is blank. */
+    onToggle: (Double?, Int?) -> Unit,
     onType: (String) -> Unit,
     onAddSub: (String) -> Unit,
     onRpe: (Double?) -> Unit,
@@ -596,7 +599,10 @@ private fun SetRow(
         NumberCell(reps, { reps = it }, hintReps?.toString(), KeyboardType.Number, Modifier.weight(1f))
         Box(Modifier.width(44.dp), contentAlignment = Alignment.Center) {
             Surface(
-                onClick = onToggle,
+                onClick = {
+                    val typedWeight = if (weight == shownWeight) set.weightKg else unit.parse(weight)
+                    onToggle(typedWeight?.takeIf { it >= 0 }, reps.toIntOrNull()?.takeIf { it >= 0 })
+                },
                 shape = MaterialTheme.shapes.small,
                 color = if (set.isCompleted) IronTheme.colors.accent else MaterialTheme.colorScheme.surfaceContainerHighest,
                 modifier = Modifier.size(34.dp),

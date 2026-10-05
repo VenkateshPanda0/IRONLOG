@@ -68,4 +68,11 @@ class CoachingTest {
         assertTrue(Coach.isLowerBody(listOf("quadriceps"), "compound"))
         assertTrue(!Coach.isLowerBody(listOf("calves"), "isolation"))
     }
+
+    @Test
+    fun invertedRangeFromABadBackupDoesNotCrash() {
+        val tip = Coach.suggest(listOf(session(60.0 to 9)), 12, 8, kg, false)
+        assertEquals(CoachKind.REPEAT, tip.kind)
+        assertEquals(10, tip.repsLow)
+    }
 }

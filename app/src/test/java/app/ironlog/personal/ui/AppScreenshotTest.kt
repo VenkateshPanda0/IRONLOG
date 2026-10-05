@@ -246,11 +246,10 @@ class AppScreenshotTest {
         shot("09_workout_demo")
         compose.onAllNodesWithContentDescription("Hide demo")[0].performClick()
         compose.onAllNodes(hasSetTextAction())[0].performTextInput("70")
-        compose.mainClock.advanceTimeBy(1_000)
-        compose.waitForIdle()
-        Thread.sleep(500)
+        // Tapping the tick straight after typing must keep the typed 70 (no wait for the draft save).
         compose.onAllNodesWithContentDescription("Complete set")[0].performClick()
         compose.waitUntil(5_000) { compose.onAllNodesWithContentDescription("Mark set not done").fetchSemanticsNodes().size == 1 }
+        compose.waitUntil(5_000) { runBlocking { container.workouts.active.first()?.let { container.dao().sessionSets(it.id).first().any { s -> s.isCompleted && s.weightKg == 70.0 } } } == true }
         compose.onAllNodesWithContentDescription("Complete set")[0].performClick()
         compose.waitUntil(5_000) { compose.onAllNodesWithContentDescription("Mark set not done").fetchSemanticsNodes().size == 2 }
         compose.waitUntilAtLeastOneExists(hasText("REST"), 10_000)

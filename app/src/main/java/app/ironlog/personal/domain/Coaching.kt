@@ -69,12 +69,15 @@ object Coach {
     fun suggest(
         /** Earlier sessions' working sets, most recent session first. */
         sessions: List<List<PastSet>>,
-        repMin: Int,
-        repMax: Int,
+        rangeMin: Int,
+        rangeMax: Int,
         unit: WeightUnit,
         /** Squats, deadlifts, leg presses and similar take bigger jumps. */
         lowerBody: Boolean,
     ): CoachTip {
+        // A restored backup could carry an inverted range; never let that crash the logger.
+        val repMin = minOf(rangeMin, rangeMax).coerceAtLeast(1)
+        val repMax = maxOf(rangeMin, rangeMax, repMin)
         val last = sessions.firstOrNull { list -> list.any { (it.reps ?: 0) > 0 } }
             ?: return CoachTip(CoachKind.START, null, repMin, repMax, "First time: pick a weight you can lift for $repMax reps with 2 left in the tank.")
         val loaded = last.filter { (it.weightKg ?: 0.0) > 0 && (it.reps ?: 0) > 0 }

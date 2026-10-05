@@ -1,7 +1,6 @@
 package app.ironlog.personal.ui.reminders
 
 import android.content.Intent
-import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -90,7 +89,7 @@ fun ReminderSection(c: AppContainer) {
             onClick = {
                 ask { granted ->
                     allowed = granted
-                    if (!granted && Build.VERSION.SDK_INT >= 26) {
+                    if (!granted) {
                         // Denied twice: Android only lets the user change it in system settings.
                         context.startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                     }
