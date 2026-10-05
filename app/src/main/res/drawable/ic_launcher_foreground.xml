@@ -1,3 +1,11 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
-    <path android:fillColor="#D9FF4F" android:pathData="M25,43h9v22h-9zM39,35h8v38h-8zM47,50h14v8h-14zM61,35h8v38h-8zM74,43h9v22h-9z"/>
+    <!-- The letter I as a standing barbell: plates are the serifs, the bar is the stem. -->
+    <path android:fillColor="#A9CC2E" android:pathData="M41.96,29.92h24.08a1.72,1.72 0 0 1 1.72,1.72v1.29a1.72,1.72 0 0 1 -1.72,1.72h-24.08a1.72,1.72 0 0 1 -1.72,-1.72v-1.29a1.72,1.72 0 0 1 1.72,-1.72z"/>
+    <path android:fillColor="#A9CC2E" android:pathData="M41.96,73.35h24.08a1.72,1.72 0 0 1 1.72,1.72v1.29a1.72,1.72 0 0 1 -1.72,1.72h-24.08a1.72,1.72 0 0 1 -1.72,-1.72v-1.29a1.72,1.72 0 0 1 1.72,-1.72z"/>
+    <path android:fillColor="#D9FF4F" android:pathData="M36.37,35.51h35.26a2.15,2.15 0 0 1 2.15,2.15v3.87a2.15,2.15 0 0 1 -2.15,2.15h-35.26a2.15,2.15 0 0 1 -2.15,-2.15v-3.87a2.15,2.15 0 0 1 2.15,-2.15z"/>
+    <path android:fillColor="#D9FF4F" android:pathData="M36.37,64.32h35.26a2.15,2.15 0 0 1 2.15,2.15v3.87a2.15,2.15 0 0 1 -2.15,2.15h-35.26a2.15,2.15 0 0 1 -2.15,-2.15v-3.87a2.15,2.15 0 0 1 2.15,-2.15z"/>
+    <path android:fillColor="#8E9484" android:pathData="M47.55,43.68h12.9a0.86,0.86 0 0 1 0.86,0.86v1.29a0.86,0.86 0 0 1 -0.86,0.86h-12.9a0.86,0.86 0 0 1 -0.86,-0.86v-1.29a0.86,0.86 0 0 1 0.86,-0.86z"/>
+    <path android:fillColor="#8E9484" android:pathData="M47.55,61.31h12.9a0.86,0.86 0 0 1 0.86,0.86v1.29a0.86,0.86 0 0 1 -0.86,0.86h-12.9a0.86,0.86 0 0 1 -0.86,-0.86v-1.29a0.86,0.86 0 0 1 0.86,-0.86z"/>
+    <path android:fillColor="#F4F6EE" android:pathData="M50.13,46.69h3.87v14.62h-3.87z"/>
+    <path android:fillColor="#C9CDBF" android:pathData="M54,46.69h3.87v14.62h-3.87z"/>
 </vector>

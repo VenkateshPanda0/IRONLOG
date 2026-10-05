@@ -1,4 +1,6 @@
-# Ironlog
+<p align="center"><img src="docs/icon.png" width="112" alt="Ironlog icon"></p>
+
+<h1 align="center">Ironlog</h1>
 
 **A strength-training and fitness app for Android that plans your workouts, coaches your progression, tracks what you eat and keeps everything on your phone.**
 
