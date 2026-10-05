@@ -130,3 +130,7 @@ dependencies {
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)
 }
+
+// KSP for iOS reads the Kotlin/Native standard and platform libraries but does not download them;
+// on a fresh machine (CI) Room then fails with "MissingType". Commonizing fetches the distribution.
+tasks.matching { it.name.startsWith("kspKotlinIos") }.configureEach { dependsOn("commonizeNativeDistribution") }
