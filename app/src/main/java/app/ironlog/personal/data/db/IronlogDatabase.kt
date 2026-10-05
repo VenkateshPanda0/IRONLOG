@@ -246,6 +246,8 @@ interface IronlogDao {
 
     @Query("SELECT * FROM rest_timer WHERE id=1") suspend fun restTimer(): RestTimerEntity?
 
+    @Query("SELECT * FROM rest_timer WHERE id=1") fun restTimerFlow(): Flow<RestTimerEntity?>
+
     @Query("DELETE FROM rest_timer WHERE id=1") suspend fun clearRestTimer()
 
     /** Candidate rows for one search word; the repository applies the remaining words. */

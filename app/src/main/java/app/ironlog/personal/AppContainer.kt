@@ -71,6 +71,8 @@ class AppContainer(context: Context) {
     val programSeed = ProgramSeedLoader(context, db)
     val openFoodFacts = OpenFoodFactsProvider(db.dao())
     val restTimer = RestTimerController(context, db.dao())
+    /** Workout to open when the app is launched from the live workout notification. */
+    val openWorkoutRequest = kotlinx.coroutines.flow.MutableStateFlow<Long?>(null)
     private val mutableSeedState = MutableStateFlow<SeedState>(SeedState.Loading)
     val seedState: StateFlow<SeedState> = mutableSeedState
 
@@ -257,6 +259,18 @@ class AppContainer(context: Context) {
     suspend fun setLengthUnit(value: app.ironlog.personal.domain.LengthUnit) {
         appContext.preferences.edit { it[lengthUnitKey] = value.name }
     }
+
+    val workoutNotifier = app.ironlog.personal.timer.WorkoutNotifier(appContext, db.dao(), weightUnit)
+    private val workoutNotifAskedKey = booleanPreferencesKey("workout_notification_asked")
+
+    /** True the first time only: the live workout notification asks for permission once. */
+    suspend fun firstWorkoutNotificationAsk(): Boolean {
+        if (context().preferences.data.first()[workoutNotifAskedKey] == true) return false
+        context().preferences.edit { it[workoutNotifAskedKey] = true }
+        return true
+    }
+
+    private fun context() = appContext
 
     private val themeKey = stringPreferencesKey("theme")
     private val seedVersionKey = intPreferencesKey("seed_version")

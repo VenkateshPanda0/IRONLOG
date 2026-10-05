@@ -241,6 +241,15 @@ private fun IronlogNavHost(
     onExport: () -> Unit,
     onImport: () -> Unit,
 ) {
+    // Opened from the live workout notification.
+    LaunchedEffect(container) {
+        container.openWorkoutRequest.collect { id ->
+            if (id != null) {
+                nav.workout(id)
+                container.openWorkoutRequest.value = null
+            }
+        }
+    }
     NavHost(controller, startDestination = Routes.HOME) {
         composable(Routes.HOME) { HomeScreen(container, nav) }
         composable(Routes.TRAIN) { TrainScreen(container, nav) }

@@ -194,3 +194,12 @@ Each step was built, tested and pushed to `main` separately: redesign and naviga
 - Fixed a long-standing walkthrough mistake: closing the demo tapped "Show demo" on the next card instead of "Hide demo".
 - Gate: 141 tests pass, lint 0 errors.
 
+## 2026-10-05 · Lock-screen workout controls
+
+- `WorkoutNotifier` observes the active session, its exercises and sets, the rest timer (new `restTimerFlow`) and the weight unit, debounced 150 ms, and posts an ongoing, silent, public-visibility notification: elapsed time (pauses excluded) or a rest countdown chronometer, the next set with the logger's hints, and progress.
+- Buttons: Done (completes the next set with the entered or last-time values, then rests unless mid-way through a superset round), +30 s and Skip rest during rest. Next-set order follows superset rounds (round robin within the group).
+- Tapping opens the workout directly (MainActivity singleTop + `openWorkoutRequest`). Permission is asked once when the first workout starts. Finishing or discarding removes the notification because the active session disappears.
+- The rest-end alarm now clears the finished timer row so the countdown disappears.
+- Tests: next-set and superset ordering, and the full notification path (content, Done logs 60 kg x 8 from history and starts the rest, buttons, finish removes it). Gate: 143 tests pass, lint 0 errors.
+- Not verified on a device: lock-screen appearance depends on the phone's lock-screen notification settings.
+

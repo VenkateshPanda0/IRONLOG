@@ -94,6 +94,15 @@ fun ActiveWorkoutScreen(container: AppContainer, nav: Navigator, session: Workou
     var confirmDiscard by remember { mutableStateOf(false) }
     var menu by remember { mutableStateOf(false) }
 
+    // The live lock-screen notification needs permission on Android 13+; ask once.
+    val askNotifications =
+        androidx.activity.compose.rememberLauncherForActivityResult(androidx.activity.result.contract.ActivityResultContracts.RequestPermission()) {}
+    val context = androidx.compose.ui.platform.LocalContext.current
+    LaunchedEffect(Unit) {
+        if (!app.ironlog.personal.reminders.ReminderScheduler.canNotify(context) && container.firstWorkoutNotificationAsk()) {
+            askNotifications.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
     LaunchedEffect(session.id) {
         while (true) {
             now = System.currentTimeMillis()

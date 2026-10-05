@@ -13,6 +13,7 @@ import app.ironlog.personal.R
 import app.ironlog.personal.data.db.IronlogDao
 import app.ironlog.personal.data.db.RestTimerEntity
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class RestTimerController(private val context: Context, private val dao: IronlogDao) {
@@ -78,6 +79,17 @@ class RestTimerController(private val context: Context, private val dao: Ironlog
 
 class RestTimerReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
+        // Clearing the finished timer lets the live workout notification drop its countdown.
+        (context.applicationContext as? app.ironlog.personal.IronlogApp)?.container?.let { c ->
+            val pending = goAsync()
+            c.appScope.launch {
+                try {
+                    c.dao().restTimer()?.takeIf { it.endAtEpochMs <= System.currentTimeMillis() + 1_000 }?.let { c.dao().clearRestTimer() }
+                } finally {
+                    pending.finish()
+                }
+            }
+        }
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channel =
             NotificationChannel(CHANNEL_ID, "Rest timer", NotificationManager.IMPORTANCE_DEFAULT)

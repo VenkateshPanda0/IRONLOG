@@ -17,6 +17,20 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
+    companion object {
+        const val EXTRA_OPEN_WORKOUT = "open_workout"
+    }
+
+    private fun handle(intent: android.content.Intent?) {
+        val id = intent?.getLongExtra(EXTRA_OPEN_WORKOUT, -1L) ?: -1L
+        if (id > 0) (application as IronlogApp).container.openWorkoutRequest.value = id
+    }
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        handle(intent)
+    }
+
     override fun onStop() {
         super.onStop()
         // Leaving the app is the moment to refresh what Android backs up.
@@ -33,6 +47,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val container = (application as IronlogApp).container
+        handle(intent)
         val export =
             registerForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) {
                 uri ->

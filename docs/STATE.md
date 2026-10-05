@@ -2,7 +2,7 @@
 
 ## Current (2026-10-04, main @ physique check)
 
-- PASS: `assembleDebug`, `testDebugUnitTest` (141 tests), `lintDebug` (0 errors) in the Linux cloud session (JDK 21, Android SDK 35 at /opt/android-sdk).
+- PASS: `assembleDebug`, `testDebugUnitTest` (143 tests), `lintDebug` (0 errors) in the Linux cloud session (JDK 21, Android SDK 35 at /opt/android-sdk).
 - Room schema v9 with tested migrations 1->2->3->4->5->6->7->8->9 (v6: daily_log stepsFromHealth/sleepFromHealth; v7: healthId on body_weight and cardio_session; v8: body_measurement shouldersCm; v9: session_exercise supersetGroup) (v4: food cuisine/popularity; v5: profile physique goal and physique_scan table).
 - Physique check: tape-measure circumferences (`domain/Physique.kt`), ML Kit removed (APK 72 MB -> 43 MB). Older photo-estimate checks stay in history, labelled.
 - Done since the first build: STNDRD-style redesign and navigation, five-step onboarding, program recommender with staple lifts and weekly coverage of all 17 muscle groups, exercise library with movement demos, full workout logger with drop/rest-pause sets and swap, summary and share cards, progress analytics and photos, nutrition diary with full USDA table, barcode scanning and recipes, wellness (readiness, water, steps, sleep, habits, cardio, measurements), 183 tiered achievements (physique and collection medals added) and a 50-level two-year progression.
@@ -15,6 +15,7 @@
 - Units: `domain/Units.kt` (WeightUnit kg/lb, display/parse only; storage stays kg), `LocalWeightUnit` provided in IronlogRoot from DataStore. Edited fields compare displayed text to avoid kg/lb rounding drift.
 - Lengths: `LengthUnit` cm/in (in shows ft'in" heights and miles with pace per mile), `LocalLengthUnit`; same display-only rule and drift guard as weights.
 - Training: `domain/Coaching.kt` (Coach double progression with RPE, Plates, Warmups); supersets via session_exercise.supersetGroup.
+- Live workout notification: `timer/WorkoutNotifier.kt` observes the active session, its sets and the rest timer (new Flow query) and redraws an ongoing low-importance notification; `WorkoutActionReceiver` handles Done/+30 s/Skip rest. Rest-end alarm now clears the finished timer row.
 - Next ideas: upgrade AGP + compileSdk 36 (then Health Connect 1.1.0 stable),  reminders, backup of photos to Drive, automatic scheduled Drive backups, on-device verification.
 
 ## History (earlier sessions)

@@ -16,7 +16,7 @@
         <package android:name="com.google.android.apps.healthdata" />
     </queries>
     <application android:name=".IronlogApp" android:allowBackup="true" android:fullBackupContent="@xml/backup_rules" android:dataExtractionRules="@xml/data_extraction_rules" android:label="Ironlog" android:icon="@mipmap/ic_launcher" android:theme="@android:style/Theme.Material.NoActionBar" android:usesCleartextTraffic="false">
-        <activity android:name=".MainActivity" android:exported="true">
+        <activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTop">
             <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
         </activity>
         <!-- Health Connect shows this screen to explain why Ironlog asks for health data. -->
@@ -37,6 +37,7 @@
             </intent-filter>
         </activity-alias>
         <receiver android:name=".timer.RestTimerReceiver" android:exported="false" />
+        <receiver android:name=".timer.WorkoutActionReceiver" android:exported="false" />
         <receiver android:name=".reminders.ReminderReceiver" android:exported="false" />
         <!-- Only protected system broadcasts, which other apps cannot send. -->
         <receiver android:name=".reminders.ReminderRescheduleReceiver" android:exported="true">

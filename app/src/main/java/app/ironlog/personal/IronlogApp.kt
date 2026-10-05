@@ -14,6 +14,7 @@ class IronlogApp : Application() {
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
+        container.workoutNotifier.start(container.appScope)
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             container.runSeeds()
             // Re-book reminder alarms in case they were lost (force stop, restore, clock change).
