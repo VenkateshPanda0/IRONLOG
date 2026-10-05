@@ -240,7 +240,13 @@ class AppScreenshotTest {
         tap("Barbell Full Squat")
         compose.waitUntilAtLeastOneExists(hasText("How to", ignoreCase = true), 10_000)
         compose.waitUntilAtLeastOneExists(hasText("START"), 10_000)
+        // The stick-figure animation is the default; compose tests hold infinite animations at
+        // their start, so the start/end loop is checked on the photo demo.
+        compose.waitUntilAtLeastOneExists(androidx.compose.ui.test.hasContentDescription("Barbell Full Squat animated demonstration"), 10_000)
         shot("08_exercise_detail")
+        tap("Photos")
+        compose.waitUntilAtLeastOneExists(androidx.compose.ui.test.hasContentDescription("start position", substring = true), 10_000)
+        shot("08_exercise_detail_photos")
         compose.mainClock.advanceTimeBy(1_500)
         compose.waitUntilAtLeastOneExists(hasText("END"), 10_000)
         shot("08_exercise_detail_end")

@@ -4,6 +4,10 @@ import android.content.Context
 import android.graphics.BitmapFactory
 import android.util.LruCache
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -25,6 +29,10 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import app.ironlog.personal.domain.Motion
+import app.ironlog.personal.ui.theme.IronTheme
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
@@ -64,34 +72,60 @@ object ExerciseMedia {
     }
 }
 
+private enum class DemoMode(val label: String) { MOTION("Motion"), PHOTOS("Photos") }
+
 /**
- * Looping movement demo: alternates the start and end frames with a crossfade so the user sees the
- * range of motion. Tap to pause on a position.
+ * Looping movement demo. Exercises with a known movement pattern show an animated stick figure
+ * (smooth, full range of motion); the bundled start/end photos are one tap away and are the only
+ * demo for movements a side view cannot show. Tap the demo to pause.
  */
 @Composable
-fun ExerciseDemo(exerciseId: String, name: String, modifier: Modifier = Modifier, intervalMs: Long = 1_100) {
+fun ExerciseDemo(exerciseId: String, name: String, modifier: Modifier = Modifier, equipment: String? = null, intervalMs: Long = 1_100) {
     val context = LocalContext.current
     val frames by rememberLoaded<List<ImageBitmap>?>(null, exerciseId) { ExerciseMedia.frames(context, exerciseId) }
+    val pattern = remember(name) { Motion.patternFor(name) }
+    val implement = remember(name, equipment) { Motion.implementFor(name, equipment) }
+    var mode by remember(exerciseId) { mutableStateOf(if (pattern != null) DemoMode.MOTION else DemoMode.PHOTOS) }
     var playing by remember { mutableStateOf(true) }
     var index by remember(exerciseId) { mutableIntStateOf(0) }
     val loaded = frames
-    LaunchedEffect(exerciseId, playing, loaded?.size) {
-        if (loaded == null || loaded.size < 2) return@LaunchedEffect
+    LaunchedEffect(exerciseId, playing, loaded?.size, mode) {
+        if (mode != DemoMode.PHOTOS || loaded == null || loaded.size < 2) return@LaunchedEffect
         while (playing) {
             delay(intervalMs)
             index = (index + 1) % loaded.size
         }
     }
+    // An infinite transition (not a frame loop) so tests and the system can treat it as ambient.
+    val phase by rememberInfiniteTransition(label = "motion").animateFloat(0f, 1f, infiniteRepeatable(tween(2_800, easing = LinearEasing)), label = "phase")
+    var frozenPhase by remember { mutableFloatStateOf(0f) }
+    val shownPhase = if (playing) phase else frozenPhase
+    val progress = Motion.progress(shownPhase.toDouble())
+    val motion = mode == DemoMode.MOTION && pattern != null
+    val canPlay = motion || (loaded?.size ?: 0) > 1
     Box(
         modifier
             .fillMaxWidth()
             .aspectRatio(3f / 2f)
             .clip(MaterialTheme.shapes.medium)
             .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-            .clickable(enabled = (loaded?.size ?: 0) > 1) { playing = !playing },
+            .clickable(enabled = canPlay) {
+                if (playing) frozenPhase = phase
+                playing = !playing
+            },
         contentAlignment = Alignment.Center,
     ) {
         when {
+            motion ->
+                StickFigure(
+                    pattern!!,
+                    implement,
+                    progress,
+                    Modifier.fillMaxSize().padding(12.dp).semantics { contentDescription = "$name animated demonstration" },
+                    body = MaterialTheme.colorScheme.onSurface,
+                    accent = IronTheme.colors.accent,
+                    muted = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                )
             loaded == null -> Unit
             loaded.isEmpty() -> Monogram(name, size = 72.dp)
             else ->
@@ -104,7 +138,7 @@ fun ExerciseDemo(exerciseId: String, name: String, modifier: Modifier = Modifier
                     )
                 }
         }
-        if ((loaded?.size ?: 0) > 1) {
+        if (canPlay) {
             Row(
                 Modifier.align(Alignment.BottomStart).padding(10.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -113,8 +147,9 @@ fun ExerciseDemo(exerciseId: String, name: String, modifier: Modifier = Modifier
                 Box(
                     Modifier.clip(CircleShape).background(Color.Black.copy(alpha = 0.6f)).padding(horizontal = 10.dp, vertical = 5.dp),
                 ) {
+                    val atStart = if (motion) progress < 0.5 else index == 0
                     Text(
-                        if (index == 0) "START" else "END",
+                        if (atStart) "START" else "END",
                         style = MaterialTheme.typography.labelSmall,
                         color = Color.White,
                     )
@@ -126,6 +161,22 @@ fun ExerciseDemo(exerciseId: String, name: String, modifier: Modifier = Modifier
                         tint = Color.White,
                         modifier = Modifier.size(14.dp),
                     )
+                }
+            }
+        }
+        // Switch between the animation and the photos when both exist.
+        if (pattern != null && !loaded.isNullOrEmpty()) {
+            Row(Modifier.align(Alignment.TopEnd).padding(8.dp).clip(CircleShape).background(Color.Black.copy(alpha = 0.6f))) {
+                DemoMode.entries.forEach { m ->
+                    val on = m == mode
+                    Box(
+                        Modifier.clip(CircleShape)
+                            .background(if (on) Color.White else Color.Transparent)
+                            .clickable { mode = m }
+                            .padding(horizontal = 10.dp, vertical = 5.dp)
+                    ) {
+                        Text(m.label.uppercase(), style = MaterialTheme.typography.labelSmall, color = if (on) Color.Black else Color.White)
+                    }
                 }
             }
         }

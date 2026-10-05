@@ -118,3 +118,11 @@ Each step was built, tested and pushed to `main` separately: redesign and naviga
 - Fixed during testing: sign-out waited on Credential Manager forever without Play services; the local account is now cleared first and the call is time-limited.
 - Not verified: real Google sign-in and Drive calls (no OAuth client or device here).
 
+## 2026-10-05 · Stick-figure exercise animations
+
+- 25 movement patterns defined as start/end side-view poses (segment angles), built by forward kinematics and pinned at the feet, hands or hips so the anchor stays still; smooth ease-out-and-back loop.
+- Exercises map to patterns by name (565 of 657 strength exercises, all staples except sideways leg moves, neck work and the wrist roller, which keep photo demos). Equipment decides what the hands hold.
+- Demo card defaults to Motion with a Photos switch; tap pauses. Uses an infinite transition so Compose tests treat it as ambient (tests hold it at the start pose; the photo loop is still checked).
+- Visual review via `MotionGalleryTest` (build/screens/18_motion_gallery.png); fixed fly hands passing through the floor and the hip-thrust bar position.
+- Gate: 109 tests pass, lint 0 errors, APK about 70 MB.
+

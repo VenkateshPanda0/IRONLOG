@@ -62,7 +62,7 @@ fun ExerciseDetailScreen(container: AppContainer, nav: Navigator, exerciseId: St
             listOfNotNull(current.equipment, current.level, current.mechanic, "Custom".takeIf { current.isCustom })
                 .forEach { Pill(it) }
         }
-        ExerciseDemo(current.id, current.name)
+        ExerciseDemo(current.id, current.name, equipment = current.equipment)
         Segments(listOf("About", "History", "Records"), tab) { tab = it }
         when (tab) {
             "About" -> {

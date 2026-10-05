@@ -6,6 +6,10 @@ package app.ironlog.personal.domain
  * read like a coach wrote them.
  */
 object Staples {
+    /** Staple exercise IDs, most preferred first. */
+    val ids: List<String>
+        get() = ordered
+
     private val ordered =
         listOf(
             // chest
