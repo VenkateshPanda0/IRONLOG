@@ -108,3 +108,13 @@ Each step was built, tested and pushed to `main` separately: redesign and naviga
 
 - 23 new achievements (183 total): physique checks in different months (up to 48 months, Legend), best goal match, V-taper ladder up to 1.9 (Legend), match improvement over the first check, "Stage Ready" (100% match held for a year, Legend), and collection medals up to "Completionist" (every other medal, Legend).
 - Grind simulation unchanged: dedicated cap at week 105, regular week 152. Gate: 98 tests pass, lint 0 errors.
+
+## 2026-10-05 · Google sign-in and Drive backup
+
+- Optional sign-in with Credential Manager (Sign in with Google), account shown in Settings, sign-in button on the onboarding welcome step that fills the name and offers "Restore my data from Google Drive".
+- Drive backup/restore of the JSON backup to the hidden appDataFolder (scope drive.appdata), via REST with a testable HTTP seam; one file, created once then updated.
+- Backups now include cardio, daily logs, habits, habit checks, measurements and physique checks; old backups still import.
+- Web client ID comes from `googleWebClientId` in local.properties or a Gradle property; when absent, the button explains how to enable it.
+- Fixed during testing: sign-out waited on Credential Manager forever without Play services; the local account is now cleared first and the call is time-limited.
+- Not verified: real Google sign-in and Drive calls (no OAuth client or device here).
+

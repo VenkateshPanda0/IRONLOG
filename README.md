@@ -5,7 +5,7 @@ Ironlog is a local-first Android training app (Kotlin, Jetpack Compose, Room) in
 ## Status
 
 - `./gradlew assembleDebug` builds `app/build/outputs/apk/debug/app-debug.apk` (about 70 MB: exercise demo images plus ML Kit's on-device pose model).
-- `./gradlew testDebugUnitTest`: 98 tests pass, including a Robolectric + Roborazzi walkthrough that onboards, logs a workout, food, cardio, habits and measurements, runs a physique check, and screenshots every main screen into `app/build/screens/`.
+- `./gradlew testDebugUnitTest`: 102 tests pass, including a Robolectric + Roborazzi walkthrough that onboards, logs a workout, food, cardio, habits and measurements, runs a physique check, and screenshots every main screen into `app/build/screens/`.
 - `./gradlew lintDebug`: 0 errors.
 - Not verified: install and use on a physical device or emulator (none available in the build environment), live Open Food Facts requests from the app, the Google code scanner UI, notifications.
 
@@ -20,7 +20,8 @@ Ironlog is a local-first Android training app (Kotlin, Jetpack Compose, Room) in
 - **Physique check**: pick one of ten popular physique goals (Classic, Men's Physique, Bodybuilder, Athletic, Powerlifter, Lean; Bikini, Wellness, Figure, Athletic), then check a front photo. On-device pose detection and segmentation (ML Kit, bundled models, no network, no language model) measure shoulder, waist, hip and thigh widths; rule-based coaching compares the ratios with the goal and gives a match score, findings, muscles to prioritise and a calorie direction. The program builder can add extra volume for those muscles. Checks are saved as history.
 - **Progress**: weight trend with 7-day average and goal, measurements, strength, weekly volume and sets per muscle, cardio, daily trends, progress photos.
 - **Profile**: levels 1-50 (about two years for a dedicated athlete, checked by a simulation test), rank titles, lifetime stats and 183 achievements in Bronze, Silver, Gold, Platinum and Legend tiers, including physique-check medals (up to "Stage Ready": a 100% goal match held for a year) and collection medals up to "Completionist" (every other medal).
-- Backup and restore as JSON (progress photos are not included).
+- **Optional Google sign-in** (Credential Manager): back up to and restore from your own Google Drive app folder, including straight from onboarding on a new phone. No Ironlog server; the app works fully signed out.
+- Backup and restore as JSON, to a file or Google Drive (progress and physique photos are not included).
 
 ## Build
 
@@ -34,10 +35,23 @@ Requires JDK 17+ and Android SDK platform 35. Set `sdk.dir` in `local.properties
 
 Install with `adb install -r app/build/outputs/apk/debug/app-debug.apk`.
 
+### Enabling Google sign-in and Drive backup
+
+Without these steps the app builds and works normally; the sign-in button explains that it is not set up.
+
+1. In the [Google Cloud console](https://console.cloud.google.com/), create a project (or reuse one) and enable the **Google Drive API**.
+2. Configure the **OAuth consent screen** (External, app name "Ironlog") and add the scope `https://www.googleapis.com/auth/drive.appdata`. While the app is in Testing mode, add your Google account as a test user.
+3. Create an **OAuth client ID** of type **Android**: package `app.ironlog.personal` and the SHA-1 of your signing key (`./gradlew signingReport`, debug variant for debug builds).
+4. Create an **OAuth client ID** of type **Web application**. Copy its client ID.
+5. Add it to `local.properties` (not committed): `googleWebClientId=1234567890-abc.apps.googleusercontent.com`, then rebuild.
+
+The Web client ID is used as the server client ID that Credential Manager requires; the Android client ID (matched by package and SHA-1) authorises the app. Drive access is requested only when you first back up or restore.
+
 ## Data and attribution
 
 - Exercises and demo images: free-exercise-db by yuhonas (from wrkout/exercises.json), public domain under the Unlicense. Rebuild images with `tools/build_exercise_media.py`.
 - Generic foods: USDA FoodData Central SR Legacy (public domain). Rebuild with `tools/build_food_subset.py`.
+- Google sign-in: AndroidX Credential Manager with Sign in with Google; Drive access via Google Identity authorization (drive.appdata scope only).
 - Pose detection and selfie segmentation: Google ML Kit (bundled models, runs offline).
 - Packaged foods: Open Food Facts contributors, ODbL 1.0, fetched only when you search or scan.
 - Ironlog is independent and not affiliated with STNDRD, its coaches or any fitness brand. It contains no STNDRD content.

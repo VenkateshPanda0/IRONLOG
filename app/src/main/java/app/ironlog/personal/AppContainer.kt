@@ -111,6 +111,40 @@ class AppContainer(context: Context) {
             }
     }
 
+    private val accountEmailKey = stringPreferencesKey("google_email")
+    private val accountNameKey = stringPreferencesKey("google_name")
+    private val accountPhotoKey = stringPreferencesKey("google_photo")
+    private val driveBackupKey = longPreferencesKey("drive_backup_at")
+    val drive = app.ironlog.personal.data.cloud.DriveBackup()
+
+    /** The optional Google account; null when signed out. */
+    val account =
+        context.preferences.data.map { p ->
+            p[accountEmailKey]?.let { app.ironlog.personal.data.cloud.GoogleAccount(it, p[accountNameKey].orEmpty(), p[accountPhotoKey]) }
+        }
+
+    /** When this phone last backed up to Google Drive (epoch ms), if ever. */
+    val lastDriveBackup = context.preferences.data.map { it[driveBackupKey] }
+
+    suspend fun saveAccount(value: app.ironlog.personal.data.cloud.GoogleAccount?) {
+        appContext.preferences.edit {
+            if (value == null) {
+                it.remove(accountEmailKey)
+                it.remove(accountNameKey)
+                it.remove(accountPhotoKey)
+                it.remove(driveBackupKey)
+            } else {
+                it[accountEmailKey] = value.email
+                it[accountNameKey] = value.name
+                if (value.photoUrl != null) it[accountPhotoKey] = value.photoUrl else it.remove(accountPhotoKey)
+            }
+        }
+    }
+
+    suspend fun setLastDriveBackup(at: Long) {
+        appContext.preferences.edit { it[driveBackupKey] = at }
+    }
+
     private val themeKey = stringPreferencesKey("theme")
     private val seedVersionKey = intPreferencesKey("seed_version")
     val theme = context.preferences.data.map { it[themeKey] ?: "DARK" }

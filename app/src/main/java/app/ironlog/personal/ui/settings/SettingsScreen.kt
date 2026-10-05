@@ -67,6 +67,7 @@ fun SettingsScreen(
             mutableStateOf(nutritionGoal?.fatG?.toString() ?: "65")
         }
     Page("Settings", onBack = onBack) {
+        app.ironlog.personal.ui.account.AccountSection(c)
         profile?.let { savedProfile ->
             SectionHeader("Profile")
             Field("Name", editName, { editName = it })
@@ -212,7 +213,7 @@ fun SettingsScreen(
             title = { Text("Import will replace personal data") },
             text = {
                 Text(
-                    "Select a backup JSON file. This replaces the current profile, workouts, meals, foods and weights."
+                    "Select a backup JSON file. This replaces the current profile, workouts, meals, foods, weights and wellness data."
                 )
             },
             confirmButton = {

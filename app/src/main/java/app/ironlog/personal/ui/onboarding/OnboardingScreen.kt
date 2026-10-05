@@ -147,12 +147,38 @@ fun OnboardingScreen(c: AppContainer) {
                     Spacer(Modifier.height(24.dp))
                     Text("IRONLOG", style = MaterialTheme.typography.displayMedium)
                     Text(
-                        "Train with a plan. Log every set. Track what you eat. Everything stays on this phone.",
+                        "Train with a plan. Log every set. Track what you eat. Your data stays on this phone unless you choose to back it up.",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Spacer(Modifier.height(12.dp))
                     Field("What should we call you?", name, { name = it })
+                    val account by c.account.collectAsState(initial = null)
+                    var signInMessage by remember { mutableStateOf<String?>(null) }
+                    val signedIn = account
+                    if (signedIn == null) {
+                        app.ironlog.personal.ui.account.GoogleSignInButton(
+                            c,
+                            onSignedIn = { if (name.isBlank()) name = it.name },
+                            onMessage = { signInMessage = it },
+                        )
+                        Text(
+                            "Optional: sign in to back up to your Google Drive. Everything works without it.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    } else {
+                        // Moving to a new phone: restoring brings back the profile, which ends onboarding.
+                        val drive = app.ironlog.personal.ui.account.rememberDriveActions(c)
+                        Text("Signed in as ${signedIn.email}", color = IronTheme.colors.accent)
+                        SecondaryButton(
+                            if (drive.busy.value) "Restoring…" else "Restore my data from Google Drive",
+                            enabled = !drive.busy.value,
+                            onClick = { drive.restore() },
+                        )
+                        app.ironlog.personal.ui.account.AccountMessage(drive.message.value)
+                    }
+                    signInMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
                 }
                 1 -> {
                     StepTitle("About you", "Used for calorie and macro estimates.")
