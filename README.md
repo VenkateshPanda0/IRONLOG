@@ -1,61 +1,226 @@
 # Ironlog
 
-Ironlog is a local-first Android training app (Kotlin, Jetpack Compose, Room) in the style of STNDRD: structured programs, a fast set logger, nutrition tracking, progress analytics, wellness tracking and a long-term achievement system. No account, no cloud. Everything except optional online food lookup stays on the phone.
+**A strength-training and fitness app for Android that plans your workouts, coaches your progression, tracks what you eat and keeps everything on your phone.**
 
-## Status
+Built by **Venkatesh** ([@VenkateshPanda0](https://github.com/VenkateshPanda0)).
 
-- `./gradlew assembleDebug` builds `app/build/outputs/apk/debug/app-debug.apk` (about 43 MB, mostly exercise demo photos).
-- `./gradlew testDebugUnitTest`: 143 tests pass, including a Robolectric + Roborazzi walkthrough that onboards, logs a workout, food, cardio, habits and measurements, runs a tape-measure physique check, and screenshots every main screen into `app/build/screens/`.
-- `./gradlew lintDebug`: 0 errors.
-- Not verified: install and use on a physical device or emulator (none available in the build environment), live Open Food Facts requests from the app, the Google code scanner UI, notification delivery on a real device (the alarm-to-notification path is tested under Robolectric).
+<p align="center">
+  <img src="docs/screenshots/home.png" width="230" alt="Home: today's workout and week">
+  <img src="docs/screenshots/workout.png" width="230" alt="Workout logger with coach, warm-ups and rest timer">
+  <img src="docs/screenshots/indian-foods.png" width="230" alt="Food search with Indian dishes first">
+</p>
+
+- **No account, no ads, no tracking.** Your data lives on your phone and in your own phone backup.
+- **Works offline.** 876 exercises and 15,800 foods are built in.
+- **Made for Indian lifters.** Indian dishes and brands come first in food search, and kg and cm are the defaults (lb and inches are one tap away).
+
+---
+
+## At a glance
+
+| 💪 Training | 🍛 Nutrition | 🏆 Motivation | 🛠️ Engineering |
+|---|---|---|---|
+| **17** muscle groups trained every week | **15,800** foods offline | **183** achievements in 5 tiers | **148** automated tests |
+| **876** exercises | **1,014** Indian dishes | **50** levels (about 2 years of training) | **0** lint errors |
+| **873** with photo demos | **1,583** Indian packaged products | **10** goal physiques to compare against | **~23 MB** release APK (R8) |
+| **565** animated stick-figure demos | **5,431** world dishes | Streaks for training weeks, food logging and habits | Room schema **v9**, every migration tested |
+| **25** movement patterns | **7,793** USDA reference foods | | **0** trackers, **0** ads, **0** accounts |
+
+---
+
+## Contents
+
+- [At a glance](#at-a-glance)
+- [Features](#features)
+- [Privacy and security](#privacy-and-security)
+- [Tech stack](#tech-stack)
+- [Build and run](#build-and-run)
+- [Testing](#testing)
+- [Data sources and licences](#data-sources-and-licences)
+- [Project status](#project-status)
+
+---
 
 ## Features
 
-- **Units**: kg or lb for every weight (lifts, body weight, goals, records, volume, medal texts), and cm or inches for lengths (body and physique measurements, height in feet and inches, cardio distance in miles with pace per mile). Both switch in Settings or during onboarding and default to imperial in the US, Liberia and Myanmar. Data is always stored in kg, cm and km, so switching never changes logged numbers; drop sets round to 2.5 kg or 5 lb plates.
-- **App tour**: right after onboarding, an optional one-minute guided tour over the real screens (it switches tabs and spotlights the Start workout button, each tab and the profile). Skip at any step; replay from Settings › Help. Users restoring a backup are not shown it.
-- **Onboarding**: six steps (you, body, goal, goal physique, training days, plan) that create a program and nutrition targets.
-- **Train**: active program, program detail and builder (staple lifts, all 17 muscle groups trained each week), quick workouts by focus and time, mobility sessions, cardio entry, history.
-- **Coach**: on every exercise, today's suggestion from your last sessions (double progression: hit the top of the rep range on every set and it adds 2.5 kg / 5 lb, or double for lower-body lifts and easy sets; in range keeps the weight and asks for a rep more; two sessions short of the range deloads to 90%), with one tap to use it. Optional effort (RPE 6-10) per set refines it.
-- **Plates, warm-ups and supersets**: per-side plate calculator for kg or lb bars, generated warm-up ramps (bar, 40%, 60%, 80%), and supersets or giant sets where rest starts only after the last exercise of each round.
-- **Lock-screen workout**: while a workout is running, a silent ongoing notification shows elapsed time or the rest countdown and the next set (exercise, set number, weight × reps, following superset rounds), with Done, +30 s and Skip rest buttons that work from the lock screen. Tapping it opens the workout.
-- **Workout logger**: live timer with pause, last-time hints, warm-up / working / drop / rest-pause sets, insert drop or rest-pause sets mid-workout, swap exercise (with revert), reorder, notes, rest timer, summary with personal bests and shareable image cards.
-- **Library**: 876 exercises, search and filters, favourites, custom exercises, start/end photo demos for 873 exercises, plus optional animated stick figures for 565 strength exercises (25 movement patterns), history, records and estimated 1RM trend.
-- **Nutrition**: daily diary by meal, macro ring and bars, all 7,793 USDA SR Legacy foods offline, Open Food Facts search and barcode scanning, portions, recipes, copy day, weekly calorie balance, target presets.
-- **Wellness**: morning readiness check-in with training advice, water, steps, sleep, habits with streaks, cardio log with timer, pace and calorie estimate, body measurements.
-- **Physique check**: pick one of ten popular physique goals (Classic, Men's Physique, Bodybuilder, Athletic, Powerlifter, Lean; Bikini, Wellness, Figure, Athletic), then enter four tape measurements (shoulders, waist, hips, thigh) with a measuring guide. Rule-based coaching compares the circumference ratios (V-taper/Adonis index, waist-to-hip, shoulder-to-hip, leg size) and waist-to-height with the goal and gives a match score, findings, muscles to prioritise and a calorie direction, next to drawn You-vs-goal figures. The program builder can add extra volume for those muscles. Checks are saved as history and as body measurements.
-- **Progress**: weight trend with 7-day average and goal, measurements, strength, weekly volume and sets per muscle, cardio, daily trends, progress photos.
-- **Profile**: levels 1-50 (about two years for a dedicated athlete, checked by a simulation test), rank titles, lifetime stats and 183 achievements in Bronze, Silver, Gold, Platinum and Legend tiers, including physique-check medals (up to "Stage Ready": a 100% goal match held for a year) and collection medals up to "Completionist" (every other medal).
-- **Reminders**: a workout reminder on your training days at a time you pick (silent if you already trained, with the next program day in the text and a comeback message after a week off), and a streak saver that nudges in the evening only when today's workout decides your weekly goal. Turned on from a Home card or Settings, with a test notification; survives reboots and clock changes. Tapping a notification opens the app.
-- **Health Connect sync** (optional): steps and sleep in; weigh-ins both ways (scale readings fill days you didn't log, your weigh-ins are shared); workouts both ways (finished strength workouts and logged cardio go out as exercise sessions, runs/rides/walks/swims/sports/yoga from a watch or other apps come in as cardio with distance). Syncs when the app opens and on "Sync now"; each data type follows its own permission. Your own entries are never overwritten, nothing is imported twice, and deleting an imported entry keeps it from coming back. Imported entries are labelled "Health Connect".
-- **Backup and new phone**: Android's Auto Backup copies a compressed snapshot of all data (about 1 MB) plus progress photos reduced to 1024 px (up to 15 MB) to the user's Google account. On a new phone with the same account, installing Ironlog shows "Welcome back" on the first screen and restores everything in one tap. Phone-to-phone transfer during setup copies everything at full size. Manually: "Export everything" makes one .zip (data + photos) that imports on any phone, from Settings or the first onboarding screen.
+### Training: a plan for every day
 
-## Build
+| | | |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/workout.png" width="240"> | <img src="docs/screenshots/superset.png" width="240"> | <img src="docs/screenshots/plates.png" width="240"> |
+| Logger with coach and warm-ups | Supersets | Plate calculator |
 
-Requires JDK 17+ and Android SDK platform 35. Set `sdk.dir` in `local.properties`, then:
+- **A program built for you.** A short onboarding asks about your goal, training days, session length, equipment and goal physique. It then creates a split that trains all 17 muscle groups every week, built around staple lifts.
+- **Fast set logger.** Each set shows what you did last time. Ticking a set starts the rest timer. Sets can be warm-up, working, drop or rest-pause, and you can swap, reorder or skip exercises and add notes.
+- **Progression coach.** Each exercise shows today's target from your history:
+  - Hit the top of the rep range on every set and it adds 2.5 kg (5 lb), more for leg lifts and easy sets.
+  - Inside the range, it keeps the weight and asks for one more rep.
+  - Two sessions in a row short of the range, it deloads to 90%.
+  - An optional effort rating (RPE) per set fine-tunes the suggestion.
+- **Warm-ups and plates.** One tap generates warm-up sets that ramp to today's weight. The plate calculator shows what goes on each side for kg or lb bars.
+- **Supersets and giant sets.** The rest timer starts only after the last exercise of each round.
+- **Lock-screen controls.** While you train, a notification shows the next set and the rest countdown, with Done, +30 s and Skip rest buttons.
+- **Summary and share.** Personal bests, volume and a shareable workout card at the end of each session.
+
+### Exercise library
+
+| | | |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/library.png" width="240"> | <img src="docs/screenshots/exercise.png" width="240"> | <img src="docs/screenshots/motion.png" width="240"> |
+| 876 exercises | Photo demos and records | Animated stick figure |
+
+- Search and filter by muscle and equipment, mark favourites, and add your own exercises.
+- 873 exercises have start and end photo demos. 565 strength exercises also have an animated stick-figure demo.
+- Each exercise shows your history, personal records and estimated one-rep max (1RM) trend.
+
+### Nutrition
+
+| | |
+|:---:|:---:|
+| <img src="docs/screenshots/nutrition.png" width="240"> | <img src="docs/screenshots/indian-foods.png" width="240"> |
+| Daily diary and macros | Indian dishes first |
+
+- A meal diary with a calorie ring and macro bars, measured against targets calculated for you.
+- **15,800 foods offline:**
+  - 1,014 Indian dishes (INDB) and 1,583 Indian packaged products.
+  - 5,431 world dishes and the full 7,793-food USDA table.
+- Online Open Food Facts search and barcode scanning for anything else.
+- Portions, recipes, copy a previous day, and a weekly calorie balance.
+
+### Progress and physique
+
+| | | |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/weight.png" width="240"> | <img src="docs/screenshots/strength.png" width="240"> | <img src="docs/screenshots/physique.png" width="240"> |
+| Weight trend | Strength | Physique check |
+
+- **Charts:**
+  - Body weight with a 7-day average and goal.
+  - Body measurements.
+  - Strength and estimated 1RM per lift.
+  - Weekly volume and sets per muscle.
+  - Cardio and daily trends.
+- **Progress photos**, compared side by side.
+- **Physique check:** pick one of ten popular goal physiques, enter four tape measurements, and get:
+  - a match score and drawn You-vs-goal figures,
+  - the muscles to train first,
+  - whether to cut, recomp or lean bulk.
+
+  It is rule-based, with no AI model and nothing sent off the phone.
+
+### Daily health and reminders
+
+| | | |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/daily.png" width="240"> | <img src="docs/screenshots/cardio.png" width="240"> | <img src="docs/screenshots/reminders.png" width="240"> |
+| Readiness, water, steps, habits | Cardio | Reminders |
+
+- A morning readiness check-in, plus water, steps, sleep and habit streaks.
+- A cardio log with timer, distance and pace.
+- Reminders on training days, and a "streak saver" nudge only when today's workout decides your weekly goal.
+- **Health Connect** sync: steps and sleep come in; weigh-ins and workouts sync both ways. Your own entries are never overwritten.
+
+### Motivation
+
+| | |
+|:---:|:---:|
+| <img src="docs/screenshots/medals.png" width="240"> | <img src="docs/screenshots/goal-look.png" width="240"> |
+| 183 medals | Goal physique |
+
+- 50 levels, tuned by simulation to take about two years of consistent training.
+- 183 achievements across Bronze, Silver, Gold, Platinum and Legend, from your first rep to a 300 kg squat.
+
+### Getting started, units and new phones
+
+| | | |
+|:---:|:---:|:---:|
+| <img src="docs/screenshots/tour.png" width="240"> | <img src="docs/screenshots/units-lb.png" width="240"> | <img src="docs/screenshots/welcome-back.png" width="240"> |
+| Guided tour | kg or lb | Welcome back on a new phone |
+
+- **Guided tour.** A one-minute walk through the real screens after onboarding. You can skip it at any step and replay it from Settings.
+- **Units.** Weights in kg or lb; lengths in cm or inches, with height in feet and inches and distance in miles. Storage stays metric, so switching never changes your data.
+- **New phone.** Android's backup keeps a compressed snapshot in your Google account. On a new phone, Ironlog offers "Welcome back" and restores everything in one tap. Phone-to-phone transfer and a single `.zip` export (data plus photos) also work.
+
+---
+
+## Privacy and security
+
+- **Your data stays with you.** Everything is stored on the phone. The only network requests are the food searches and barcode scans you make, sent to Open Food Facts over HTTPS.
+- **No account and no analytics.** The app sends no telemetry.
+- **Minimal permissions.** Notifications, and Health Connect access only if you turn sync on. No location, contacts or camera permission; barcode scanning uses Google's code scanner, which runs outside the app.
+- **Hardened inputs:**
+  - **Backups:** size limits (against zip bombs), safe file names (against path traversal) and validation of every value and date.
+  - **Network:** responses are size-capped and nutrition values sanity-checked; non-barcode scans are never looked up.
+  - **App components:** every component another app can reach checks what it receives, and all pending intents are immutable.
+- **Backups contain:** a compressed snapshot in Android's own backup (your Google account), and the `.zip` you export yourself. Nothing else leaves the phone.
+
+## Tech stack
+
+| Area | Choice |
+|---|---|
+| Language | Kotlin 2.0, coroutines and Flow |
+| UI | Jetpack Compose, Material 3, Navigation |
+| Storage | Room (SQLite, schema v9 with tested migrations), DataStore |
+| Health | Health Connect |
+| Background | AlarmManager reminders, broadcast receivers, an ongoing workout notification |
+| Build | Android Gradle Plugin 8.7, KSP, R8 shrinking for release |
+| Tests | JUnit, Robolectric, Compose UI tests, Roborazzi screenshots |
 
 ```
-./gradlew assembleDebug
-./gradlew testDebugUnitTest
-./gradlew lintDebug
+app/src/main/java/app/ironlog/personal/
+├── domain/      Pure Kotlin rules: training, coach, nutrition, achievements, physique, units
+├── data/        Room database, repositories, backup, Health Connect, Open Food Facts, seeds
+├── ui/          Compose screens by feature (home, train, library, nutrition, progress, ...)
+├── reminders/   Reminder alarms and notifications
+└── timer/       Rest timer and the live workout notification
 ```
 
-Install with `adb install -r app/build/outputs/apk/debug/app-debug.apk`.
+## Build and run
 
-### Health Connect
+Requirements: JDK 17 or newer and the Android SDK (platform 35).
 
-Works on Android 14+ (built in) and on Android 9-13 with the Health Connect app installed; Settings offers the install. Publishing on Google Play additionally requires the Health Connect declaration in the Play Console (data types: steps, sleep, distance read; weight and exercise read and write). The in-app privacy explanation (`HealthPermissionsActivity`) is the screen Health Connect links to.
+```bash
+echo "sdk.dir=/path/to/Android/sdk" > local.properties
 
-The client library is pinned to `1.1.0-beta01`, the newest that builds with compileSdk 35 and AGP 8.7; `1.1.0` stable needs compileSdk 36 and a newer Android Gradle plugin.
+./gradlew assembleDebug        # app/build/outputs/apk/debug/app-debug.apk (about 43 MB)
+./gradlew assembleRelease      # shrunk with R8 (about 23 MB); sign it before installing
+./gradlew installDebug         # install on a connected device or emulator
+```
 
-### Restoring on a new phone
+To publish on Google Play you also need:
+- a signing key,
+- a privacy policy,
+- the Health Connect declaration (steps, sleep and distance read; weight and exercise read and write),
+- permission from the INDB authors to redistribute the Indian food data (see below).
 
-Auto Backup needs the phone's Google backup switched on (Settings › Google › Backup, on by default on most phones) and runs about once a day while charging on Wi-Fi; Ironlog refreshes its snapshot whenever you leave the app after a change. Restore happens when Ironlog is installed from Google Play on a phone signed in to the same account (during setup or later). Sideloaded installs only get restores during device setup; use the .zip export there.
+## Testing
 
-## Data and attribution
+```bash
+./gradlew testDebugUnitTest    # 148 tests: domain rules, database, migrations, backup, sync, UI
+./gradlew lintDebug            # 0 errors
+```
 
-- Exercises and demo images: free-exercise-db by yuhonas (from wrkout/exercises.json), public domain under the Unlicense. Rebuild images with `tools/build_exercise_media.py`.
-- Generic foods: USDA FoodData Central SR Legacy (public domain). Rebuild with `tools/build_food_subset.py`.
-- Packaged foods: Open Food Facts contributors, ODbL 1.0, fetched only when you search or scan.
-- Ironlog is independent and not affiliated with STNDRD, its coaches or any fitness brand. It contains no STNDRD content.
+The UI walkthrough test runs the whole app under Robolectric. It covers onboarding, the tour, a workout, food, cardio, habits, measurements, the physique check, units and settings, and saves screenshots of every screen to `app/build/screens/`. The images in this README come from it.
 
-See `docs/SEED_DATA.md`, `docs/STATE.md` and `BUILD_LOG.md` for details.
+## Data sources and licences
+
+- **Exercises and demo photos:** [free-exercise-db](https://github.com/yuhonas/free-exercise-db), public domain (Unlicense).
+- **Foods:** USDA FoodData Central SR Legacy and FNDDS (public domain).
+- **Indian dishes:** Indian Nutrient Databank (INDB), Vijayakumar A. et al., *Curr Dev Nutr* 2024, derived from the ICMR-NIN Indian Food Composition Tables 2017. *Ask the authors for permission before any public release.*
+- **Packaged foods:** [Open Food Facts](https://world.openfoodfacts.org) contributors, ODbL 1.0.
+
+Ironlog is an independent project. It is not affiliated with any fitness brand, coach or app, and contains no third-party branded content.
+
+Details: [`docs/SEED_DATA.md`](docs/SEED_DATA.md), [`docs/STATE.md`](docs/STATE.md), [`BUILD_LOG.md`](BUILD_LOG.md).
+
+## Project status
+
+The app builds, its 148 automated tests pass and lint shows 0 errors. It has not yet been tested on physical phones, so the next steps are:
+
+1. Test on real devices, especially notifications, Health Connect and backup restore.
+2. Upgrade to Android SDK 36, which allows the stable Health Connect library.
+3. Set up signing and publish on Google Play.
+
+---
+
+<p align="center">Made with care by <b>Venkatesh</b></p>
