@@ -55,7 +55,7 @@ jobs:
   # Replaces apk/ironlog.apk on main with the APK that just passed every test and lint check.
   publish-apk:
     needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: write
