@@ -22,6 +22,7 @@ import app.ironlog.personal.domain.DayMark
 import app.ironlog.personal.domain.Training
 import app.ironlog.personal.domain.WeekDay
 import app.ironlog.personal.ui.components.*
+import app.ironlog.personal.ui.tour.tourAnchor
 import app.ironlog.personal.ui.nav.Navigator
 import app.ironlog.personal.ui.nav.Routes
 import app.ironlog.personal.ui.theme.IronTheme
@@ -81,7 +82,7 @@ fun HomeScreen(c: AppContainer, nav: Navigator) {
                     Text("LVL ${it.level + 1}", style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp))
                 }
             }
-            IconButton(onClick = { nav.open(Routes.PROFILE) }) {
+            IconButton(onClick = { nav.open(Routes.PROFILE) }, modifier = Modifier.tourAnchor(app.ironlog.personal.ui.tour.TourKeys.PROFILE)) {
                 Icon(Icons.Outlined.Person, contentDescription = "Profile and settings")
             }
         },
@@ -121,6 +122,7 @@ fun HomeScreen(c: AppContainer, nav: Navigator) {
                 )
                 Spacer(Modifier.height(4.dp))
                 PrimaryButton(
+                    modifier = Modifier.fillMaxWidth().tourAnchor(app.ironlog.personal.ui.tour.TourKeys.START_WORKOUT),
                     text = if (active == null) "Start workout" else "Resume workout",
                     icon = Icons.Filled.PlayArrow,
                     onClick = {

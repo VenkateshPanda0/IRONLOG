@@ -286,6 +286,8 @@ fun OnboardingScreen(c: AppContainer, onImport: () -> Unit = {}) {
                             c.goals.save(GoalEntity(kcalTarget = it.kcal, proteinG = it.proteinG, carbsG = it.carbsG, fatG = it.fatG))
                         }
                         c.body.log(LocalDate.now(), kg, "Starting weight")
+                        // New users get the app tour once; restored users never pass through here.
+                        c.setTourPending(true)
                         // Saving the profile last switches the app to the main screens.
                         c.saveProfile(
                             UserProfileEntity(

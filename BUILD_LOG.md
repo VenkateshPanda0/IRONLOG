@@ -203,3 +203,9 @@ Each step was built, tested and pushed to `main` separately: redesign and naviga
 - Tests: next-set and superset ordering, and the full notification path (content, Done logs 60 kg x 8 from history and starts the rest, buttons, finish removes it). Gate: 143 tests pass, lint 0 errors.
 - Not verified on a device: lock-screen appearance depends on the phone's lock-screen notification settings.
 
+## 2026-10-05 · App tour for new users
+
+- Nine-step guided tour over the real app: welcome, Home, Start workout, Train, Library, Nutrition, Progress, profile/Settings, done. Each step switches to its tab and spotlights the element (bottom-bar tabs, the Start workout button, the profile button) by cutting a hole in a dimmed scrim; the card moves to the side away from the spotlight. Back, Next and Skip tour on every step; the system back button steps back.
+- Shown once after onboarding (onboarding sets `tour_pending`); users who restore a backup never pass through onboarding so are not shown it. Settings › Help › Replay app tour shows it again.
+- The walkthrough test takes the whole tour after onboarding and, at the end, replays it from Settings and skips it. Gate: 143 tests pass, lint 0 errors.
+

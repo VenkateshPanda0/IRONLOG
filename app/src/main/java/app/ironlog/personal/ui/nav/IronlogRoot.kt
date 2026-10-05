@@ -29,7 +29,10 @@ import androidx.navigation.navArgument
 import app.ironlog.personal.AppContainer
 import app.ironlog.personal.SeedState
 import app.ironlog.personal.ui.components.rememberLoaded
+import app.ironlog.personal.ui.tour.TourKeys
+import app.ironlog.personal.ui.tour.tourAnchor
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import app.ironlog.personal.ui.home.HomeScreen
 import app.ironlog.personal.ui.library.ExerciseDetailScreen
 import app.ironlog.personal.ui.library.ExerciseLibraryScreen
@@ -151,11 +154,16 @@ fun IronlogRoot(
     val nav = remember(controller) { Navigator(controller) }
     val backStack by controller.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route
+    val tourPending by container.tourPending.collectAsState(initial = false)
+    val tourAnchors = remember { app.ironlog.personal.ui.tour.TourAnchors() }
+    val scope = rememberCoroutineScope()
 
     CompositionLocalProvider(
         app.ironlog.personal.ui.components.LocalWeightUnit provides weightUnit,
         app.ironlog.personal.ui.components.LocalLengthUnit provides lengthUnit,
+        app.ironlog.personal.ui.tour.LocalTourAnchors provides tourAnchors,
     ) {
+    Box(Modifier.fillMaxSize()) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         bottomBar = {
@@ -167,6 +175,7 @@ fun IronlogRoot(
                     tabs.forEach { tab ->
                         val active = currentRoute == tab.route
                         NavigationBarItem(
+                            modifier = Modifier.tourAnchor(TourKeys.tab(tab.route)),
                             selected = active,
                             onClick = { nav.tab(tab.route) },
                             icon = {
@@ -212,6 +221,11 @@ fun IronlogRoot(
                     }
             }
         }
+    }
+    val p = profile
+    if (p != null && tourPending && seedState is SeedState.Ready) {
+        app.ironlog.personal.ui.tour.AppTour(p.name, nav) { scope.launch { container.setTourPending(false) } }
+    }
     }
     }
 }

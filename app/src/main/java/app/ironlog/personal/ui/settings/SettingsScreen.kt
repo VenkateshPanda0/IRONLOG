@@ -178,6 +178,17 @@ fun SettingsScreen(
                 app.ironlog.personal.ui.components.UnitToggle(app.ironlog.personal.domain.LengthUnit.entries, length, { it.label }) { scope.launch { c.setLengthUnit(it) } }
             },
         )
+        SectionHeader("Help")
+        ListRow(
+            title = "Replay app tour",
+            subtitle = "A one-minute walk through every part of the app",
+            onClick = {
+                scope.launch {
+                    c.setTourPending(true)
+                    onBack()
+                }
+            },
+        )
         SectionHeader("Appearance")
         ListRow(
             title = "Light theme",

@@ -272,6 +272,15 @@ class AppContainer(context: Context) {
 
     private fun context() = appContext
 
+    private val tourPendingKey = booleanPreferencesKey("tour_pending")
+
+    /** True after onboarding (or "Replay app tour") until the tour is finished or skipped. */
+    val tourPending = context.preferences.data.map { it[tourPendingKey] ?: false }
+
+    suspend fun setTourPending(value: Boolean) {
+        appContext.preferences.edit { it[tourPendingKey] = value }
+    }
+
     private val themeKey = stringPreferencesKey("theme")
     private val seedVersionKey = intPreferencesKey("seed_version")
     val theme = context.preferences.data.map { it[themeKey] ?: "DARK" }

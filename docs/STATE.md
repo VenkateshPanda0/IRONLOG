@@ -16,6 +16,7 @@
 - Lengths: `LengthUnit` cm/in (in shows ft'in" heights and miles with pace per mile), `LocalLengthUnit`; same display-only rule and drift guard as weights.
 - Training: `domain/Coaching.kt` (Coach double progression with RPE, Plates, Warmups); supersets via session_exercise.supersetGroup.
 - Live workout notification: `timer/WorkoutNotifier.kt` observes the active session, its sets and the rest timer (new Flow query) and redraws an ongoing low-importance notification; `WorkoutActionReceiver` handles Done/+30 s/Skip rest. Rest-end alarm now clears the finished timer row.
+- App tour: `ui/tour/AppTour.kt` (spotlight overlay over the real app, anchors registered with `Modifier.tourAnchor`), shown when DataStore `tour_pending` is set by onboarding or Settings › Replay app tour.
 - Next ideas: upgrade AGP + compileSdk 36 (then Health Connect 1.1.0 stable),  reminders, backup of photos to Drive, automatic scheduled Drive backups, on-device verification.
 
 ## History (earlier sessions)

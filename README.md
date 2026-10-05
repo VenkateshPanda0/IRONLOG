@@ -12,6 +12,7 @@ Ironlog is a local-first Android training app (Kotlin, Jetpack Compose, Room) in
 ## Features
 
 - **Units**: kg or lb for every weight (lifts, body weight, goals, records, volume, medal texts), and cm or inches for lengths (body and physique measurements, height in feet and inches, cardio distance in miles with pace per mile). Both switch in Settings or during onboarding and default to imperial in the US, Liberia and Myanmar. Data is always stored in kg, cm and km, so switching never changes logged numbers; drop sets round to 2.5 kg or 5 lb plates.
+- **App tour**: right after onboarding, an optional one-minute guided tour over the real screens (it switches tabs and spotlights the Start workout button, each tab and the profile). Skip at any step; replay from Settings › Help. Users restoring a backup are not shown it.
 - **Onboarding**: six steps (you, body, goal, goal physique, training days, plan) that create a program and nutrition targets.
 - **Train**: active program, program detail and builder (staple lifts, all 17 muscle groups trained each week), quick workouts by focus and time, mobility sessions, cardio entry, history.
 - **Coach**: on every exercise, today's suggestion from your last sessions (double progression: hit the top of the rep range on every set and it adds 2.5 kg / 5 lb, or double for lower-body lifts and easy sets; in range keeps the weight and asks for a rep more; two sessions short of the range deloads to 90%), with one tap to use it. Optional effort (RPE 6-10) per set refines it.

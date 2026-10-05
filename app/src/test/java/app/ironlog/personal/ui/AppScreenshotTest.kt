@@ -124,6 +124,24 @@ class AppScreenshotTest {
         shot("00_onboarding_plan")
         tap("Start training")
 
+        // First run: the app tour over the real screens.
+        compose.waitUntilAtLeastOneExists(hasText("Take the tour", ignoreCase = true), 20_000)
+        shot("01_tour_welcome")
+        tap("Take the tour")
+        compose.waitUntilAtLeastOneExists(hasText("Home is your day", ignoreCase = true), 10_000)
+        tap("Next")
+        compose.waitUntilAtLeastOneExists(hasText("Start a workout", ignoreCase = true), 10_000)
+        shot("01_tour_start_workout")
+        tap("Next")
+        compose.waitUntilAtLeastOneExists(hasText("All programs", ignoreCase = true), 10_000) // the tour switched to Train
+        shot("01_tour_train")
+        repeat(4) { tap("Next") } // Library, Nutrition, Progress, then back to Home for the profile
+        compose.waitUntilAtLeastOneExists(hasText("You and your settings", ignoreCase = true), 10_000)
+        shot("01_tour_profile")
+        tap("Next")
+        tap("Let's go")
+        compose.waitUntilDoesNotExist(hasText("Take the tour", ignoreCase = true), 10_000)
+
         compose.waitUntilAtLeastOneExists(hasText("Good", substring = true, ignoreCase = true), 20_000)
         // The next workout card must show the real prescription count, not the empty default.
         compose.waitUntilDoesNotExist(hasText("0 exercises · 0 sets", substring = true), 10_000)
@@ -414,5 +432,16 @@ class AppScreenshotTest {
         shot("04_progress_cardio_mi")
         val lengthsAfter = runBlocking { container.wellness.measurements.first().map { it.waistCm } to container.wellness.cardio.first().map { it.distanceKm } }
         org.junit.Assert.assertEquals(lengthsBefore, lengthsAfter)
+    
+        // The tour can be replayed from Settings and skipped at any step.
+        tap("Home")
+        compose.onNodeWithContentDescription("Profile and settings").performClick()
+        compose.onNodeWithContentDescription("Settings").performClick()
+        compose.waitUntilAtLeastOneExists(hasText("Replay app tour"), 10_000)
+        tap("Replay app tour")
+        compose.waitUntilAtLeastOneExists(hasText("Take the tour", ignoreCase = true), 10_000)
+        tap("Skip tour")
+        compose.waitUntilDoesNotExist(hasText("Take the tour", ignoreCase = true), 10_000)
+        org.junit.Assert.assertEquals(false, runBlocking { container.tourPending.first() })
     }
 }
