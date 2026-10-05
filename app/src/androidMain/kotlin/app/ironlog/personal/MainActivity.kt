@@ -110,6 +110,8 @@ class MainActivity : ComponentActivity() {
             }
         setContent {
             val theme by container.theme.collectAsState(initial = "DARK")
+            val platform = androidx.compose.runtime.remember { app.ironlog.personal.ui.platform.AndroidPlatformUi(this@MainActivity, container) }
+            androidx.compose.runtime.CompositionLocalProvider(app.ironlog.personal.ui.platform.LocalPlatform provides platform) {
             IronlogTheme(theme != "LIGHT") {
                 IronlogRoot(
                     container,
@@ -119,6 +121,7 @@ class MainActivity : ComponentActivity() {
                     onExport = { export.launch("ironlog_backup_${LocalDate.now()}.zip") },
                     onImport = { import.launch(arrayOf("application/zip", "application/json", "application/octet-stream", "text/*")) },
                 )
+            }
             }
         }
     }

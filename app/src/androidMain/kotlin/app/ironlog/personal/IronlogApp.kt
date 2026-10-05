@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class IronlogApp : Application() {
-    lateinit var container: AppContainer
+    lateinit var container: AndroidAppContainer
         private set
     /** Start-up work (bundled data, reminder alarms); tests wait for it before they begin. */
     lateinit var startup: kotlinx.coroutines.Job
@@ -16,7 +16,7 @@ class IronlogApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        container = AppContainer(this)
+        container = AndroidAppContainer(this)
         container.workoutNotifier.start(container.appScope)
         startup = CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             container.runSeeds()

@@ -48,7 +48,7 @@ class NewPhoneRestoreTest {
             c.clearPersonalData()
             cloud.copyRecursively(dir, overwrite = true)
         }
-        compose.setContent { IronlogTheme { androidx.compose.material3.Surface { OnboardingScreen(c) } } }
+        compose.setContent { WithPlatform(c) { androidx.compose.material3.Surface { OnboardingScreen(c) } } }
         compose.waitUntilAtLeastOneExists(hasText("Welcome back, Venkatesh", ignoreCase = true), 10_000)
         compose.waitUntilAtLeastOneExists(hasText("3 workouts", substring = true), 10_000)
         compose.onRoot().captureRoboImage("build/screens/00_onboarding_welcome_back.png")

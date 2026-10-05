@@ -18,49 +18,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class RestTimerController(private val context: Context, private val dao: IronlogDao) {
-    suspend fun start(sessionId: Long, durationSec: Int = 90) =
-        withContext(Dispatchers.IO) {
-            val end = nowMillis() + durationSec.coerceAtLeast(1) * 1000L
-            dao.saveRestTimer(
-                RestTimerEntity(
-                    sessionId = sessionId,
-                    endAtEpochMs = end,
-                    durationSec = durationSec,
-                    isRunning = true,
-                )
-            )
-            schedule(end)
-        }
-
-    suspend fun adjust(seconds: Int) =
-        withContext(Dispatchers.IO) {
-            val timer = dao.restTimer() ?: return@withContext
-            val end = timer.endAtEpochMs + seconds * 1000L
-            if (end <= nowMillis()) skip()
-            else {
-                dao.saveRestTimer(timer.copy(endAtEpochMs = end))
-                schedule(end)
-            }
-        }
-
-    suspend fun skip() =
-        withContext(Dispatchers.IO) {
-            cancel()
-            dao.clearRestTimer()
-        }
-
-    suspend fun remainingMs(): Long =
-        withContext(Dispatchers.IO) {
-            ((dao.restTimer()?.endAtEpochMs ?: 0L) - nowMillis()).coerceAtLeast(0L)
-        }
-
-    private fun schedule(endAt: Long) {
+/** Rings when a rest period ends: an exact alarm on Android, a local notification on iOS. */
+class AndroidRestAlarm(private val context: Context) : RestAlarm {
+    override fun schedule(endAtMs: Long) {
         val alarm = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarm.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, endAt, pendingIntent())
+        alarm.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, endAtMs, pendingIntent())
     }
 
-    private fun cancel() {
+    override fun cancel() {
         val alarm = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarm.cancel(pendingIntent())
         (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancel(

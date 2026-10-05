@@ -11,21 +11,6 @@ import android.graphics.Typeface
 import androidx.core.content.FileProvider
 import java.io.File
 
-enum class CardTemplate(val label: String) {
-    MONO("Mono"),
-    ACCENT("Volt"),
-}
-
-data class ShareCardData(
-    val title: String,
-    val date: String,
-    val duration: String,
-    val volume: String,
-    val sets: String,
-    val bests: List<String>,
-    val lines: List<Pair<String, String>>,
-)
-
 /** Draws a 4:5 workout summary image suitable for stories and feeds. */
 fun renderShareCard(data: ShareCardData, template: CardTemplate): Bitmap {
     val width = 1080

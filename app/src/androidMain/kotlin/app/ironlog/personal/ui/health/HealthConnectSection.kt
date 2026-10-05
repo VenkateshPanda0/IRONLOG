@@ -27,7 +27,7 @@ private val WHEN = DateTimeFormatter.ofPattern("d MMM, HH:mm")
 
 /** Settings section: optional read-only sync of steps and sleep from Health Connect. */
 @Composable
-fun HealthConnectSection(c: AppContainer) {
+fun HealthConnectSection(c: app.ironlog.personal.AndroidAppContainer) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val enabled by c.healthSyncEnabled.collectAsState(initial = false)

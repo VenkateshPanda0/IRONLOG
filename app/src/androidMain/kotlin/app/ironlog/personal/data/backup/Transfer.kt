@@ -108,7 +108,6 @@ class BackupArchive(private val backup: BackupRepository, private val photoDir: 
 }
 
 /** What an automatic snapshot would bring back, shown before restoring. */
-data class SnapshotInfo(val name: String, val exportedAt: Long, val workouts: Int, val photos: Int)
 
 /**
  * Keeps a compressed snapshot of all data, plus reduced copies of progress photos, in

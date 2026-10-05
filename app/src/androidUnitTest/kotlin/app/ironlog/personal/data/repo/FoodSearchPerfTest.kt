@@ -16,7 +16,7 @@ import org.robolectric.RuntimeEnvironment
 class FoodSearchPerfTest {
     @Test
     fun staplesRankFirstAndSearchIsFast() = runBlocking {
-        val c = AppContainer(RuntimeEnvironment.getApplication())
+        val c = appContainer()
         c.foodSeed.load()
         // Indian packaged products are found by brand and filtered by cuisine.
         val haldiram = c.nutrition.foods("bhujia", app.ironlog.personal.data.repo.FoodFilter.PACKAGED).first()
@@ -46,4 +46,11 @@ class FoodSearchPerfTest {
             println("SEARCH '$query' -> " + results.take(3).joinToString(" | ") { "${it.name} [${it.source}]" })
         }
     }
+}
+
+/** The app's own container once start-up loading is done; a second one would contend for the database file. */
+private fun appContainer(): app.ironlog.personal.AndroidAppContainer {
+    val app = RuntimeEnvironment.getApplication() as app.ironlog.personal.IronlogApp
+    kotlinx.coroutines.runBlocking { app.startup.join() }
+    return app.container
 }

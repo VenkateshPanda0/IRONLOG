@@ -26,27 +26,27 @@ class PortionDialogTest {
 
     @Test
     fun dialogSettlesWithServings() {
-        val c = AppContainer(RuntimeEnvironment.getApplication())
+        val c = appContainer()
         val food = runBlocking {
             val id = c.nutrition.addCustom("Oats", 379.0, 13.0, 68.0, 7.0)
             c.dao().addServing(FoodServingEntity(foodId = id, label = "1 cup", grams = 81.0))
             FoodEntity(id = id, name = "Oats", kcalPer100g = 379.0, proteinPer100g = 13.0, carbsPer100g = 68.0, fatPer100g = 7.0)
         }
-        compose.setContent { IronlogTheme { PortionDialog(c, food, "BREAKFAST", {}, { _, _ -> }) } }
+        compose.setContent { WithPlatform(c) { PortionDialog(c, food, "BREAKFAST", {}, { _, _ -> }) } }
         compose.waitUntilAtLeastOneExists(hasText("1 cup"), 10_000)
         compose.waitForIdle()
     }
 
     @Test
     fun searchThenOpenPortionSettles() {
-        val c = AppContainer(RuntimeEnvironment.getApplication())
+        val c = appContainer()
         runBlocking {
             val id = c.nutrition.addCustom("Oats, dry", 379.0, 13.0, 68.0, 7.0)
             c.dao().addServing(FoodServingEntity(foodId = id, label = "1 cup", grams = 81.0))
             c.dao().addServing(FoodServingEntity(foodId = id, label = "0.33 cup", grams = 27.0))
         }
         compose.setContent {
-            IronlogTheme {
+            WithPlatform(c) {
                 val controller = androidx.navigation.compose.rememberNavController()
                 app.ironlog.personal.ui.nutrition.FoodSearchScreen(
                     c, app.ironlog.personal.ui.nav.Navigator(controller), "BREAKFAST", LocalDate.now()
@@ -62,22 +62,22 @@ class PortionDialogTest {
 
     @Test
     fun dialogSettlesWithoutServings() {
-        val c = AppContainer(RuntimeEnvironment.getApplication())
+        val c = appContainer()
         val food = runBlocking {
             val id = c.nutrition.addCustom("Plain oats", 379.0, 13.0, 68.0, 7.0)
             FoodEntity(id = id, name = "Plain oats", kcalPer100g = 379.0, proteinPer100g = 13.0, carbsPer100g = 68.0, fatPer100g = 7.0)
         }
-        compose.setContent { IronlogTheme { PortionDialog(c, food, "BREAKFAST", {}, { _, _ -> }) } }
+        compose.setContent { WithPlatform(c) { PortionDialog(c, food, "BREAKFAST", {}, { _, _ -> }) } }
         compose.waitUntilAtLeastOneExists(hasText("ADD"), 10_000)
         compose.waitForIdle()
     }
 
     @Test
     fun realSeedSearchThenOpenPortionSettles() {
-        val c = AppContainer(RuntimeEnvironment.getApplication())
+        val c = appContainer()
         runBlocking { c.foodSeed.load() }
         compose.setContent {
-            IronlogTheme {
+            WithPlatform(c) {
                 val controller = androidx.navigation.compose.rememberNavController()
                 app.ironlog.personal.ui.nutrition.FoodSearchScreen(
                     c, app.ironlog.personal.ui.nav.Navigator(controller), "BREAKFAST", LocalDate.now()
@@ -90,4 +90,11 @@ class PortionDialogTest {
         compose.waitUntilAtLeastOneExists(hasText("ADD"), 10_000)
         compose.waitForIdle()
     }
+}
+
+/** The app's own container once start-up loading is done; a second one would contend for the database file. */
+private fun appContainer(): app.ironlog.personal.AndroidAppContainer {
+    val app = RuntimeEnvironment.getApplication() as app.ironlog.personal.IronlogApp
+    kotlinx.coroutines.runBlocking { app.startup.join() }
+    return app.container
 }

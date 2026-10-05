@@ -35,10 +35,12 @@ import kotlinx.coroutines.launch
  * One inexact daily alarm per enabled reminder. Each firing decides from current data whether to
  * notify, then books the next day, so changes to training days need no rescheduling.
  */
-class ReminderScheduler(private val context: Context) {
+class ReminderScheduler(private val context: Context) : ReminderScheduling {
     private val alarms get() = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-    fun apply(settings: ReminderSettings, now: LocalDateTime = LocalDateTime.now()) {
+    override fun apply(settings: ReminderSettings) = apply(settings, LocalDateTime.now())
+
+    fun apply(settings: ReminderSettings, now: LocalDateTime) {
         set(ReminderKind.WORKOUT, settings.workout, settings.workoutMinutes, now)
         set(ReminderKind.STREAK, settings.streak, settings.streakMinutes, now)
     }
@@ -98,24 +100,7 @@ class ReminderScheduler(private val context: Context) {
         }
 
         /** Reads today's training state from the database. */
-        suspend fun state(app: IronlogApp, today: LocalDate = LocalDate.now()): ReminderState {
-            val c = app.container
-            val zone = ZoneId.systemDefault()
-            val profile = c.profile.first()
-            val dates = c.workouts.history.first().map { Instant.ofEpochMilli(it.startedAt).atZone(zone).toLocalDate() }
-            val active = c.programs.active.first()
-            val next = active?.let { runCatching { c.programs.nextDay(it.programId) }.getOrNull() }
-            val exercises = next?.let { c.programs.prescriptions(it.id).first().size } ?: 0
-            return ReminderState(
-                today = today,
-                trainingDays = Training.parseWeekdays(profile?.trainingWeekdays.orEmpty()),
-                perWeek = profile?.daysPerWeek ?: 3,
-                workoutDates = dates,
-                workoutInProgress = c.workouts.active.first() != null,
-                nextDayName = next?.name,
-                nextDayExercises = exercises,
-            )
-        }
+        suspend fun state(app: IronlogApp, today: LocalDate = LocalDate.now()): ReminderState = app.container.reminderState(today)
     }
 }
 

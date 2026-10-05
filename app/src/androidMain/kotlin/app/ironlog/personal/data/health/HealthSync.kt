@@ -65,14 +65,6 @@ interface HealthTombstones {
     suspend fun clearPendingDeletes(done: Set<String>)
 }
 
-object HealthIds {
-    fun weight(id: Long) = "ironlog-weight-$id"
-
-    fun workout(id: Long) = "ironlog-workout-$id"
-
-    fun cardio(id: Long) = "ironlog-cardio-$id"
-}
-
 object HealthMerge {
     /**
      * Sleep per wake-up date: session length minus awake time, naps included, rounded to 0.1 h.

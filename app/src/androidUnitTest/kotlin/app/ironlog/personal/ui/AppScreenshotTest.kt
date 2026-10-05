@@ -199,6 +199,8 @@ class AppScreenshotTest {
         back()
         compose.onRoot().performTouchInput { swipeDown() }
         compose.onRoot().performTouchInput { swipeDown() }
+        // Let the scroll fling settle so the program card is composed again.
+        compose.waitForIdle()
 
         tap("View program")
         compose.waitUntilAtLeastOneExists(hasText("Schedule", ignoreCase = true), 10_000)
